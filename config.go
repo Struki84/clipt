@@ -20,19 +20,17 @@ type AppConfig struct {
 }
 
 type ConfigData struct {
-	ActiveLLM      string
-	OpenAIAPIToken string
+	ActiveLLM      string `json:"ActiveLLM,omitempty"`
+	OpenAIAPIToken string `json:"OpenAIAPIToken,omitempty"`
 }
 
 func NewConfig() AppConfig {
 	var configData ConfigData
 
-	configFile, err := os.Open("config.json")
+	configFile, err := os.Open("my_config.json")
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	defer configFile.Close()
 
 	decoder := json.NewDecoder(configFile)
 	if err := decoder.Decode(&configData); err != nil {
@@ -45,7 +43,6 @@ func NewConfig() AppConfig {
 }
 
 func (c *AppConfig) AgentLLM() llms.Model {
-
 	llm, err := openai.New(
 		openai.WithModel(c.Data.ActiveLLM),
 		openai.WithToken(c.Data.OpenAIAPIToken),
