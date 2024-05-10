@@ -39,7 +39,7 @@ func NewAgent(config AppConfig) *Agent {
 
 }
 
-func (agent *Agent) Read(ctx context.Context, callback func(ctx context.Context, chunk []byte)) {
+func (agent *Agent) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte)) {
 	agent.callback.ReadFromEgress(ctx, callback)
 }
 
