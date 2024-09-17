@@ -40,7 +40,8 @@ func init() {
 		Use:   "chat",
 		Short: "Run chat UI",
 		Run: func(cmd *cobra.Command, args []string) {
-			ShowUI()
+			agent := NewAgent(config)
+			ShowUI(agent)
 		},
 	}
 
