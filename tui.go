@@ -31,6 +31,8 @@ var inputStyle = lipgloss.NewStyle().
 	BorderTop(true).BorderRight(false).
 	BorderLeft(false).BorderBottom(false)
 
+type responseMsg string
+
 type model struct {
 	agent        *Agent
 	viewport     viewport.Model
@@ -38,6 +40,7 @@ type model struct {
 	textarea     textarea.Model
 	senderStyle  lipgloss.Style
 	err          error
+	streamChan   chan string
 	windowWidth  int
 	windowHeight int
 }
@@ -59,20 +62,13 @@ func initialModel(agent *Agent) model {
 		messages:     []string{},
 		viewport:     vp,
 		senderStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
+		streamChan:   make(chan string),
 		windowWidth:  120,
 		windowHeight: 30,
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	response := ""
-	m.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
-		response += string(chunk)
-		m.messages = append(m.messages, m.senderStyle.Render("Clipt: ")+response)
-		m.viewport.SetContent(strings.Join(m.messages, "\n"))
-		m.viewport.GotoBottom()
-	})
-
 	return textarea.Blink
 }
 
@@ -86,10 +82,26 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case tea.KeyEnter:
 			if m.textarea.Focused() && strings.TrimSpace(m.textarea.Value()) != "" {
-				m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
+				userMessage := m.textarea.Value()
+				m.messages = append(m.messages, m.senderStyle.Render("You: ")+userMessage)
+				m.messages = append(m.messages, m.senderStyle.Render("Clipt: "))
 				m.viewport.SetContent(strings.Join(m.messages, "\n"))
 				m.textarea.Reset()
 				m.viewport.GotoBottom()
+
+				go m.agent.Run(context.Background(), userMessage)
+
+				go func() {
+					m.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
+						m.streamChan <- string(chunk)
+					})
+				}()
+
+				responseCmd := tea.Cmd(func() tea.Msg {
+					return responseMsg(<-m.streamChan)
+				})
+
+				return m, responseCmd
 			}
 		}
 	case tea.WindowSizeMsg:
@@ -100,6 +112,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Height = m.windowHeight - m.textarea.Height() - 10
 		m.textarea.SetWidth(contentWidth)
 		m.viewport.SetContent(strings.Join(m.messages, "\n"))
+	case responseMsg:
+		m.messages[len(m.messages)-1] += string(msg)
+		m.viewport.SetContent(strings.Join(m.messages, "\n"))
+		m.viewport.GotoBottom()
+
+		responseCmd := tea.Cmd(func() tea.Msg {
+			return responseMsg(<-m.streamChan)
+		})
+
+		return m, responseCmd
 	}
 
 	ta, cmd := m.textarea.Update(msg)
