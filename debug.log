@@ -1,0 +1,49 @@
+debug 2024/09/19 23:48:43 Run:  hello
+debug 2024/09/19 23:48:43 Agent running with input: hello
+debug 2024/09/19 23:48:44 Stream chunk: 
+debug 2024/09/19 23:48:44 Stream chunk:  Hello
+debug 2024/09/19 23:49:56 Run:  how are you
+debug 2024/09/19 23:49:56 Agent running with input: how are you
+debug 2024/09/19 23:49:56 Stream chunk: !
+debug 2024/09/19 23:52:42 Run:  hello
+debug 2024/09/19 23:52:42 Agent running with input: hello
+debug 2024/09/19 23:52:43 Stream chunk: 
+debug 2024/09/19 23:52:43 Stream chunk:  Hello
+debug 2024/09/19 23:53:08 Run:  hi
+debug 2024/09/19 23:53:08 Agent running with input: hi
+debug 2024/09/19 23:53:08 Stream chunk: !
+debug 2024/09/19 23:53:56 Run:  hello
+debug 2024/09/19 23:53:56 Agent running with input: hello
+debug 2024/09/19 23:53:57 Stream chunk: 
+debug 2024/09/19 23:53:57 Stream chunk:  Hello
+debug 2024/09/19 23:53:57 Stream chunk: !
+debug 2024/09/19 23:53:58 Stream chunk:  How
+debug 2024/09/19 23:53:58 Stream chunk:  can
+debug 2024/09/19 23:53:58 Stream chunk:  I
+debug 2024/09/19 23:53:58 Stream chunk:  assist
+debug 2024/09/19 23:53:58 Stream chunk:  you
+debug 2024/09/19 23:53:58 Stream chunk:  today
+debug 2024/09/19 23:53:58 Stream chunk: ?
+debug 2024/09/19 23:53:58 Stream chunk: 
+debug 2024/09/19 23:54:58 Run:  How are you?
+debug 2024/09/19 23:54:58 Agent running with input: How are you?
+debug 2024/09/19 23:54:59 handleStream: 
+debug 2024/09/19 23:55:00 handleStream:  don
+debug 2024/09/19 23:55:00 handleStream:  have
+debug 2024/09/19 23:55:00 handleStream:  or
+debug 2024/09/19 23:55:00 handleStream:  experiences
+debug 2024/09/19 23:55:00 handleStream:  but
+debug 2024/09/19 23:55:00 handleStream: 'm
+debug 2024/09/19 23:55:00 handleStream:  to
+debug 2024/09/19 23:55:00 handleStream:  you
+debug 2024/09/19 23:55:00 handleStream:  How
+debug 2024/09/19 23:55:00 handleStream:  I
+debug 2024/09/19 23:55:00 handleStream:  you
+debug 2024/09/19 23:55:00 handleStream: ?
+debug 2024/09/19 23:56:30 Run:  yo!
+debug 2024/09/19 23:56:30 Agent running with input: yo!
+debug 2024/09/19 23:56:32 handleStream: 
+debug 2024/09/19 23:56:32 handleStream:  there
+debug 2024/09/19 23:56:32 handleStream:  What
+debug 2024/09/19 23:56:32 handleStream:  up
+debug 2024/09/19 23:56:32 handleStream: 

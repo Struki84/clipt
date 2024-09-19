@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"github.com/tmc/langchaingo/agents"
 	"github.com/tmc/langchaingo/callbacks"
@@ -44,6 +45,7 @@ func (agent *Agent) Stream(ctx context.Context, callback func(ctx context.Contex
 }
 
 func (agent *Agent) Run(ctx context.Context, input string) error {
+	log.Println("Agent running with input:", input)
 	_, err := chains.Run(ctx, agent.Executor, input)
 	if err != nil {
 		return err

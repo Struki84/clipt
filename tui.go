@@ -12,6 +12,13 @@ import (
 )
 
 func ShowUI(agent *Agent) {
+	file, err := tea.LogToFile("debug.log", "debug")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+
 	p := tea.NewProgram(initialModel(agent), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
@@ -31,7 +38,10 @@ var inputStyle = lipgloss.NewStyle().
 	BorderTop(true).BorderRight(false).
 	BorderLeft(false).BorderBottom(false)
 
-type responseMsg string
+type responseMsg struct {
+	Content string
+	Done    bool
+}
 
 type model struct {
 	agent        *Agent
@@ -43,6 +53,28 @@ type model struct {
 	streamChan   chan string
 	windowWidth  int
 	windowHeight int
+}
+
+func (m model) Init() tea.Cmd {
+	m.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
+		// log.Println("Stream chunk:", string(chunk))
+		m.streamChan <- string(chunk)
+		// m.streamChan <- responseMsg{
+		// 	Content: string(chunk),
+		// 	Done:    false,
+		// }
+	})
+
+	return textarea.Blink
+}
+
+func (m model) handleStream() tea.Msg {
+	log.Println("handleStream:", <-m.streamChan)
+	return responseMsg{
+		Content: <-m.streamChan,
+		Done:    false,
+	}
+	// return <-m.streamChan
 }
 
 func initialModel(agent *Agent) model {
@@ -68,14 +100,19 @@ func initialModel(agent *Agent) model {
 	}
 }
 
-func (m model) Init() tea.Cmd {
-	return textarea.Blink
-}
-
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.windowWidth = msg.Width
+		m.windowHeight = msg.Height
+		contentWidth := min(m.windowWidth-20, 120)
+		m.viewport.Width = contentWidth
+		m.viewport.Height = m.windowHeight - m.textarea.Height() - 10
+		m.textarea.SetWidth(contentWidth + 4)
+		m.viewport.SetContent(strings.Join(m.messages, "\n"))
+
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
@@ -89,39 +126,42 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textarea.Reset()
 				m.viewport.GotoBottom()
 
-				go m.agent.Run(context.Background(), userMessage)
+				// was going to trasnfer this to (m *model)Init() - but then my cat destryed my mbp
+				// go func() {
+				// ctx, cancel := context.WithCancel(context.Background())
+				// defer cancel()
+				//
+				// m.agent.Stream(ctx, func(ctx context.Context, chunk []byte) {
+				// 	log.Println("Stream: ", string(chunk))
+				// 	m.streamChan <- responseMsg{Content: string(chunk), Done: false}
+				// })
+
+				// m.streamChan <- responseMsg{Done: true}
+
+				// log.Println("Stream is done")
+
+				// }()
 
 				go func() {
-					m.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
-						m.streamChan <- string(chunk)
-					})
+					log.Println("Run: ", userMessage)
+					err := m.agent.Run(context.Background(), userMessage)
+					if err != nil {
+						log.Println("Run error:", err)
+					}
 				}()
 
-				responseCmd := tea.Cmd(func() tea.Msg {
-					return responseMsg(<-m.streamChan)
-				})
-
-				return m, responseCmd
+				return m, m.handleStream
 			}
 		}
-	case tea.WindowSizeMsg:
-		m.windowWidth = msg.Width
-		m.windowHeight = msg.Height
-		contentWidth := min(m.windowWidth-20, 120)
-		m.viewport.Width = contentWidth
-		m.viewport.Height = m.windowHeight - m.textarea.Height() - 10
-		m.textarea.SetWidth(contentWidth)
-		m.viewport.SetContent(strings.Join(m.messages, "\n"))
+
 	case responseMsg:
-		m.messages[len(m.messages)-1] += string(msg)
-		m.viewport.SetContent(strings.Join(m.messages, "\n"))
-		m.viewport.GotoBottom()
+		if !msg.Done {
+			// m.messages[len(m.messages)-1] += msg.Content
+			// m.viewport.SetContent(strings.Join(m.messages, "\n"))
+			// m.viewport.GotoBottom()
 
-		responseCmd := tea.Cmd(func() tea.Msg {
-			return responseMsg(<-m.streamChan)
-		})
-
-		return m, responseCmd
+			return m, m.handleStream
+		}
 	}
 
 	ta, cmd := m.textarea.Update(msg)
