@@ -1,49 +1,310 @@
-debug 2024/09/19 23:48:43 Run:  hello
-debug 2024/09/19 23:48:43 Agent running with input: hello
-debug 2024/09/19 23:48:44 Stream chunk: 
-debug 2024/09/19 23:48:44 Stream chunk:  Hello
-debug 2024/09/19 23:49:56 Run:  how are you
-debug 2024/09/19 23:49:56 Agent running with input: how are you
-debug 2024/09/19 23:49:56 Stream chunk: !
-debug 2024/09/19 23:52:42 Run:  hello
-debug 2024/09/19 23:52:42 Agent running with input: hello
-debug 2024/09/19 23:52:43 Stream chunk: 
-debug 2024/09/19 23:52:43 Stream chunk:  Hello
-debug 2024/09/19 23:53:08 Run:  hi
-debug 2024/09/19 23:53:08 Agent running with input: hi
-debug 2024/09/19 23:53:08 Stream chunk: !
-debug 2024/09/19 23:53:56 Run:  hello
-debug 2024/09/19 23:53:56 Agent running with input: hello
-debug 2024/09/19 23:53:57 Stream chunk: 
-debug 2024/09/19 23:53:57 Stream chunk:  Hello
-debug 2024/09/19 23:53:57 Stream chunk: !
-debug 2024/09/19 23:53:58 Stream chunk:  How
-debug 2024/09/19 23:53:58 Stream chunk:  can
-debug 2024/09/19 23:53:58 Stream chunk:  I
-debug 2024/09/19 23:53:58 Stream chunk:  assist
-debug 2024/09/19 23:53:58 Stream chunk:  you
-debug 2024/09/19 23:53:58 Stream chunk:  today
-debug 2024/09/19 23:53:58 Stream chunk: ?
-debug 2024/09/19 23:53:58 Stream chunk: 
-debug 2024/09/19 23:54:58 Run:  How are you?
-debug 2024/09/19 23:54:58 Agent running with input: How are you?
-debug 2024/09/19 23:54:59 handleStream: 
-debug 2024/09/19 23:55:00 handleStream:  don
-debug 2024/09/19 23:55:00 handleStream:  have
-debug 2024/09/19 23:55:00 handleStream:  or
-debug 2024/09/19 23:55:00 handleStream:  experiences
-debug 2024/09/19 23:55:00 handleStream:  but
-debug 2024/09/19 23:55:00 handleStream: 'm
-debug 2024/09/19 23:55:00 handleStream:  to
-debug 2024/09/19 23:55:00 handleStream:  you
-debug 2024/09/19 23:55:00 handleStream:  How
-debug 2024/09/19 23:55:00 handleStream:  I
-debug 2024/09/19 23:55:00 handleStream:  you
-debug 2024/09/19 23:55:00 handleStream: ?
-debug 2024/09/19 23:56:30 Run:  yo!
-debug 2024/09/19 23:56:30 Agent running with input: yo!
-debug 2024/09/19 23:56:32 handleStream: 
-debug 2024/09/19 23:56:32 handleStream:  there
-debug 2024/09/19 23:56:32 handleStream:  What
-debug 2024/09/19 23:56:32 handleStream:  up
-debug 2024/09/19 23:56:32 handleStream: 
+debug 2024/09/20 00:10:35 Run:  hello
+debug 2024/09/20 00:10:35 Agent running with input: hello
+debug 2024/09/20 00:12:30 Run:  what's up?
+debug 2024/09/20 00:12:30 Agent running with input: what's up?
+debug 2024/09/20 00:16:39 Run:  hello hello
+debug 2024/09/20 00:16:39 Agent running with input: hello hello
+debug 2024/09/20 00:16:41 handleStream: 
+debug 2024/09/20 00:16:41 handleStream: !
+debug 2024/09/20 00:16:41 handleStream:  can
+debug 2024/09/20 00:16:41 handleStream:  assist
+debug 2024/09/20 00:16:41 handleStream:  today
+debug 2024/09/20 00:16:41 handleStream: 
+debug 2024/09/20 20:38:53 Run:  hello
+debug 2024/09/20 20:38:53 Agent running with input: hello
+debug 2024/09/20 20:38:55 handleStream: 
+debug 2024/09/20 20:38:55 handleStream: !
+debug 2024/09/20 20:38:55 handleStream:  can
+debug 2024/09/20 20:38:55 handleStream:  assist
+debug 2024/09/20 20:38:55 handleStream:  today
+debug 2024/09/20 20:38:55 handleStream: 
+debug 2024/09/20 20:39:26 Run:  hello
+debug 2024/09/20 20:39:26 Agent running with input: hello
+debug 2024/09/20 20:39:27 handleStream: 
+debug 2024/09/20 20:39:27 handleStream: !
+debug 2024/09/20 20:39:27 handleStream:  can
+debug 2024/09/20 20:39:27 handleStream:  assist
+debug 2024/09/20 20:39:27 handleStream:  today
+debug 2024/09/20 20:39:27 handleStream: 
+debug 2024/09/20 20:40:20 Run:  hi
+debug 2024/09/20 20:40:20 Agent running with input: hi
+debug 2024/09/20 20:40:23 Stream chunk: 
+debug 2024/09/20 20:40:23 Stream chunk:  Hello
+debug 2024/09/20 20:40:23 Stream chunk: !
+debug 2024/09/20 20:40:23 Stream chunk:  How
+debug 2024/09/20 20:40:23 Stream chunk:  can
+debug 2024/09/20 20:40:23 Stream chunk:  I
+debug 2024/09/20 20:40:23 Stream chunk:  assist
+debug 2024/09/20 20:40:23 Stream chunk:  you
+debug 2024/09/20 20:40:23 Stream chunk:  today
+debug 2024/09/20 20:40:23 Stream chunk: ?
+debug 2024/09/20 20:40:23 Stream chunk: 
+debug 2024/09/20 20:41:56 Run:  just testing...
+debug 2024/09/20 20:41:56 Agent running with input: just testing...
+debug 2024/09/20 20:41:57 Stream chunk: 
+debug 2024/09/20 20:41:57 Stream chunk: Thought
+debug 2024/09/20 20:41:57 Stream chunk: :
+debug 2024/09/20 20:41:57 Stream chunk:  The
+debug 2024/09/20 20:41:57 Stream chunk:  input
+debug 2024/09/20 20:41:57 Stream chunk:  "
+debug 2024/09/20 20:41:57 Stream chunk: just
+debug 2024/09/20 20:41:57 Stream chunk:  testing
+debug 2024/09/20 20:41:57 Stream chunk: ..."
+debug 2024/09/20 20:41:57 Stream chunk:  seems
+debug 2024/09/20 20:41:57 Stream chunk:  to
+debug 2024/09/20 20:41:57 Stream chunk:  be
+debug 2024/09/20 20:41:57 Stream chunk:  a
+debug 2024/09/20 20:41:57 Stream chunk:  placeholder
+debug 2024/09/20 20:41:57 Stream chunk:  or
+debug 2024/09/20 20:41:57 Stream chunk:  a
+debug 2024/09/20 20:41:57 Stream chunk:  check
+debug 2024/09/20 20:41:57 Stream chunk:  to
+debug 2024/09/20 20:41:58 Stream chunk:  see
+debug 2024/09/20 20:41:58 Stream chunk:  if
+debug 2024/09/20 20:41:58 Stream chunk:  the
+debug 2024/09/20 20:41:58 Stream chunk:  system
+debug 2024/09/20 20:41:58 Stream chunk:  is
+debug 2024/09/20 20:41:58 Stream chunk:  operational
+debug 2024/09/20 20:41:58 Stream chunk: .
+debug 2024/09/20 20:41:58 Stream chunk:  There
+debug 2024/09/20 20:41:58 Stream chunk:  is
+debug 2024/09/20 20:41:58 Stream chunk:  no
+debug 2024/09/20 20:41:58 Stream chunk:  specific
+debug 2024/09/20 20:41:58 Stream chunk:  question
+debug 2024/09/20 20:41:58 Stream chunk:  to
+debug 2024/09/20 20:41:58 Stream chunk:  answer
+debug 2024/09/20 20:41:58 Stream chunk: .
+
+
+debug 2024/09/20 20:41:58 Stream chunk: Final
+debug 2024/09/20 20:41:58 Stream chunk:  Answer
+debug 2024/09/20 20:41:58 Stream chunk: :
+debug 2024/09/20 20:41:58 Stream chunk:  System
+debug 2024/09/20 20:41:58 Stream chunk:  is
+debug 2024/09/20 20:41:58 Stream chunk:  operational
+debug 2024/09/20 20:41:58 Stream chunk: .
+debug 2024/09/20 20:41:58 Stream chunk:  Ready
+debug 2024/09/20 20:41:58 Stream chunk:  to
+debug 2024/09/20 20:41:58 Stream chunk:  respond
+debug 2024/09/20 20:41:58 Stream chunk:  to
+debug 2024/09/20 20:41:58 Stream chunk:  queries
+debug 2024/09/20 20:41:58 Stream chunk: .
+debug 2024/09/20 20:41:58 Stream chunk: 
+debug 2024/09/20 20:42:31 Run:  What can you do?
+debug 2024/09/20 20:42:31 Agent running with input: What can you do?
+debug 2024/09/20 20:42:32 Stream chunk: 
+debug 2024/09/20 20:42:32 Stream chunk: Thought
+debug 2024/09/20 20:42:32 Stream chunk: :
+debug 2024/09/20 20:42:32 Stream chunk:  The
+debug 2024/09/20 20:42:32 Stream chunk:  user
+debug 2024/09/20 20:42:32 Stream chunk:  is
+debug 2024/09/20 20:42:32 Stream chunk:  asking
+debug 2024/09/20 20:42:32 Stream chunk:  about
+debug 2024/09/20 20:42:32 Stream chunk:  the
+debug 2024/09/20 20:42:32 Stream chunk:  capabilities
+debug 2024/09/20 20:42:32 Stream chunk:  or
+debug 2024/09/20 20:42:32 Stream chunk:  functions
+debug 2024/09/20 20:42:32 Stream chunk:  I
+debug 2024/09/20 20:42:32 Stream chunk:  can
+debug 2024/09/20 20:42:32 Stream chunk:  perform
+debug 2024/09/20 20:42:32 Stream chunk: .
+
+debug 2024/09/20 20:42:32 Stream chunk: Action
+debug 2024/09/20 20:42:32 Stream chunk: :
+debug 2024/09/20 20:42:32 Stream chunk:  Provide
+debug 2024/09/20 20:42:32 Stream chunk:  a
+debug 2024/09/20 20:42:32 Stream chunk:  list
+debug 2024/09/20 20:42:32 Stream chunk:  of
+debug 2024/09/20 20:42:32 Stream chunk:  general
+debug 2024/09/20 20:42:32 Stream chunk:  capabilities
+debug 2024/09/20 20:42:32 Stream chunk:  based
+debug 2024/09/20 20:42:32 Stream chunk:  on
+debug 2024/09/20 20:42:32 Stream chunk:  the
+debug 2024/09/20 20:42:32 Stream chunk:  tools
+debug 2024/09/20 20:42:32 Stream chunk:  and
+debug 2024/09/20 20:42:33 Stream chunk:  functions
+debug 2024/09/20 20:42:33 Stream chunk:  available
+debug 2024/09/20 20:42:33 Stream chunk:  to
+debug 2024/09/20 20:42:33 Stream chunk:  me
+debug 2024/09/20 20:42:33 Stream chunk:  as
+debug 2024/09/20 20:42:33 Stream chunk:  an
+debug 2024/09/20 20:42:33 Stream chunk:  AI
+debug 2024/09/20 20:42:33 Stream chunk:  developed
+debug 2024/09/20 20:42:33 Stream chunk:  by
+debug 2024/09/20 20:42:33 Stream chunk:  Open
+debug 2024/09/20 20:42:33 Stream chunk: AI
+debug 2024/09/20 20:42:33 Stream chunk: .
+
+debug 2024/09/20 20:42:33 Stream chunk: Final
+debug 2024/09/20 20:42:33 Stream chunk:  Answer
+debug 2024/09/20 20:42:33 Stream chunk: :
+debug 2024/09/20 20:42:33 Stream chunk:  I
+debug 2024/09/20 20:42:33 Stream chunk:  can
+debug 2024/09/20 20:42:33 Stream chunk:  assist
+debug 2024/09/20 20:42:33 Stream chunk:  with
+debug 2024/09/20 20:42:33 Stream chunk:  a
+debug 2024/09/20 20:42:33 Stream chunk:  variety
+debug 2024/09/20 20:42:33 Stream chunk:  of
+debug 2024/09/20 20:42:33 Stream chunk:  tasks
+debug 2024/09/20 20:42:33 Stream chunk:  including
+debug 2024/09/20 20:42:33 Stream chunk:  answering
+debug 2024/09/20 20:42:33 Stream chunk:  questions
+debug 2024/09/20 20:42:33 Stream chunk: ,
+debug 2024/09/20 20:42:33 Stream chunk:  providing
+debug 2024/09/20 20:42:33 Stream chunk:  explanations
+debug 2024/09/20 20:42:33 Stream chunk: ,
+debug 2024/09/20 20:42:33 Stream chunk:  generating
+debug 2024/09/20 20:42:33 Stream chunk:  text
+debug 2024/09/20 20:42:33 Stream chunk: ,
+debug 2024/09/20 20:42:33 Stream chunk:  summar
+debug 2024/09/20 20:42:33 Stream chunk: izing
+debug 2024/09/20 20:42:33 Stream chunk:  information
+debug 2024/09/20 20:42:33 Stream chunk: ,
+debug 2024/09/20 20:42:33 Stream chunk:  translating
+debug 2024/09/20 20:42:33 Stream chunk:  languages
+debug 2024/09/20 20:42:33 Stream chunk: ,
+debug 2024/09/20 20:42:33 Stream chunk:  and
+debug 2024/09/20 20:42:34 Stream chunk:  offering
+debug 2024/09/20 20:42:34 Stream chunk:  recommendations
+debug 2024/09/20 20:42:34 Stream chunk: .
+debug 2024/09/20 20:42:34 Stream chunk:  I
+debug 2024/09/20 20:42:34 Stream chunk:  can
+debug 2024/09/20 20:42:34 Stream chunk:  also
+debug 2024/09/20 20:42:34 Stream chunk:  help
+debug 2024/09/20 20:42:34 Stream chunk:  with
+debug 2024/09/20 20:42:34 Stream chunk:  more
+debug 2024/09/20 20:42:34 Stream chunk:  specific
+debug 2024/09/20 20:42:34 Stream chunk:  tasks
+debug 2024/09/20 20:42:34 Stream chunk:  depending
+debug 2024/09/20 20:42:34 Stream chunk:  on
+debug 2024/09/20 20:42:34 Stream chunk:  the
+debug 2024/09/20 20:42:34 Stream chunk:  context
+debug 2024/09/20 20:42:34 Stream chunk:  or
+debug 2024/09/20 20:42:34 Stream chunk:  subject
+debug 2024/09/20 20:42:34 Stream chunk:  matter
+debug 2024/09/20 20:42:34 Stream chunk:  you
+debug 2024/09/20 20:42:34 Stream chunk:  are
+debug 2024/09/20 20:42:34 Stream chunk:  interested
+debug 2024/09/20 20:42:34 Stream chunk:  in
+debug 2024/09/20 20:42:34 Stream chunk: .
+debug 2024/09/20 20:42:34 Stream chunk: 
+debug 2024/09/20 20:44:52 Run:  do you have any tools?
+debug 2024/09/20 20:44:52 Agent running with input: do you have any tools?
+debug 2024/09/20 20:44:52 Stream chunk: 
+debug 2024/09/20 20:44:52 Stream chunk: Thought
+debug 2024/09/20 20:44:52 Stream chunk: :
+debug 2024/09/20 20:44:52 Stream chunk:  The
+debug 2024/09/20 20:44:52 Stream chunk:  user
+debug 2024/09/20 20:44:52 Stream chunk:  is
+debug 2024/09/20 20:44:52 Stream chunk:  asking
+debug 2024/09/20 20:44:52 Stream chunk:  about
+debug 2024/09/20 20:44:52 Stream chunk:  the
+debug 2024/09/20 20:44:52 Stream chunk:  tools
+debug 2024/09/20 20:44:53 Stream chunk:  available
+debug 2024/09/20 20:44:53 Stream chunk:  to
+debug 2024/09/20 20:44:53 Stream chunk:  me
+debug 2024/09/20 20:44:53 Stream chunk:  for
+debug 2024/09/20 20:44:53 Stream chunk:  processing
+debug 2024/09/20 20:44:53 Stream chunk:  their
+debug 2024/09/20 20:44:53 Stream chunk:  queries
+debug 2024/09/20 20:44:53 Stream chunk: .
+
+
+debug 2024/09/20 20:44:53 Stream chunk: Action
+debug 2024/09/20 20:44:53 Stream chunk: :
+debug 2024/09/20 20:44:53 Stream chunk:  Review
+debug 2024/09/20 20:44:53 Stream chunk:  the
+debug 2024/09/20 20:44:53 Stream chunk:  provided
+debug 2024/09/20 20:44:53 Stream chunk:  information
+debug 2024/09/20 20:44:53 Stream chunk:  and
+debug 2024/09/20 20:44:53 Stream chunk:  context
+debug 2024/09/20 20:44:53 Stream chunk:  to
+debug 2024/09/20 20:44:53 Stream chunk:  determine
+debug 2024/09/20 20:44:53 Stream chunk:  what
+debug 2024/09/20 20:44:53 Stream chunk:  tools
+debug 2024/09/20 20:44:53 Stream chunk:  are
+debug 2024/09/20 20:44:53 Stream chunk:  mentioned
+debug 2024/09/20 20:44:53 Stream chunk:  or
+debug 2024/09/20 20:44:53 Stream chunk:  implied
+debug 2024/09/20 20:44:53 Stream chunk: .
+
+debug 2024/09/20 20:44:53 Stream chunk: 
+debug 2024/09/20 20:44:53 Run error: unable to parse agent output: Thought: The user is asking about the tools available to me for processing their queries.
+
+Action: Review the provided information and context to determine what tools are mentioned or implied.
+debug 2024/09/20 20:45:33 Run:  ok nvm
+debug 2024/09/20 20:45:33 Agent running with input: ok nvm
+debug 2024/09/20 20:45:34 Stream chunk: 
+debug 2024/09/20 20:45:34 Stream chunk: Question
+debug 2024/09/20 20:45:34 Stream chunk: :
+debug 2024/09/20 20:45:34 Stream chunk:  ok
+debug 2024/09/20 20:45:34 Stream chunk:  n
+debug 2024/09/20 20:45:34 Stream chunk: vm
+debug 2024/09/20 20:45:34 Stream chunk: 
+
+debug 2024/09/20 20:45:34 Stream chunk: Thought
+debug 2024/09/20 20:45:34 Stream chunk: :
+debug 2024/09/20 20:45:34 Stream chunk:  The
+debug 2024/09/20 20:45:34 Stream chunk:  input
+debug 2024/09/20 20:45:34 Stream chunk:  "
+debug 2024/09/20 20:45:34 Stream chunk: ok
+debug 2024/09/20 20:45:34 Stream chunk:  n
+debug 2024/09/20 20:45:34 Stream chunk: vm
+debug 2024/09/20 20:45:34 Stream chunk: "
+debug 2024/09/20 20:45:34 Stream chunk:  seems
+debug 2024/09/20 20:45:34 Stream chunk:  to
+debug 2024/09/20 20:45:34 Stream chunk:  be
+debug 2024/09/20 20:45:34 Stream chunk:  an
+debug 2024/09/20 20:45:34 Stream chunk:  abbreviation
+debug 2024/09/20 20:45:34 Stream chunk:  for
+debug 2024/09/20 20:45:34 Stream chunk:  "
+debug 2024/09/20 20:45:34 Stream chunk: okay
+debug 2024/09/20 20:45:34 Stream chunk: ,
+debug 2024/09/20 20:45:34 Stream chunk:  never
+debug 2024/09/20 20:45:34 Stream chunk:  mind
+debug 2024/09/20 20:45:34 Stream chunk: ,"
+debug 2024/09/20 20:45:34 Stream chunk:  which
+debug 2024/09/20 20:45:34 Stream chunk:  indicates
+debug 2024/09/20 20:45:34 Stream chunk:  that
+debug 2024/09/20 20:45:34 Stream chunk:  the
+debug 2024/09/20 20:45:34 Stream chunk:  user
+debug 2024/09/20 20:45:34 Stream chunk:  is
+debug 2024/09/20 20:45:34 Stream chunk:  retract
+debug 2024/09/20 20:45:34 Stream chunk: ing
+debug 2024/09/20 20:45:34 Stream chunk:  their
+debug 2024/09/20 20:45:34 Stream chunk:  request
+debug 2024/09/20 20:45:34 Stream chunk:  or
+debug 2024/09/20 20:45:35 Stream chunk:  question
+debug 2024/09/20 20:45:35 Stream chunk: .
+debug 2024/09/20 20:45:35 Stream chunk:  There
+debug 2024/09/20 20:45:35 Stream chunk:  is
+debug 2024/09/20 20:45:35 Stream chunk:  no
+debug 2024/09/20 20:45:35 Stream chunk:  specific
+debug 2024/09/20 20:45:35 Stream chunk:  question
+debug 2024/09/20 20:45:35 Stream chunk:  to
+debug 2024/09/20 20:45:35 Stream chunk:  answer
+debug 2024/09/20 20:45:35 Stream chunk: .
+
+debug 2024/09/20 20:45:35 Stream chunk: Final
+debug 2024/09/20 20:45:35 Stream chunk:  Answer
+debug 2024/09/20 20:45:35 Stream chunk: :
+debug 2024/09/20 20:45:35 Stream chunk:  Under
+debug 2024/09/20 20:45:35 Stream chunk: stood
+debug 2024/09/20 20:45:35 Stream chunk: ,
+debug 2024/09/20 20:45:35 Stream chunk:  no
+debug 2024/09/20 20:45:35 Stream chunk:  action
+debug 2024/09/20 20:45:35 Stream chunk:  needed
+debug 2024/09/20 20:45:35 Stream chunk: .
+debug 2024/09/20 20:45:35 Stream chunk:  If
+debug 2024/09/20 20:45:35 Stream chunk:  you
+debug 2024/09/20 20:45:35 Stream chunk:  have
+debug 2024/09/20 20:45:35 Stream chunk:  any
+debug 2024/09/20 20:45:35 Stream chunk:  other
+debug 2024/09/20 20:45:35 Stream chunk:  questions
+debug 2024/09/20 20:45:35 Stream chunk: ,
+debug 2024/09/20 20:45:35 Stream chunk:  feel
+debug 2024/09/20 20:45:35 Stream chunk:  free
+debug 2024/09/20 20:45:35 Stream chunk:  to
+debug 2024/09/20 20:45:35 Stream chunk:  ask
+debug 2024/09/20 20:45:35 Stream chunk: !
+debug 2024/09/20 20:45:35 Stream chunk: 

@@ -57,24 +57,24 @@ type model struct {
 
 func (m model) Init() tea.Cmd {
 	m.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
-		// log.Println("Stream chunk:", string(chunk))
+		log.Println("Stream chunk:", string(chunk))
 		m.streamChan <- string(chunk)
-		// m.streamChan <- responseMsg{
-		// 	Content: string(chunk),
-		// 	Done:    false,
-		// }
 	})
 
-	return textarea.Blink
+	cmds := []tea.Cmd{}
+
+	cmds = append(cmds, textarea.Blink)
+	cmds = append(cmds, m.handleStream)
+
+	return tea.Batch(cmds...)
 }
 
 func (m model) handleStream() tea.Msg {
-	log.Println("handleStream:", <-m.streamChan)
+	// log.Println("handleStream:", <-m.streamChan)
 	return responseMsg{
 		Content: <-m.streamChan,
 		Done:    false,
 	}
-	// return <-m.streamChan
 }
 
 func initialModel(agent *Agent) model {
@@ -150,15 +150,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 				}()
 
-				return m, m.handleStream
+				return m, nil
 			}
 		}
 
 	case responseMsg:
 		if !msg.Done {
-			// m.messages[len(m.messages)-1] += msg.Content
-			// m.viewport.SetContent(strings.Join(m.messages, "\n"))
-			// m.viewport.GotoBottom()
+			m.messages[len(m.messages)-1] += msg.Content
+			m.viewport.SetContent(strings.Join(m.messages, "\n"))
+			m.viewport.GotoBottom()
 
 			return m, m.handleStream
 		}
