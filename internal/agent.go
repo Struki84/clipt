@@ -1,11 +1,12 @@
-package main
+package internal
 
 import (
 	"context"
 	"log"
 
+	"github.com/struki84/clipt/config"
+	"github.com/struki84/clipt/internal/callbacks"
 	"github.com/tmc/langchaingo/agents"
-	"github.com/tmc/langchaingo/callbacks"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/tools"
@@ -14,27 +15,24 @@ import (
 type Agent struct {
 	LLM      llms.Model
 	Tools    []tools.Tool
-	callback *callbacks.AgentFinalStreamHandler
+	callback *callbacks.StreamHandler
 	Executor *agents.Executor
 }
 
-func NewAgent(config AppConfig) *Agent {
+func NewAgent(config config.AppConfig) *Agent {
 	agent := &Agent{}
 
-	agent.callback = callbacks.NewFinalStreamHandler()
+	agent.callback = callbacks.NewStreamHandler()
 
 	agent.LLM = config.AgentLLM()
 
-	mainAgent := agents.NewOneShotAgent(
+	mainAgent := agents.NewConversationalAgent(
 		agent.LLM,
 		agent.Tools,
 		agents.WithCallbacksHandler(agent.callback),
 	)
 
-	agent.Executor = agents.NewExecutor(
-		mainAgent,
-		agent.Tools,
-	)
+	agent.Executor = agents.NewExecutor(mainAgent)
 
 	return agent
 

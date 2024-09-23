@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
+	"github.com/tmc/langchaingo/tools"
 )
 
 type config interface {
@@ -27,7 +28,7 @@ type ConfigData struct {
 func NewConfig() AppConfig {
 	var configData ConfigData
 
-	configFile, err := os.Open("my_config.json")
+	configFile, err := os.Open("./my_config.json")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -42,10 +43,10 @@ func NewConfig() AppConfig {
 	}
 }
 
-func (c *AppConfig) AgentLLM() llms.Model {
+func (config *AppConfig) AgentLLM() llms.Model {
 	llm, err := openai.New(
-		openai.WithModel(c.Data.ActiveLLM),
-		openai.WithToken(c.Data.OpenAIAPIToken),
+		openai.WithModel(config.Data.ActiveLLM),
+		openai.WithToken(config.Data.OpenAIAPIToken),
 	)
 
 	if err != nil {
@@ -54,4 +55,9 @@ func (c *AppConfig) AgentLLM() llms.Model {
 	}
 
 	return llm
+}
+
+func (config *AppConfig) GetTools() []tools.Tool {
+
+	return []tools.Tool{}
 }

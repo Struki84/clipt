@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/struki84/clipt/config"
+	"github.com/struki84/clipt/internal"
 )
 
 var cliptCmd = &cobra.Command{
@@ -15,14 +17,14 @@ var cliptCmd = &cobra.Command{
 }
 
 func init() {
-	config := NewConfig()
+	appConfig := config.NewConfig()
 
 	promptCmd := &cobra.Command{
 		Use:   "prompt",
 		Short: "Run a prompt.",
 		Long:  "",
 		Run: func(cmd *cobra.Command, args []string) {
-			agent := NewAgent(config)
+			agent := internal.NewAgent(appConfig)
 
 			agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
 				fmt.Print(string(chunk))
@@ -40,7 +42,7 @@ func init() {
 		Use:   "chat",
 		Short: "Run chat UI",
 		Run: func(cmd *cobra.Command, args []string) {
-			agent := NewAgent(config)
+			agent := internal.NewAgent(appConfig)
 			ShowUI(agent)
 		},
 	}

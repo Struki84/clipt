@@ -9,9 +9,10 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/struki84/clipt/internal"
 )
 
-func ShowUI(agent *Agent) {
+func ShowUI(agent *internal.Agent) {
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +45,7 @@ type responseMsg struct {
 }
 
 type model struct {
-	agent        *Agent
+	agent        *internal.Agent
 	viewport     viewport.Model
 	messages     []string
 	textarea     textarea.Model
@@ -77,7 +78,7 @@ func (m model) handleStream() tea.Msg {
 	}
 }
 
-func initialModel(agent *Agent) model {
+func initialModel(agent *internal.Agent) model {
 	vp := viewport.New(120, 30)
 	vp.SetContent(`Welcome to the chat room! Type a message and press Enter to send.`)
 
@@ -125,22 +126,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.viewport.SetContent(strings.Join(m.messages, "\n"))
 				m.textarea.Reset()
 				m.viewport.GotoBottom()
-
-				// was going to trasnfer this to (m *model)Init() - but then my cat destryed my mbp
-				// go func() {
-				// ctx, cancel := context.WithCancel(context.Background())
-				// defer cancel()
-				//
-				// m.agent.Stream(ctx, func(ctx context.Context, chunk []byte) {
-				// 	log.Println("Stream: ", string(chunk))
-				// 	m.streamChan <- responseMsg{Content: string(chunk), Done: false}
-				// })
-
-				// m.streamChan <- responseMsg{Done: true}
-
-				// log.Println("Stream is done")
-
-				// }()
 
 				go func() {
 					log.Println("Run: ", userMessage)
