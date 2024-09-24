@@ -2,9 +2,12 @@ package callbacks
 
 import (
 	"context"
+	"log"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/tmc/langchaingo/callbacks"
+	"github.com/tmc/langchaingo/schema"
 )
 
 // DefaultKeywords is map of the agents final out prefix keywords.
@@ -29,6 +32,13 @@ type StreamHandler struct {
 var _ callbacks.Handler = &StreamHandler{}
 
 func NewStreamHandler(keywords ...string) *StreamHandler {
+	file, err := tea.LogToFile("./debug.log", "debug")
+	if err != nil {
+		log.Println("Streamer handler error:", err)
+	}
+
+	defer file.Close()
+
 	if len(keywords) > 0 {
 		DefaultKeywords = keywords
 	}
@@ -54,9 +64,45 @@ func (handler *StreamHandler) ReadFromEgress(ctx context.Context, callback func(
 	}()
 }
 
+func (handler *StreamHandler) HandleChainStart(ctx context.Context, inputs map[string]any) {
+	handler.PrintOutput = false
+	handler.KeywordDetected = false
+
+	log.Println("Chain started")
+
+}
+
+func (handler *StreamHandler) HandleChainEnd(ctx context.Context, outputs map[string]any) {
+
+	log.Println("Chain finished")
+
+}
+
+func (handler *StreamHandler) HandleChainError(ctx context.Context, err error) {
+
+	log.Println("Chain error:", err)
+
+}
+
+func (handler *StreamHandler) HandleAgentAction(ctx context.Context, action schema.AgentAction) {
+
+	log.Println("Agent action")
+
+}
+
+func (handler *StreamHandler) HandleAgentFinish(ctx context.Context, finish schema.AgentFinish) {
+
+	log.Println("Agent finished")
+
+}
+
 func (handler *StreamHandler) HandleStreamingFunc(ctx context.Context, chunk []byte) {
 	chunkStr := string(chunk)
 	handler.LastTokens += chunkStr
+
+	// log.Println("Streaming tokens:", chunkStr)
+	log.Println("Keyword detected:", handler.KeywordDetected)
+	log.Println("Print output:", handler.PrintOutput)
 
 	// Buffer the last few chunks to match the longest keyword size
 	longestSize := len(handler.Keywords[0])
@@ -84,6 +130,7 @@ func (handler *StreamHandler) HandleStreamingFunc(ctx context.Context, chunk []b
 
 	// Print the final output after the detection of keyword.
 	if handler.PrintOutput {
+		log.Println("Final output:", chunkStr)
 		handler.egress <- chunk
 	}
 }

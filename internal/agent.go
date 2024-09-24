@@ -26,6 +26,8 @@ func NewAgent(config config.AppConfig) *Agent {
 
 	agent.LLM = config.AgentLLM()
 
+	agent.Tools = config.GetTools()
+
 	mainAgent := agents.NewConversationalAgent(
 		agent.LLM,
 		agent.Tools,
@@ -35,7 +37,6 @@ func NewAgent(config config.AppConfig) *Agent {
 	agent.Executor = agents.NewExecutor(mainAgent)
 
 	return agent
-
 }
 
 func (agent *Agent) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte)) {

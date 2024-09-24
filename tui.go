@@ -58,7 +58,7 @@ type model struct {
 
 func (m model) Init() tea.Cmd {
 	m.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
-		log.Println("Stream chunk:", string(chunk))
+		// log.Println("Stream chunk:", string(chunk))
 		m.streamChan <- string(chunk)
 	})
 
