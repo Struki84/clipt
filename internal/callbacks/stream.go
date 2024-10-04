@@ -100,10 +100,6 @@ func (handler *StreamHandler) HandleStreamingFunc(ctx context.Context, chunk []b
 	chunkStr := string(chunk)
 	handler.LastTokens += chunkStr
 
-	// log.Println("Streaming tokens:", chunkStr)
-	log.Println("Keyword detected:", handler.KeywordDetected)
-	log.Println("Print output:", handler.PrintOutput)
-
 	// Buffer the last few chunks to match the longest keyword size
 	longestSize := len(handler.Keywords[0])
 	for _, k := range handler.Keywords {
@@ -130,7 +126,6 @@ func (handler *StreamHandler) HandleStreamingFunc(ctx context.Context, chunk []b
 
 	// Print the final output after the detection of keyword.
 	if handler.PrintOutput {
-		log.Println("Final output:", chunkStr)
 		handler.egress <- chunk
 	}
 }
