@@ -48,6 +48,16 @@ func init() {
 	}
 
 	cliptCmd.AddCommand(chatCmd)
+
+	nodeCmd := &cobra.Command{
+		Use:   "node",
+		Short: "Run node",
+		Run: func(cmd *cobra.Command, args []string) {
+			RunNode()
+		},
+	}
+
+	cliptCmd.AddCommand(nodeCmd)
 }
 func main() {
 	if err := cliptCmd.Execute(); err != nil {
