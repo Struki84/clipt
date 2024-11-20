@@ -53,12 +53,16 @@ func init() {
 		Use:   "node",
 		Short: "Run node",
 		Run: func(cmd *cobra.Command, args []string) {
-			RunNode()
+			if err := RunNode(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error running node: %v\n", err)
+				os.Exit(1)
+			}
 		},
 	}
 
 	cliptCmd.AddCommand(nodeCmd)
 }
+
 func main() {
 	if err := cliptCmd.Execute(); err != nil {
 		fmt.Println(err)
