@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/struki84/clipt/config"
 	"github.com/struki84/clipt/internal"
+	"github.com/struki84/clipt/ui"
 )
 
 var cliptCmd = &cobra.Command{
@@ -61,6 +62,17 @@ func init() {
 	}
 
 	cliptCmd.AddCommand(nodeCmd)
+
+	uiCmd := &cobra.Command{
+		Use:   "ui",
+		Short: "Run UI",
+		Run: func(cmd *cobra.Command, args []string) {
+			ui.ShowUI()
+			// ui.ShowTestUI()
+		},
+	}
+
+	cliptCmd.AddCommand(uiCmd)
 }
 
 func main() {
