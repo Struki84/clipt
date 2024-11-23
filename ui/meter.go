@@ -33,7 +33,7 @@ func (v *VUMeter) renderBar(level int) []string {
 	redStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("196"))
 	yellowStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("220"))
 	greenStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("46"))
-	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("242"))
+	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("0"))
 
 	var lines []string
 	bar := strings.Repeat(v.Character, v.BarWidth)

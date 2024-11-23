@@ -38,8 +38,8 @@ func (layout layout) View() string {
 	leftColumnHeight := layout.windowSize.Height - 2
 
 	// Calculate approximate section heights
-	menuHeight := leftColumnHeight / 6
-	infoHeight := leftColumnHeight / 3
+	menuHeight := leftColumnHeight / 3
+	infoHeight := leftColumnHeight / 4
 	volumeHeight := leftColumnHeight - menuHeight - infoHeight
 
 	layout.menu.Style.Height(menuHeight)
@@ -56,31 +56,34 @@ func (layout layout) View() string {
 		vuMeterSection,
 	)
 
-	layout.content.Style.Width(layout.windowSize.Width - layout.menu.Style.GetWidth()).
+	layout.content.Style.Width(layout.windowSize.Width - leftColumnStyle.GetWidth() - 3).
 		Height(layout.windowSize.Height - 2)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, leftColmun, layout.content.View())
 }
 
 func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		layout.windowSize = msg
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
+		switch msg.Type {
+		case tea.KeyCtrlC, tea.KeyEsc:
 			return layout, tea.Quit
-		case "up", "k":
-			if layout.menu.Selected > 0 {
-				layout.menu.Selected--
-			}
-		case "down", "j":
-			if layout.menu.Selected < len(layout.menu.Items)-1 {
-				layout.menu.Selected++
-			}
 		}
 	}
-	return layout, nil
+
+	menu, cmd := layout.menu.Update(msg)
+	layout.menu = menu
+	cmds = append(cmds, cmd)
+
+	content, cmd := layout.content.Update(msg)
+	layout.content = content
+	cmds = append(cmds, cmd)
+
+	return layout, tea.Batch(cmds...)
 }
 
 func ShowUI() {

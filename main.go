@@ -69,6 +69,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			ui.ShowUI()
 			// ui.ShowTestUI()
+			// ui.ShowButtonsUI()
 		},
 	}
 
