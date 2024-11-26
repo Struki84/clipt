@@ -10,23 +10,41 @@ import (
 )
 
 var (
+	customBorder = lipgloss.Border{
+		Left: "█", Right: "",
+		Top: "", Bottom: "",
+		TopLeft: "", TopRight: "",
+		BottomLeft: "", BottomRight: "",
+	}
 	leftColumnStyle = lipgloss.NewStyle().
 			Width(30)
 
 	sectionStyle = lipgloss.NewStyle().
 			Width(leftColumnStyle.GetWidth())
+
+	mainColumnStyle = lipgloss.NewStyle().Border(customBorder)
 )
 
 type layout struct {
 	menu       Menu
+	views      map[string]tea.Model
+	activeView string
 	content    ContentView
 	windowSize tea.WindowSizeMsg
 }
 
 func initLayout() layout {
+	menuItems := []string{"CHAT", "HISTORY", "SETTINGS"}
+	views := map[string]tea.Model{
+		"CHAT":     NewChatView(),
+		"HISTORY":  NewHistoryView(),
+		"SETTINGS": NewSettingsView(),
+	}
 	return layout{
-		menu:    NewMenu([]string{"CHAT", "HISTORY", "SETTINGS"}),
-		content: NewContentView(),
+		menu:       NewMenu(menuItems),
+		content:    NewContentView(),
+		views:      views,
+		activeView: menuItems[0],
 	}
 }
 
@@ -56,10 +74,16 @@ func (layout layout) View() string {
 		vuMeterSection,
 	)
 
-	layout.content.Style.Width(layout.windowSize.Width - leftColumnStyle.GetWidth() - 3).
-		Height(layout.windowSize.Height - 2)
+	if view, ok := layout.views[layout.activeView]; ok {
+		mainColumn := mainColumnStyle.Render(view.View())
+		return lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			leftColmun,
+			mainColumn,
+		)
+	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Left, leftColmun, layout.content.View())
+	return leftColmun
 }
 
 func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -68,19 +92,39 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		layout.windowSize = msg
+		msg = tea.WindowSizeMsg{
+			Width:  msg.Width - leftColumnStyle.GetWidth() - 3,
+			Height: msg.Height - 2,
+		}
+
+		log.Printf("View: %#v", msg)
+
+		if view, ok := layout.views[layout.activeView]; ok {
+			view, cmd := view.Update(msg)
+			layout.views[layout.activeView] = view
+			cmds = append(cmds, cmd)
+		}
+
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return layout, tea.Quit
+		case tea.KeyEnter:
+			newActiveView := layout.menu.Items[layout.menu.Selected]
+			if newActiveView != layout.activeView {
+				layout.activeView = newActiveView
+			}
+
+			if view, ok := layout.views[layout.activeView]; ok {
+				view, cmd := view.Update(msg)
+				layout.views[layout.activeView] = view
+				cmds = append(cmds, cmd)
+			}
 		}
 	}
 
 	menu, cmd := layout.menu.Update(msg)
 	layout.menu = menu
-	cmds = append(cmds, cmd)
-
-	content, cmd := layout.content.Update(msg)
-	layout.content = content
 	cmds = append(cmds, cmd)
 
 	return layout, tea.Batch(cmds...)

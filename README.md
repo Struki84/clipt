@@ -2,7 +2,7 @@ To Do
 ---
 
 - add config json
-- add menu buttons
+- [x] add menu buttons
 - add chat view
 - sort out layout abstractions
 - figure out how to switch from input mode to menu mode
