@@ -13,13 +13,10 @@ import (
 )
 
 var (
+	inputStyle    = lipgloss.NewStyle()
 	viewportStyle = lipgloss.NewStyle().Padding(1)
-	inputStyle    = lipgloss.NewStyle().
-			BorderStyle(lipgloss.ThickBorder()).
-			BorderTop(true).
-			Height(10)
-	senderStyle = lipgloss.NewStyle()
-	agentStyle  = lipgloss.NewStyle()
+	senderStyle   = lipgloss.NewStyle()
+	agentStyle    = lipgloss.NewStyle()
 )
 
 type ChatMsgs struct {
@@ -130,5 +127,5 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	chat.viewport = vp
 	cmds = append(cmds, cmd)
 
-	return chat, nil
+	return chat, tea.Batch(cmds...)
 }

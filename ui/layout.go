@@ -113,25 +113,37 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEsc:
 			return layout, tea.Quit
-		case tea.KeyEnter:
-			newActiveView := layout.menu.Items[layout.menu.Selected]
-			if newActiveView != layout.activeView {
-				layout.activeView = newActiveView
+		case tea.KeyCtrlC:
+			if layout.mode == InputMode {
+				layout.mode = MenuMode
+				return layout, nil
 			}
+		case tea.KeyEnter:
+			if layout.mode == MenuMode {
+				newActiveView := layout.menu.Items[layout.menu.Selected]
+				if newActiveView != layout.activeView {
+					layout.activeView = newActiveView
+					if layout.activeView == "CHAT" {
+						layout.mode = InputMode
+					}
+				}
+			}
+		}
 
+		if layout.mode == InputMode {
 			if view, ok := layout.views[layout.activeView]; ok {
 				view, cmd := view.Update(msg)
 				layout.views[layout.activeView] = view
 				cmds = append(cmds, cmd)
 			}
+		} else {
+			menu, cmd := layout.menu.Update(msg)
+			layout.menu = menu
+			cmds = append(cmds, cmd)
 		}
 	}
-
-	menu, cmd := layout.menu.Update(msg)
-	layout.menu = menu
-	cmds = append(cmds, cmd)
 
 	return layout, tea.Batch(cmds...)
 }
