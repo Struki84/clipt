@@ -67,7 +67,7 @@ func init() {
 		Use:   "ui",
 		Short: "Run UI",
 		Run: func(cmd *cobra.Command, args []string) {
-			ui.ShowUI()
+			ui.ShowUI(*internal.NewAgent(appConfig))
 			// ui.ShowTestUI()
 			// ui.ShowButtonsUI()
 		},

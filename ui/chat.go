@@ -1,12 +1,15 @@
 package ui
 
 import (
+	"context"
 	"log"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/struki84/clipt/internal"
 )
 
 var (
@@ -15,15 +18,24 @@ var (
 			BorderStyle(lipgloss.ThickBorder()).
 			BorderTop(true).
 			Height(10)
+	senderStyle = lipgloss.NewStyle()
+	agentStyle  = lipgloss.NewStyle()
 )
 
-type ChatView struct {
-	windowSize tea.WindowSizeMsg
-	viewport   viewport.Model
-	textarea   textarea.Model
+type ChatMsgs struct {
+	Content string
 }
 
-func NewChatView() ChatView {
+type ChatView struct {
+	agent      internal.Agent
+	messages   []string
+	streamChan chan string
+	viewport   viewport.Model
+	textarea   textarea.Model
+	windowSize tea.WindowSizeMsg
+}
+
+func NewChatView(agent internal.Agent) ChatView {
 	ta := textarea.New()
 
 	ta.Placeholder = "Send a message..."
@@ -33,8 +45,29 @@ func NewChatView() ChatView {
 	ta.Focus()
 
 	return ChatView{
-		viewport: viewport.New(120, 35),
-		textarea: ta,
+		agent:      agent,
+		messages:   make([]string, 0),
+		streamChan: make(chan string),
+		viewport:   viewport.New(120, 35),
+		textarea:   ta,
+	}
+}
+
+func (chat ChatView) Init() tea.Cmd {
+	chat.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
+		chat.streamChan <- string(chunk)
+	})
+
+	cmds := []tea.Cmd{}
+	cmds = append(cmds, textarea.Blink)
+	cmds = append(cmds, chat.handleStream)
+
+	return tea.Batch(cmds...)
+}
+
+func (chat ChatView) handleStream() tea.Msg {
+	return ChatMsgs{
+		Content: <-chat.streamChan,
 	}
 }
 
@@ -50,19 +83,52 @@ func (chat ChatView) View() string {
 	return joinVertical
 }
 
-func (chat ChatView) Init() tea.Cmd {
-	return nil
-}
-
 func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		log.Printf("ChatView: %#v", msg)
 		chat.windowSize = msg
 		viewportStyle.Width(msg.Width)
 		viewportStyle.Height(msg.Height - chat.textarea.Height() - 1)
 		chat.textarea.SetWidth(msg.Width)
+	case ChatMsgs:
+		chat.messages[len(chat.messages)-1] += msg.Content
+		chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
+		chat.viewport.GotoBottom()
+
+		return chat, chat.handleStream
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyEnter:
+			if chat.textarea.Focused() && strings.TrimSpace(chat.textarea.Value()) != "" {
+				userMsg := chat.textarea.Value()
+				chat.messages = append(chat.messages, senderStyle.Render("You: "+userMsg))
+				chat.messages = append(chat.messages, agentStyle.Render("Clipt: "))
+				chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
+				chat.textarea.Reset()
+				chat.viewport.GotoBottom()
+
+				go func() {
+					log.Println("Run: ", userMsg)
+					err := chat.agent.Run(context.Background(), userMsg)
+					if err != nil {
+						log.Println("Run error:", err)
+					}
+				}()
+
+				return chat, nil
+			}
+		}
 	}
+
+	ta, cmd := chat.textarea.Update(msg)
+	chat.textarea = ta
+	cmds = append(cmds, cmd)
+
+	vp, cmd := chat.viewport.Update(msg)
+	chat.viewport = vp
+	cmds = append(cmds, cmd)
 
 	return chat, nil
 }

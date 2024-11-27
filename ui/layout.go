@@ -7,6 +7,14 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/struki84/clipt/internal"
+)
+
+type Mode int
+
+const (
+	MenuMode Mode = iota
+	InputMode
 )
 
 var (
@@ -31,12 +39,13 @@ type layout struct {
 	views      map[string]tea.Model
 	activeView string
 	windowSize tea.WindowSizeMsg
+	mode       Mode
 }
 
-func initLayout() layout {
+func NewLayout(agent internal.Agent) layout {
 	menuItems := []string{"CHAT", "HISTORY", "SETTINGS"}
 	views := map[string]tea.Model{
-		"CHAT":     NewChatView(),
+		"CHAT":     NewChatView(agent),
 		"HISTORY":  NewHistoryView(),
 		"SETTINGS": NewSettingsView(),
 	}
@@ -44,6 +53,7 @@ func initLayout() layout {
 		menu:       NewMenu(menuItems),
 		views:      views,
 		activeView: menuItems[0],
+		mode:       InputMode,
 	}
 }
 
@@ -101,15 +111,6 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			layout.views[i] = view
 			cmds = append(cmds, cmd)
 		}
-
-		// log.Printf("View: %#v", msg)
-		//
-		// if view, ok := layout.views[layout.activeView]; ok {
-		// 	view, cmd := view.Update(msg)
-		// 	layout.views[layout.activeView] = view
-		// 	cmds = append(cmds, cmd)
-		// }
-
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
@@ -135,14 +136,14 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return layout, tea.Batch(cmds...)
 }
 
-func ShowUI() {
+func ShowUI(agent internal.Agent) {
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer file.Close()
-	p := tea.NewProgram(initLayout(), tea.WithAltScreen())
+	p := tea.NewProgram(NewLayout(agent), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
