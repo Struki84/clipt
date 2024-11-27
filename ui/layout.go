@@ -16,6 +16,7 @@ var (
 		TopLeft: "", TopRight: "",
 		BottomLeft: "", BottomRight: "",
 	}
+
 	leftColumnStyle = lipgloss.NewStyle().
 			Width(30)
 
@@ -29,7 +30,6 @@ type layout struct {
 	menu       Menu
 	views      map[string]tea.Model
 	activeView string
-	content    ContentView
 	windowSize tea.WindowSizeMsg
 }
 
@@ -42,7 +42,6 @@ func initLayout() layout {
 	}
 	return layout{
 		menu:       NewMenu(menuItems),
-		content:    NewContentView(),
 		views:      views,
 		activeView: menuItems[0],
 	}
@@ -97,13 +96,19 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			Height: msg.Height - 2,
 		}
 
-		log.Printf("View: %#v", msg)
-
-		if view, ok := layout.views[layout.activeView]; ok {
+		for i, view := range layout.views {
 			view, cmd := view.Update(msg)
-			layout.views[layout.activeView] = view
+			layout.views[i] = view
 			cmds = append(cmds, cmd)
 		}
+
+		// log.Printf("View: %#v", msg)
+		//
+		// if view, ok := layout.views[layout.activeView]; ok {
+		// 	view, cmd := view.Update(msg)
+		// 	layout.views[layout.activeView] = view
+		// 	cmds = append(cmds, cmd)
+		// }
 
 	case tea.KeyMsg:
 		switch msg.Type {

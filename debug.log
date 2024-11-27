@@ -46,3 +46,6 @@ debug 2024/11/26 00:14:58 View: tea.WindowSizeMsg{Width:127, Height:76}
 debug 2024/11/26 00:14:58 ChatView: tea.WindowSizeMsg{Width:127, Height:76}
 debug 2024/11/26 10:56:25 View: tea.WindowSizeMsg{Width:283, Height:73}
 debug 2024/11/26 10:56:25 ChatView: tea.WindowSizeMsg{Width:283, Height:73}
+debug 2024/11/26 23:48:36 View: tea.WindowSizeMsg{Width:127, Height:76}
+debug 2024/11/26 23:48:36 ChatView: tea.WindowSizeMsg{Width:127, Height:76}
+debug 2024/11/26 23:51:48 ChatView: tea.WindowSizeMsg{Width:127, Height:76}

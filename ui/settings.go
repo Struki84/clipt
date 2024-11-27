@@ -1,6 +1,14 @@
 package ui
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+)
+
+var (
+	settingsStyle = lipgloss.NewStyle().
+		Padding(1)
+)
 
 type SettingsView struct {
 }
@@ -14,9 +22,15 @@ func (settings SettingsView) Init() tea.Cmd {
 }
 
 func (settings SettingsView) View() string {
-	return "Settings View"
+	return settingsStyle.Render("Settings View")
 }
 
 func (settings SettingsView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		settingsStyle.Width(msg.Width)
+		settingsStyle.Height(msg.Height)
+	}
 	return settings, nil
 }
