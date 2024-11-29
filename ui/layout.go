@@ -70,21 +70,19 @@ func (layout layout) Init() tea.Cmd {
 }
 
 func (layout layout) View() string {
-	leftColumnHeight := layout.windowSize.Height - 2
+	if layout.windowSize.Height == 0 {
+		return ""
+	}
 
-	// Calculate approximate section heights
-	menuHeight := leftColumnHeight / 3
-	infoHeight := leftColumnHeight / 4
-	volumeHeight := leftColumnHeight - menuHeight - infoHeight
+	layout.menu.Style.Height(15)
 
-	layout.menu.Style.Height(menuHeight)
-
-	infoSection := sectionStyle.Height(infoHeight).Render("Info Section")
+	infoSectionHeight := layout.windowSize.Height - 31
+	infoSection := sectionStyle.Height(infoSectionHeight).Render("Info Section")
 
 	vuMeter := NewVUMeter()
-	vuMeterSection := sectionStyle.Height(volumeHeight).AlignVertical(lipgloss.Bottom).Render(vuMeter.View())
+	vuMeterSection := sectionStyle.Render(vuMeter.View())
 
-	leftColmun := lipgloss.JoinVertical(
+	leftColumn := lipgloss.JoinVertical(
 		lipgloss.Left,
 		layout.menu.View(),
 		infoSection,
@@ -92,15 +90,15 @@ func (layout layout) View() string {
 	)
 
 	if view, ok := layout.views[layout.activeView]; ok {
-		mainColumn := mainColumnStyle.Render(view.View())
+		mainColumn := mainColumnStyle.Height(layout.windowSize.Height - 2).Render(view.View())
 		return lipgloss.JoinHorizontal(
 			lipgloss.Left,
-			leftColmun,
+			leftColumn,
 			mainColumn,
 		)
 	}
 
-	return leftColmun
+	return leftColumn
 }
 
 func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -170,7 +168,10 @@ func ShowUI(agent *internal.Agent) {
 	}
 
 	defer file.Close()
-	p := tea.NewProgram(NewLayout(agent), tea.WithAltScreen())
+	p := tea.NewProgram(
+		NewLayout(agent),
+		tea.WithAltScreen(),
+	)
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
