@@ -91,7 +91,6 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		chat.textarea.SetWidth(msg.Width)
 		chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
 	case ChatMsgs:
-		log.Println("ChatMsgs:", msg)
 		chat.messages[len(chat.messages)-1] += msg.Content
 		chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
 		chat.viewport.GotoBottom()
