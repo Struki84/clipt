@@ -65,33 +65,28 @@ func (handler *StreamHandler) ReadFromEgress(ctx context.Context, callback func(
 }
 
 func (handler *StreamHandler) HandleChainStart(ctx context.Context, inputs map[string]any) {
-	handler.PrintOutput = false
-	handler.KeywordDetected = false
-
 	log.Println("Chain started")
 
+	handler.PrintOutput = false
+	handler.KeywordDetected = false
 }
 
 func (handler *StreamHandler) HandleChainEnd(ctx context.Context, outputs map[string]any) {
-
 	log.Println("Chain finished")
 
 }
 
 func (handler *StreamHandler) HandleChainError(ctx context.Context, err error) {
-
 	log.Println("Chain error:", err)
 
 }
 
 func (handler *StreamHandler) HandleAgentAction(ctx context.Context, action schema.AgentAction) {
-
 	log.Println("Agent action")
 
 }
 
 func (handler *StreamHandler) HandleAgentFinish(ctx context.Context, finish schema.AgentFinish) {
-
 	log.Println("Agent finished")
 
 }

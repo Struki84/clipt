@@ -42,7 +42,7 @@ type layout struct {
 	mode       Mode
 }
 
-func NewLayout(agent internal.Agent) layout {
+func NewLayout(agent *internal.Agent) layout {
 	menuItems := []string{"CHAT", "HISTORY", "SETTINGS"}
 	views := map[string]tea.Model{
 		"CHAT":     NewChatView(agent),
@@ -58,7 +58,15 @@ func NewLayout(agent internal.Agent) layout {
 }
 
 func (layout layout) Init() tea.Cmd {
-	return nil
+	cmds := []tea.Cmd{}
+
+	cmds = append(cmds, layout.menu.Init())
+
+	for _, view := range layout.views {
+		cmds = append(cmds, view.Init())
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (layout layout) View() string {
@@ -143,12 +151,19 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			layout.menu = menu
 			cmds = append(cmds, cmd)
 		}
+	default:
+		// Handle any other message types (including ChatMsgs)
+		if view, ok := layout.views[layout.activeView]; ok {
+			view, cmd := view.Update(msg)
+			layout.views[layout.activeView] = view
+			cmds = append(cmds, cmd)
+		}
 	}
 
 	return layout, tea.Batch(cmds...)
 }
 
-func ShowUI(agent internal.Agent) {
+func ShowUI(agent *internal.Agent) {
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		log.Fatal(err)

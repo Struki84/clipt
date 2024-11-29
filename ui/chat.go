@@ -24,7 +24,7 @@ type ChatMsgs struct {
 }
 
 type ChatView struct {
-	agent      internal.Agent
+	agent      *internal.Agent
 	messages   []string
 	streamChan chan string
 	viewport   viewport.Model
@@ -32,7 +32,7 @@ type ChatView struct {
 	windowSize tea.WindowSizeMsg
 }
 
-func NewChatView(agent internal.Agent) ChatView {
+func NewChatView(agent *internal.Agent) ChatView {
 	ta := textarea.New()
 
 	ta.Placeholder = "Send a message..."
@@ -89,7 +89,9 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		viewportStyle.Width(msg.Width)
 		viewportStyle.Height(msg.Height - chat.textarea.Height() - 1)
 		chat.textarea.SetWidth(msg.Width)
+		chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
 	case ChatMsgs:
+		log.Println("ChatMsgs:", msg)
 		chat.messages[len(chat.messages)-1] += msg.Content
 		chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
 		chat.viewport.GotoBottom()
@@ -103,8 +105,8 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				chat.messages = append(chat.messages, senderStyle.Render("You: "+userMsg))
 				chat.messages = append(chat.messages, agentStyle.Render("Clipt: "))
 				chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
-				chat.textarea.Reset()
 				chat.viewport.GotoBottom()
+				chat.textarea.Reset()
 
 				go func() {
 					log.Println("Run: ", userMsg)

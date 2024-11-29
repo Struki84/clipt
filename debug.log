@@ -1,3 +1,353 @@
-debug 2024/11/27 23:05:56 Run:  hello
-debug 2024/11/27 23:05:56 Agent running with input: hello
-debug 2024/11/27 23:05:56 Chain started
+debug 2024/11/28 23:12:15 Run:  hi 
+debug 2024/11/28 23:12:15 Agent running with input: hi 
+debug 2024/11/28 23:12:15 Chain started
+debug 2024/11/28 23:17:30 Run:  hello 
+debug 2024/11/28 23:17:30 Agent running with input: hello 
+debug 2024/11/28 23:17:30 Chain started
+debug 2024/11/28 23:20:56 init
+debug 2024/11/28 23:20:59 Run:  hello
+debug 2024/11/28 23:20:59 Agent running with input: hello
+debug 2024/11/28 23:20:59 Chain started
+debug 2024/11/28 23:21:00 stream:  Hello
+debug 2024/11/28 23:21:00 chat handleStream:  Hello
+debug 2024/11/28 23:21:00 stream: !
+debug 2024/11/28 23:21:00 stream:  How
+debug 2024/11/28 23:29:28 Run:  Hello there...
+debug 2024/11/28 23:29:28 Agent running with input: Hello there...
+debug 2024/11/28 23:29:28 Chain started
+debug 2024/11/28 23:29:30 handleStream:  Hello
+debug 2024/11/28 23:36:47 Run:  hi there
+debug 2024/11/28 23:36:47 Agent running with input: hi there
+debug 2024/11/28 23:36:47 Chain started
+debug 2024/11/28 23:36:48 ChatMsgs: { Hello}
+debug 2024/11/28 23:36:48 ChatMsgs: {!}
+debug 2024/11/28 23:36:48 ChatMsgs: { How}
+debug 2024/11/28 23:36:48 ChatMsgs: { can}
+debug 2024/11/28 23:36:48 ChatMsgs: { I}
+debug 2024/11/28 23:36:48 ChatMsgs: { assist}
+debug 2024/11/28 23:36:48 ChatMsgs: { you}
+debug 2024/11/28 23:36:48 ChatMsgs: { today}
+debug 2024/11/28 23:36:48 ChatMsgs: {?}
+debug 2024/11/28 23:36:48 Chain finished
+debug 2024/11/28 23:36:48 ChatMsgs: {}
+debug 2024/11/28 23:38:24 Run:  Finally you are working, it's ok I'm just testing you a bit...
+debug 2024/11/28 23:38:24 Agent running with input: Finally you are working, it's ok I'm just testing you a bit...
+debug 2024/11/28 23:38:24 Chain started
+debug 2024/11/28 23:38:25 ChatMsgs: { Great}
+debug 2024/11/28 23:38:25 ChatMsgs: { to}
+debug 2024/11/28 23:38:25 ChatMsgs: { hear}
+debug 2024/11/28 23:38:25 ChatMsgs: { that}
+debug 2024/11/28 23:38:25 ChatMsgs: { I}
+debug 2024/11/28 23:38:25 ChatMsgs: {'m}
+debug 2024/11/28 23:38:25 ChatMsgs: { up}
+debug 2024/11/28 23:38:25 ChatMsgs: { and}
+debug 2024/11/28 23:38:25 ChatMsgs: { running}
+debug 2024/11/28 23:38:25 ChatMsgs: {!}
+debug 2024/11/28 23:38:25 ChatMsgs: { Feel}
+debug 2024/11/28 23:38:25 ChatMsgs: { free}
+debug 2024/11/28 23:38:25 ChatMsgs: { to}
+debug 2024/11/28 23:38:25 ChatMsgs: { test}
+debug 2024/11/28 23:38:25 ChatMsgs: { me}
+debug 2024/11/28 23:38:25 ChatMsgs: { as}
+debug 2024/11/28 23:38:25 ChatMsgs: { much}
+debug 2024/11/28 23:38:25 ChatMsgs: { as}
+debug 2024/11/28 23:38:25 ChatMsgs: { you}
+debug 2024/11/28 23:38:25 ChatMsgs: { like}
+debug 2024/11/28 23:38:25 ChatMsgs: { or}
+debug 2024/11/28 23:38:26 ChatMsgs: { ask}
+debug 2024/11/28 23:38:26 ChatMsgs: { any}
+debug 2024/11/28 23:38:26 ChatMsgs: { questions}
+debug 2024/11/28 23:38:26 ChatMsgs: { you}
+debug 2024/11/28 23:38:26 ChatMsgs: { might}
+debug 2024/11/28 23:38:26 ChatMsgs: { have}
+debug 2024/11/28 23:38:26 ChatMsgs: {.}
+debug 2024/11/28 23:38:26 ChatMsgs: { How}
+debug 2024/11/28 23:38:26 ChatMsgs: { can}
+debug 2024/11/28 23:38:26 ChatMsgs: { I}
+debug 2024/11/28 23:38:26 ChatMsgs: { assist}
+debug 2024/11/28 23:38:26 ChatMsgs: { you}
+debug 2024/11/28 23:38:26 ChatMsgs: { today}
+debug 2024/11/28 23:38:26 ChatMsgs: {?}
+debug 2024/11/28 23:38:26 Chain finished
+debug 2024/11/28 23:38:26 ChatMsgs: {}
+debug 2024/11/29 12:53:53 Run:  so what can you do?
+debug 2024/11/29 12:53:53 Agent running with input: so what can you do?
+debug 2024/11/29 12:53:53 Chain started
+debug 2024/11/29 12:53:55 ChatMsgs: { I}
+debug 2024/11/29 12:53:55 ChatMsgs: { can}
+debug 2024/11/29 12:53:55 ChatMsgs: { assist}
+debug 2024/11/29 12:53:55 ChatMsgs: { you}
+debug 2024/11/29 12:53:55 ChatMsgs: { with}
+debug 2024/11/29 12:53:55 ChatMsgs: { a}
+debug 2024/11/29 12:53:55 ChatMsgs: { variety}
+debug 2024/11/29 12:53:55 ChatMsgs: { of}
+debug 2024/11/29 12:53:55 ChatMsgs: { tasks}
+debug 2024/11/29 12:53:55 ChatMsgs: {,}
+debug 2024/11/29 12:53:55 ChatMsgs: { including}
+debug 2024/11/29 12:53:55 ChatMsgs: { answering}
+debug 2024/11/29 12:53:55 ChatMsgs: { questions}
+debug 2024/11/29 12:53:55 ChatMsgs: {,}
+debug 2024/11/29 12:53:55 ChatMsgs: { providing}
+debug 2024/11/29 12:53:55 ChatMsgs: { explanations}
+debug 2024/11/29 12:53:55 ChatMsgs: { on}
+debug 2024/11/29 12:53:55 ChatMsgs: { a}
+debug 2024/11/29 12:53:55 ChatMsgs: { wide}
+debug 2024/11/29 12:53:55 ChatMsgs: { range}
+debug 2024/11/29 12:53:55 ChatMsgs: { of}
+debug 2024/11/29 12:53:55 ChatMsgs: { topics}
+debug 2024/11/29 12:53:55 ChatMsgs: {,}
+debug 2024/11/29 12:53:55 ChatMsgs: { helping}
+debug 2024/11/29 12:53:56 ChatMsgs: { with}
+debug 2024/11/29 12:53:56 ChatMsgs: { educational}
+debug 2024/11/29 12:53:56 ChatMsgs: { content}
+debug 2024/11/29 12:53:56 ChatMsgs: {,}
+debug 2024/11/29 12:53:56 ChatMsgs: { offering}
+debug 2024/11/29 12:53:56 ChatMsgs: { advice}
+debug 2024/11/29 12:53:56 ChatMsgs: { on}
+debug 2024/11/29 12:53:56 ChatMsgs: { certain}
+debug 2024/11/29 12:53:56 ChatMsgs: { issues}
+debug 2024/11/29 12:53:56 ChatMsgs: {,}
+debug 2024/11/29 12:53:56 ChatMsgs: { and}
+debug 2024/11/29 12:53:56 ChatMsgs: { much}
+debug 2024/11/29 12:53:56 ChatMsgs: { more}
+debug 2024/11/29 12:53:56 ChatMsgs: {.}
+debug 2024/11/29 12:53:56 ChatMsgs: { Whether}
+debug 2024/11/29 12:53:56 ChatMsgs: { you}
+debug 2024/11/29 12:53:56 ChatMsgs: { need}
+debug 2024/11/29 12:53:56 ChatMsgs: { information}
+debug 2024/11/29 12:53:56 ChatMsgs: { on}
+debug 2024/11/29 12:53:56 ChatMsgs: { science}
+debug 2024/11/29 12:53:56 ChatMsgs: {,}
+debug 2024/11/29 12:53:56 ChatMsgs: { math}
+debug 2024/11/29 12:53:56 ChatMsgs: {,}
+debug 2024/11/29 12:53:56 ChatMsgs: { history}
+debug 2024/11/29 12:53:56 ChatMsgs: {,}
+debug 2024/11/29 12:53:56 ChatMsgs: { technology}
+debug 2024/11/29 12:53:56 ChatMsgs: {,}
+debug 2024/11/29 12:53:56 ChatMsgs: { or}
+debug 2024/11/29 12:53:56 ChatMsgs: { just}
+debug 2024/11/29 12:53:56 ChatMsgs: { about}
+debug 2024/11/29 12:53:56 ChatMsgs: { any}
+debug 2024/11/29 12:53:56 ChatMsgs: { other}
+debug 2024/11/29 12:53:56 ChatMsgs: { subject}
+debug 2024/11/29 12:53:56 ChatMsgs: {,}
+debug 2024/11/29 12:53:56 ChatMsgs: { or}
+debug 2024/11/29 12:53:56 ChatMsgs: { if}
+debug 2024/11/29 12:53:56 ChatMsgs: { you}
+debug 2024/11/29 12:53:56 ChatMsgs: { need}
+debug 2024/11/29 12:53:56 ChatMsgs: { help}
+debug 2024/11/29 12:53:56 ChatMsgs: { with}
+debug 2024/11/29 12:53:56 ChatMsgs: { writing}
+debug 2024/11/29 12:53:57 ChatMsgs: {,}
+debug 2024/11/29 12:53:57 ChatMsgs: { brainstorm}
+debug 2024/11/29 12:53:57 ChatMsgs: {ing}
+debug 2024/11/29 12:53:57 ChatMsgs: { ideas}
+debug 2024/11/29 12:53:57 ChatMsgs: {,}
+debug 2024/11/29 12:53:57 ChatMsgs: { or}
+debug 2024/11/29 12:53:57 ChatMsgs: { understanding}
+debug 2024/11/29 12:53:57 ChatMsgs: { complex}
+debug 2024/11/29 12:53:57 ChatMsgs: { concepts}
+debug 2024/11/29 12:53:57 ChatMsgs: {,}
+debug 2024/11/29 12:53:57 ChatMsgs: { I}
+debug 2024/11/29 12:53:57 ChatMsgs: {'m}
+debug 2024/11/29 12:53:57 ChatMsgs: { here}
+debug 2024/11/29 12:53:57 ChatMsgs: { to}
+debug 2024/11/29 12:53:57 ChatMsgs: { help}
+debug 2024/11/29 12:53:57 ChatMsgs: {.}
+debug 2024/11/29 12:53:57 ChatMsgs: { Just}
+debug 2024/11/29 12:53:57 ChatMsgs: { let}
+debug 2024/11/29 12:53:57 ChatMsgs: { me}
+debug 2024/11/29 12:53:57 ChatMsgs: { know}
+debug 2024/11/29 12:53:57 ChatMsgs: { what}
+debug 2024/11/29 12:53:57 ChatMsgs: { you}
+debug 2024/11/29 12:53:57 ChatMsgs: { need}
+debug 2024/11/29 12:53:57 ChatMsgs: { assistance}
+debug 2024/11/29 12:53:57 ChatMsgs: { with}
+debug 2024/11/29 12:53:57 ChatMsgs: {!}
+debug 2024/11/29 12:53:57 Chain finished
+debug 2024/11/29 12:53:57 ChatMsgs: {}
+debug 2024/11/29 12:54:13 Run:  can you write me short code sinppet in js?
+debug 2024/11/29 12:54:13 Agent running with input: can you write me short code sinppet in js?
+debug 2024/11/29 12:54:13 Chain started
+debug 2024/11/29 12:54:14 ChatMsgs: { Sure}
+debug 2024/11/29 12:54:14 ChatMsgs: {,}
+debug 2024/11/29 12:54:14 ChatMsgs: { I}
+debug 2024/11/29 12:54:14 ChatMsgs: { can}
+debug 2024/11/29 12:54:14 ChatMsgs: { help}
+debug 2024/11/29 12:54:14 ChatMsgs: { with}
+debug 2024/11/29 12:54:14 ChatMsgs: { that}
+debug 2024/11/29 12:54:14 ChatMsgs: {!}
+debug 2024/11/29 12:54:14 ChatMsgs: { What}
+debug 2024/11/29 12:54:14 ChatMsgs: { specifically}
+debug 2024/11/29 12:54:14 ChatMsgs: { would}
+debug 2024/11/29 12:54:14 ChatMsgs: { you}
+debug 2024/11/29 12:54:14 ChatMsgs: { like}
+debug 2024/11/29 12:54:14 ChatMsgs: { the}
+debug 2024/11/29 12:54:14 ChatMsgs: { JavaScript}
+debug 2024/11/29 12:54:14 ChatMsgs: { code}
+debug 2024/11/29 12:54:14 ChatMsgs: { snippet}
+debug 2024/11/29 12:54:15 ChatMsgs: { to}
+debug 2024/11/29 12:54:15 ChatMsgs: { do}
+debug 2024/11/29 12:54:15 ChatMsgs: {?}
+debug 2024/11/29 12:54:15 Chain finished
+debug 2024/11/29 12:54:15 ChatMsgs: {}
+debug 2024/11/29 12:54:28 Run:  idk maybe a simple hello world?
+debug 2024/11/29 12:54:28 Agent running with input: idk maybe a simple hello world?
+debug 2024/11/29 12:54:28 Chain started
+debug 2024/11/29 12:54:29 ChatMsgs: { Hello}
+debug 2024/11/29 12:54:29 ChatMsgs: {,}
+debug 2024/11/29 12:54:29 ChatMsgs: { world}
+debug 2024/11/29 12:54:29 ChatMsgs: {!}
+debug 2024/11/29 12:54:29 ChatMsgs: { How}
+debug 2024/11/29 12:54:29 ChatMsgs: { can}
+debug 2024/11/29 12:54:29 ChatMsgs: { I}
+debug 2024/11/29 12:54:29 ChatMsgs: { assist}
+debug 2024/11/29 12:54:29 ChatMsgs: { you}
+debug 2024/11/29 12:54:29 ChatMsgs: { today}
+debug 2024/11/29 12:54:29 ChatMsgs: {?}
+debug 2024/11/29 12:54:29 Chain finished
+debug 2024/11/29 12:54:29 ChatMsgs: {}
+debug 2024/11/29 12:54:44 Run:  well write the code...
+debug 2024/11/29 12:54:44 Agent running with input: well write the code...
+debug 2024/11/29 12:54:44 Chain started
+debug 2024/11/29 12:54:45 ChatMsgs: { Could}
+debug 2024/11/29 12:54:45 ChatMsgs: { you}
+debug 2024/11/29 12:54:45 ChatMsgs: { please}
+debug 2024/11/29 12:54:45 ChatMsgs: { specify}
+debug 2024/11/29 12:54:45 ChatMsgs: { what}
+debug 2024/11/29 12:54:45 ChatMsgs: { code}
+debug 2024/11/29 12:54:45 ChatMsgs: { you}
+debug 2024/11/29 12:54:45 ChatMsgs: { need}
+debug 2024/11/29 12:54:45 ChatMsgs: { help}
+debug 2024/11/29 12:54:46 ChatMsgs: { with}
+debug 2024/11/29 12:54:46 ChatMsgs: {?}
+debug 2024/11/29 12:54:46 ChatMsgs: { Let}
+debug 2024/11/29 12:54:46 ChatMsgs: { me}
+debug 2024/11/29 12:54:46 ChatMsgs: { know}
+debug 2024/11/29 12:54:46 ChatMsgs: { the}
+debug 2024/11/29 12:54:46 ChatMsgs: { programming}
+debug 2024/11/29 12:54:46 ChatMsgs: { language}
+debug 2024/11/29 12:54:46 ChatMsgs: { and}
+debug 2024/11/29 12:54:46 ChatMsgs: { the}
+debug 2024/11/29 12:54:46 ChatMsgs: { task}
+debug 2024/11/29 12:54:46 ChatMsgs: { you}
+debug 2024/11/29 12:54:46 ChatMsgs: {'re}
+debug 2024/11/29 12:54:46 ChatMsgs: { trying}
+debug 2024/11/29 12:54:46 ChatMsgs: { to}
+debug 2024/11/29 12:54:46 ChatMsgs: { accomplish}
+debug 2024/11/29 12:54:46 ChatMsgs: {,}
+debug 2024/11/29 12:54:46 ChatMsgs: { and}
+debug 2024/11/29 12:54:46 ChatMsgs: { I}
+debug 2024/11/29 12:54:46 ChatMsgs: {'ll}
+debug 2024/11/29 12:54:46 ChatMsgs: { do}
+debug 2024/11/29 12:54:46 ChatMsgs: { my}
+debug 2024/11/29 12:54:46 ChatMsgs: { best}
+debug 2024/11/29 12:54:46 ChatMsgs: { to}
+debug 2024/11/29 12:54:46 ChatMsgs: { assist}
+debug 2024/11/29 12:54:46 ChatMsgs: { you}
+debug 2024/11/29 12:54:46 ChatMsgs: {!}
+debug 2024/11/29 12:54:46 Chain finished
+debug 2024/11/29 12:54:46 ChatMsgs: {}
+debug 2024/11/29 12:55:05 Run:  what was the first thing I said to you?
+debug 2024/11/29 12:55:05 Agent running with input: what was the first thing I said to you?
+debug 2024/11/29 12:55:05 Chain started
+debug 2024/11/29 12:55:06 ChatMsgs: { I}
+debug 2024/11/29 12:55:06 ChatMsgs: { don}
+debug 2024/11/29 12:55:06 ChatMsgs: {'t}
+debug 2024/11/29 12:55:06 ChatMsgs: { have}
+debug 2024/11/29 12:55:06 ChatMsgs: { access}
+debug 2024/11/29 12:55:06 ChatMsgs: { to}
+debug 2024/11/29 12:55:06 ChatMsgs: { our}
+debug 2024/11/29 12:55:06 ChatMsgs: { previous}
+debug 2024/11/29 12:55:06 ChatMsgs: { conversation}
+debug 2024/11/29 12:55:06 ChatMsgs: { history}
+debug 2024/11/29 12:55:06 ChatMsgs: {,}
+debug 2024/11/29 12:55:06 ChatMsgs: { so}
+debug 2024/11/29 12:55:06 ChatMsgs: { I}
+debug 2024/11/29 12:55:06 ChatMsgs: { can}
+debug 2024/11/29 12:55:06 ChatMsgs: {'t}
+debug 2024/11/29 12:55:07 ChatMsgs: { see}
+debug 2024/11/29 12:55:07 ChatMsgs: { what}
+debug 2024/11/29 12:55:07 ChatMsgs: { the}
+debug 2024/11/29 12:55:07 ChatMsgs: { first}
+debug 2024/11/29 12:55:07 ChatMsgs: { thing}
+debug 2024/11/29 12:55:07 ChatMsgs: { you}
+debug 2024/11/29 12:55:07 ChatMsgs: { said}
+debug 2024/11/29 12:55:07 ChatMsgs: { to}
+debug 2024/11/29 12:55:07 ChatMsgs: { me}
+debug 2024/11/29 12:55:07 ChatMsgs: { was}
+debug 2024/11/29 12:55:07 ChatMsgs: {.}
+debug 2024/11/29 12:55:07 ChatMsgs: { If}
+debug 2024/11/29 12:55:07 ChatMsgs: { you}
+debug 2024/11/29 12:55:07 ChatMsgs: { have}
+debug 2024/11/29 12:55:07 ChatMsgs: { any}
+debug 2024/11/29 12:55:07 ChatMsgs: { questions}
+debug 2024/11/29 12:55:07 ChatMsgs: { or}
+debug 2024/11/29 12:55:07 ChatMsgs: { need}
+debug 2024/11/29 12:55:07 ChatMsgs: { assistance}
+debug 2024/11/29 12:55:07 ChatMsgs: { with}
+debug 2024/11/29 12:55:07 ChatMsgs: { something}
+debug 2024/11/29 12:55:07 ChatMsgs: { else}
+debug 2024/11/29 12:55:07 ChatMsgs: {,}
+debug 2024/11/29 12:55:07 ChatMsgs: { feel}
+debug 2024/11/29 12:55:07 ChatMsgs: { free}
+debug 2024/11/29 12:55:07 ChatMsgs: { to}
+debug 2024/11/29 12:55:07 ChatMsgs: { ask}
+debug 2024/11/29 12:55:07 ChatMsgs: {!}
+debug 2024/11/29 12:55:07 Chain finished
+debug 2024/11/29 12:55:07 ChatMsgs: {}
+debug 2024/11/29 12:55:41 Run:  write a simple hello world script in js
+debug 2024/11/29 12:55:41 Agent running with input: write a simple hello world script in js
+debug 2024/11/29 12:55:41 Chain started
+debug 2024/11/29 12:55:42 ChatMsgs: { Here}
+debug 2024/11/29 12:55:42 ChatMsgs: {'s}
+debug 2024/11/29 12:55:42 ChatMsgs: { a}
+debug 2024/11/29 12:55:42 ChatMsgs: { simple}
+debug 2024/11/29 12:55:42 ChatMsgs: { "}
+debug 2024/11/29 12:55:42 ChatMsgs: {Hello}
+debug 2024/11/29 12:55:42 ChatMsgs: { World}
+debug 2024/11/29 12:55:42 ChatMsgs: {"}
+debug 2024/11/29 12:55:42 ChatMsgs: { script}
+debug 2024/11/29 12:55:42 ChatMsgs: { in}
+debug 2024/11/29 12:55:42 ChatMsgs: { JavaScript}
+debug 2024/11/29 12:55:42 ChatMsgs: {:
+
+}
+debug 2024/11/29 12:55:42 ChatMsgs: {```}
+debug 2024/11/29 12:55:42 ChatMsgs: {javascript}
+debug 2024/11/29 12:55:42 ChatMsgs: {
+}
+debug 2024/11/29 12:55:42 ChatMsgs: {console}
+debug 2024/11/29 12:55:42 ChatMsgs: {.log}
+debug 2024/11/29 12:55:42 ChatMsgs: {("}
+debug 2024/11/29 12:55:42 ChatMsgs: {Hello}
+debug 2024/11/29 12:55:42 ChatMsgs: { World}
+debug 2024/11/29 12:55:42 ChatMsgs: {");
+}
+debug 2024/11/29 12:55:42 ChatMsgs: {``}
+debug 2024/11/29 12:55:42 ChatMsgs: {`
+
+}
+debug 2024/11/29 12:55:42 ChatMsgs: {You}
+debug 2024/11/29 12:55:42 ChatMsgs: { can}
+debug 2024/11/29 12:55:42 ChatMsgs: { run}
+debug 2024/11/29 12:55:42 ChatMsgs: { this}
+debug 2024/11/29 12:55:42 ChatMsgs: { script}
+debug 2024/11/29 12:55:42 ChatMsgs: { in}
+debug 2024/11/29 12:55:42 ChatMsgs: { any}
+debug 2024/11/29 12:55:42 ChatMsgs: { JavaScript}
+debug 2024/11/29 12:55:42 ChatMsgs: { environment}
+debug 2024/11/29 12:55:42 ChatMsgs: {,}
+debug 2024/11/29 12:55:42 ChatMsgs: { such}
+debug 2024/11/29 12:55:43 ChatMsgs: { as}
+debug 2024/11/29 12:55:43 ChatMsgs: { a}
+debug 2024/11/29 12:55:43 ChatMsgs: { web}
+debug 2024/11/29 12:55:43 ChatMsgs: { browser}
+debug 2024/11/29 12:55:43 ChatMsgs: {'s}
+debug 2024/11/29 12:55:43 ChatMsgs: { console}
+debug 2024/11/29 12:55:43 ChatMsgs: { or}
+debug 2024/11/29 12:55:43 ChatMsgs: { Node}
+debug 2024/11/29 12:55:43 ChatMsgs: {.js}
+debug 2024/11/29 12:55:43 ChatMsgs: {.}
+debug 2024/11/29 12:55:43 Chain finished
+debug 2024/11/29 12:55:43 ChatMsgs: {}
