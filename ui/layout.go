@@ -76,7 +76,7 @@ func (layout layout) View() string {
 
 	layout.menu.Style.Height(15)
 
-	infoSectionHeight := layout.windowSize.Height - 31
+	infoSectionHeight := layout.windowSize.Height - 30
 	infoSection := sectionStyle.Height(infoSectionHeight).Render("Info Section")
 
 	vuMeter := NewVUMeter()

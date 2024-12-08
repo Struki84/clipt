@@ -2,19 +2,14 @@ package ui
 
 import (
 	"context"
-	"log"
-	"regexp"
-	"strings"
-
-	"github.com/alecthomas/chroma/v2/formatters"
-	"github.com/alecthomas/chroma/v2/lexers"
-	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/struki84/clipt/internal"
+	"log"
+	"strings"
 )
 
 var (
@@ -34,20 +29,19 @@ type ChatView struct {
 	streamChan chan string
 	viewport   viewport.Model
 	textarea   textarea.Model
-	mdRenderer *glamour.TermRenderer
 	windowSize tea.WindowSizeMsg
+	renderer   *glamour.TermRenderer
 }
 
 func NewChatView(agent *internal.Agent) ChatView {
 	ta := textarea.New()
-
 	ta.Placeholder = "Send a message..."
 	ta.ShowLineNumbers = false
 	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.SetHeight(10)
 	ta.Focus()
 
-	mdRenderer, _ := glamour.NewTermRenderer(
+	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
 		glamour.WithWordWrap(120),
 	)
@@ -58,7 +52,7 @@ func NewChatView(agent *internal.Agent) ChatView {
 		streamChan: make(chan string),
 		viewport:   viewport.New(120, 35),
 		textarea:   ta,
-		mdRenderer: mdRenderer,
+		renderer:   renderer,
 	}
 }
 
@@ -66,30 +60,52 @@ func (chat ChatView) Init() tea.Cmd {
 	chat.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
 		chat.streamChan <- string(chunk)
 	})
-
 	cmds := []tea.Cmd{}
 	cmds = append(cmds, textarea.Blink)
 	cmds = append(cmds, chat.handleStream)
-
 	return tea.Batch(cmds...)
 }
 
 func (chat ChatView) handleStream() tea.Msg {
+	log.Println("handleStream")
+	content := <-chat.streamChan
+	if content == "" {
+		return nil
+	}
+
 	return ChatMsgs{
-		Content: <-chat.streamChan,
+		Content: content,
 	}
 }
 
 func (chat ChatView) View() string {
-	chat.textarea.BlurredStyle.Base.BorderTop(true)
-
 	joinVertical := lipgloss.JoinVertical(
 		lipgloss.Center,
 		viewportStyle.Render(chat.viewport.View()),
 		chat.textarea.View(),
 	)
-
 	return joinVertical
+}
+
+func (chat ChatView) renderMessages() string {
+	log.Println("renderMessages")
+	// Join messages with double newlines for proper separation
+	messageContent := strings.Join(chat.messages, "\n\n")
+
+	// Add proper markdown formatting for messages
+	// formattedContent := strings.ReplaceAll(messageContent, "You: ", "### You:\n")
+	// formattedContent = strings.ReplaceAll(formattedContent, "Clipt: ", "### Clipt:\n")
+
+	formattedContent := messageContent
+
+	// rendered, err := chat.renderer.Render(formattedContent)
+	// if err != nil {
+	// 	log.Printf("Error rendering messages: %v", err)
+	// 	return messageContent
+	// }
+	// return rendered
+
+	return formattedContent
 }
 
 func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -99,29 +115,27 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
-		chat.viewport.Height = msg.Height - chat.textarea.Height() - 2
+		chat.viewport.Height = msg.Height - chat.textarea.Height() - 1
 		chat.textarea.SetWidth(msg.Width)
-		chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
-	case ChatMsgs:
-		formatted, _ := chat.formatCodeBlock(msg.Content)
-		chat.messages[len(chat.messages)-1] += formatted
-		chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
-		chat.viewport.GotoBottom()
+		chat.viewport.SetContent(chat.renderMessages())
 
+	case ChatMsgs:
+		chat.messages[len(chat.messages)-1] += msg.Content
+		chat.viewport.SetContent(chat.renderMessages())
+		chat.viewport.GotoBottom()
 		return chat, chat.handleStream
+
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
 			if chat.textarea.Focused() && strings.TrimSpace(chat.textarea.Value()) != "" {
 				userMsg := chat.textarea.Value()
-
 				chat.messages = append(chat.messages, senderStyle.Render("You: "+userMsg))
 				chat.messages = append(chat.messages, agentStyle.Render("Clipt: "))
-
-				chat.viewport.SetContent(strings.Join(chat.messages, "\n"))
+				chat.viewport.SetContent(chat.renderMessages())
 				chat.viewport.GotoBottom()
 				chat.textarea.Reset()
-
+				// chat.textarea.Blur()
 				go func() {
 					log.Println("Run: ", userMsg)
 					err := chat.agent.Run(context.Background(), userMsg)
@@ -129,7 +143,6 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						log.Println("Run error:", err)
 					}
 				}()
-
 				return chat, nil
 			}
 		}
@@ -144,53 +157,4 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return chat, tea.Batch(cmds...)
-}
-
-// Helper function to detect and highlight code blocks
-func (chat ChatView) formatCodeBlock(content string) (string, error) {
-	// Regular expression to find code blocks with language specification
-	// Matches ```language\n...code...```
-	codeBlockRegex := regexp.MustCompile("```([a-zA-Z0-9]+)\n([^`]+)```")
-
-	formatted := codeBlockRegex.ReplaceAllStringFunc(content, func(block string) string {
-		matches := codeBlockRegex.FindStringSubmatch(block)
-		if len(matches) < 3 {
-			return block
-		}
-
-		language := matches[1]
-		code := matches[2]
-
-		// Get lexer for the specified language
-		lexer := lexers.Get(language)
-		if lexer == nil {
-			lexer = lexers.Fallback
-		}
-
-		// Tokenize the code
-		iterator, err := lexer.Tokenise(nil, code)
-		if err != nil {
-			return block
-		}
-
-		formatter := formatters.Get("terminal256")
-		if formatter == nil {
-			formatter = formatters.Fallback
-		}
-
-		style := styles.Get("monokai")
-		if style == nil {
-			style = styles.Fallback
-		}
-
-		var buf strings.Builder
-		err = formatter.Format(&buf, style, iterator)
-		if err != nil {
-			return block
-		}
-
-		return buf.String()
-	})
-
-	return formatted, nil
 }
