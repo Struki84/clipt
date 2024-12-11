@@ -81,7 +81,7 @@ func (chat ChatView) View() string {
 func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		log.Printf("ChatView handling WindowSizeMsg")
+		// log.Printf("ChatView handling WindowSizeMsg")
 		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
 		chat.viewport.Height = msg.Height - chat.textarea.Height() - 1
@@ -136,7 +136,7 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (chat ChatView) renderMessages() string {
-	log.Println("renderMessages called")
+	// log.Println("renderMessages called")
 	// Join messages with double newlines for proper separation
 	messageContent := strings.Join(chat.messages, "\n\n")
 

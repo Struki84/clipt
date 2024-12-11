@@ -17,8 +17,10 @@ var cliptCmd = &cobra.Command{
 	Long:  "",
 }
 
+var appConfig config.AppConfig
+
 func init() {
-	appConfig := config.NewConfig()
+	appConfig = config.NewConfig()
 
 	promptCmd := &cobra.Command{
 		Use:   "prompt",
@@ -85,6 +87,8 @@ func init() {
 }
 
 func main() {
+	appConfig.InitDB()
+
 	if err := cliptCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

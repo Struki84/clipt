@@ -141,7 +141,7 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (chat ChatView) renderMessages() string {
-	log.Println("renderMessages called")
+	// log.Println("renderMessages called")
 	// Join messages with double newlines for proper separation
 	messageContent := strings.Join(chat.messages, "\n\n")
 

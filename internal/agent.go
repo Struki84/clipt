@@ -6,27 +6,37 @@ import (
 
 	"github.com/struki84/clipt/config"
 	"github.com/struki84/clipt/internal/callbacks"
+	mem "github.com/struki84/clipt/internal/memory"
 	"github.com/tmc/langchaingo/agents"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/memory"
 	"github.com/tmc/langchaingo/tools"
 )
 
 type Agent struct {
+	config   config.AppConfig
 	LLM      llms.Model
 	Tools    []tools.Tool
 	callback *callbacks.StreamHandler
 	Executor *agents.Executor
+	History  *mem.PersistentChatHistory
 }
 
 func NewAgent(config config.AppConfig) *Agent {
 	agent := &Agent{}
 
+	agent.config = config
 	agent.callback = callbacks.NewStreamHandler()
-
 	agent.LLM = config.AgentLLM()
-
 	agent.Tools = config.GetTools()
+
+	chatHistory := mem.NewPersistentChatHistory(config)
+	memoryBuffer := memory.NewConversationTokenBuffer(
+		agent.LLM,
+		8024,
+		memory.WithChatHistory(chatHistory),
+	)
 
 	mainAgent := agents.NewConversationalAgent(
 		agent.LLM,
@@ -34,7 +44,7 @@ func NewAgent(config config.AppConfig) *Agent {
 		agents.WithCallbacksHandler(agent.callback),
 	)
 
-	agent.Executor = agents.NewExecutor(mainAgent)
+	agent.Executor = agents.NewExecutor(mainAgent, agents.WithMemory(memoryBuffer))
 
 	return agent
 }
@@ -45,6 +55,9 @@ func (agent *Agent) Stream(ctx context.Context, callback func(ctx context.Contex
 
 func (agent *Agent) Run(ctx context.Context, input string) error {
 	log.Println("Agent running with input:", input)
+
+	agent.History.SetSession(agent.config.CurrentSession())
+
 	_, err := chains.Run(ctx, agent.Executor, input)
 	if err != nil {
 		return err
