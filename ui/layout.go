@@ -42,11 +42,25 @@ type layout struct {
 	mode       Mode
 }
 
+func ShowUI(agent *internal.Agent) {
+	file, err := tea.LogToFile("debug.log", "debug")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+	p := tea.NewProgram(NewLayout(agent), tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Alas, there's been an error: %v", err)
+		os.Exit(1)
+	}
+}
+
 func NewLayout(agent *internal.Agent) layout {
-	menuItems := []string{"CHAT", "HISTORY", "SETTINGS"}
+	menuItems := []string{"CHAT", "MEMORY", "SETTINGS"}
 	views := map[string]tea.Model{
 		"CHAT":     NewChatView(agent),
-		"HISTORY":  NewHistoryView(),
+		"MEMORY":   NewHistoryView(),
 		"SETTINGS": NewSettingsView(),
 	}
 	return layout{
@@ -114,65 +128,56 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			Height: msg.Height - 1,
 		}
 
-		for i, view := range layout.views {
-			view, cmd := view.Update(msg)
-			layout.views[i] = view
-			cmds = append(cmds, cmd)
-		}
+		activeView := layout.views[layout.activeView]
+		view, cmd := activeView.Update(msg)
+		layout.views[layout.activeView] = view
+		cmds = append(cmds, cmd)
+
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:
 			return layout, tea.Quit
-		case tea.KeyCtrlC:
+		case tea.KeyTab:
 			if layout.mode == InputMode {
 				layout.mode = MenuMode
 				return layout, nil
 			}
-		case tea.KeyEnter:
+
 			if layout.mode == MenuMode {
+				layout.mode = InputMode
+
 				newActiveView := layout.menu.Items[layout.menu.Selected]
 				if newActiveView != layout.activeView {
 					layout.activeView = newActiveView
-					if layout.activeView == "CHAT" {
-						layout.mode = InputMode
-					}
+				}
+			}
+		case tea.KeyEnter:
+			if layout.mode == MenuMode {
+				layout.mode = InputMode
+
+				newActiveView := layout.menu.Items[layout.menu.Selected]
+				if newActiveView != layout.activeView {
+					layout.activeView = newActiveView
 				}
 			}
 		}
 
 		if layout.mode == InputMode {
-			if view, ok := layout.views[layout.activeView]; ok {
-				view, cmd := view.Update(msg)
-				layout.views[layout.activeView] = view
-				cmds = append(cmds, cmd)
-			}
+			activeView := layout.views[layout.activeView]
+			view, cmd := activeView.Update(msg)
+			layout.views[layout.activeView] = view
+			cmds = append(cmds, cmd)
 		} else {
 			menu, cmd := layout.menu.Update(msg)
 			layout.menu = menu
 			cmds = append(cmds, cmd)
 		}
 	default:
-		// Handle any other message types (including ChatMsgs)
-		if view, ok := layout.views[layout.activeView]; ok {
-			view, cmd := view.Update(msg)
-			layout.views[layout.activeView] = view
-			cmds = append(cmds, cmd)
-		}
+		activeView := layout.views[layout.activeView]
+		view, cmd := activeView.Update(msg)
+		layout.views[layout.activeView] = view
+		cmds = append(cmds, cmd)
 	}
 
 	return layout, tea.Batch(cmds...)
-}
-
-func ShowUI(agent *internal.Agent) {
-	file, err := tea.LogToFile("debug.log", "debug")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer file.Close()
-	p := tea.NewProgram(NewLayout(agent), tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
-		os.Exit(1)
-	}
 }
