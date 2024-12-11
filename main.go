@@ -72,6 +72,16 @@ func init() {
 	}
 
 	cliptCmd.AddCommand(uiCmd)
+
+	testCmd := &cobra.Command{
+		Use:   "test",
+		Short: "Run test",
+		Run: func(cmd *cobra.Command, args []string) {
+			ShowTestUI(internal.NewAgent(appConfig))
+		},
+	}
+
+	cliptCmd.AddCommand(testCmd)
 }
 
 func main() {

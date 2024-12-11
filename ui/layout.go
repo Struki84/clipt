@@ -70,19 +70,21 @@ func (layout layout) Init() tea.Cmd {
 }
 
 func (layout layout) View() string {
-	if layout.windowSize.Height == 0 {
-		return ""
-	}
+	leftColumnHeight := layout.windowSize.Height - 2
 
-	layout.menu.Style.Height(15)
+	// Calculate approximate section heights
+	menuHeight := 13
+	volumeHeight := 15
+	infoHeight := leftColumnHeight - menuHeight - volumeHeight
 
-	infoSectionHeight := layout.windowSize.Height - 30
-	infoSection := sectionStyle.Height(infoSectionHeight).Render("Info Section")
+	layout.menu.Style.Height(menuHeight)
+
+	infoSection := sectionStyle.Height(infoHeight).Render("Info Section")
 
 	vuMeter := NewVUMeter()
-	vuMeterSection := sectionStyle.Render(vuMeter.View())
+	vuMeterSection := sectionStyle.Height(volumeHeight).AlignVertical(lipgloss.Bottom).Render(vuMeter.View())
 
-	leftColumn := lipgloss.JoinVertical(
+	leftColmun := lipgloss.JoinVertical(
 		lipgloss.Left,
 		layout.menu.View(),
 		infoSection,
@@ -90,15 +92,15 @@ func (layout layout) View() string {
 	)
 
 	if view, ok := layout.views[layout.activeView]; ok {
-		mainColumn := mainColumnStyle.Height(layout.windowSize.Height - 2).Render(view.View())
+		mainColumn := mainColumnStyle.Render(view.View())
 		return lipgloss.JoinHorizontal(
 			lipgloss.Left,
-			leftColumn,
+			leftColmun,
 			mainColumn,
 		)
 	}
 
-	return leftColumn
+	return leftColmun
 }
 
 func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -109,7 +111,7 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		layout.windowSize = msg
 		msg = tea.WindowSizeMsg{
 			Width:  msg.Width - leftColumnStyle.GetWidth() - 3,
-			Height: msg.Height - 2,
+			Height: msg.Height - 1,
 		}
 
 		for i, view := range layout.views {
@@ -168,10 +170,7 @@ func ShowUI(agent *internal.Agent) {
 	}
 
 	defer file.Close()
-	p := tea.NewProgram(
-		NewLayout(agent),
-		tea.WithAltScreen(),
-	)
+	p := tea.NewProgram(NewLayout(agent), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)

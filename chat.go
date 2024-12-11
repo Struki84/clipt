@@ -1,8 +1,10 @@
-package ui
+package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/textarea"
@@ -18,13 +20,15 @@ type ChatMsgs struct {
 }
 
 type ChatView struct {
-	agent      *internal.Agent
-	messages   []string
-	streamChan chan string
-	viewport   viewport.Model
-	textarea   textarea.Model
-	windowSize tea.WindowSizeMsg
-	renderer   *glamour.TermRenderer
+	agent            *internal.Agent
+	messages         []string
+	streamChan       chan string
+	viewport         viewport.Model
+	textarea         textarea.Model
+	windowSize       tea.WindowSizeMsg
+	renderer         *glamour.TermRenderer
+	currentMessage   string
+	renderedMessages []string
 }
 
 func NewChatView(agent *internal.Agent) ChatView {
@@ -41,12 +45,13 @@ func NewChatView(agent *internal.Agent) ChatView {
 	)
 
 	return ChatView{
-		agent:      agent,
-		messages:   make([]string, 0),
-		streamChan: make(chan string),
-		viewport:   viewport.New(120, 35),
-		textarea:   ta,
-		renderer:   renderer,
+		agent:            agent,
+		messages:         make([]string, 0),
+		streamChan:       make(chan string),
+		viewport:         viewport.New(120, 35),
+		textarea:         ta,
+		renderer:         renderer,
+		renderedMessages: make([]string, 0),
 	}
 }
 
@@ -154,4 +159,21 @@ func (chat ChatView) renderMessages() string {
 	return rendered
 
 	// return formattedContent
+}
+
+func ShowTestUI(agent *internal.Agent) {
+	file, err := tea.LogToFile("debug.log", "debug")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+	p := tea.NewProgram(
+		NewChatView(agent),
+		tea.WithAltScreen(),
+	)
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Alas, there's been an error: %v", err)
+		os.Exit(1)
+	}
 }
