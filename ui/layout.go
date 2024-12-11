@@ -73,9 +73,9 @@ func (layout layout) View() string {
 	leftColumnHeight := layout.windowSize.Height - 2
 
 	// Calculate approximate section heights
-	menuHeight := leftColumnHeight / 3
-	infoHeight := leftColumnHeight / 4
-	volumeHeight := leftColumnHeight - menuHeight - infoHeight
+	menuHeight := 13
+	volumeHeight := 15
+	infoHeight := leftColumnHeight - menuHeight - volumeHeight
 
 	layout.menu.Style.Height(menuHeight)
 
@@ -111,7 +111,7 @@ func (layout layout) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		layout.windowSize = msg
 		msg = tea.WindowSizeMsg{
 			Width:  msg.Width - leftColumnStyle.GetWidth() - 3,
-			Height: msg.Height - 2,
+			Height: msg.Height - 1,
 		}
 
 		for i, view := range layout.views {
