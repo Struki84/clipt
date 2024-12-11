@@ -10,7 +10,6 @@ import (
 	"github.com/tmc/langchaingo/agents"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/memory"
 	"github.com/tmc/langchaingo/tools"
 )
 
@@ -30,13 +29,13 @@ func NewAgent(config config.AppConfig) *Agent {
 	agent.callback = callbacks.NewStreamHandler()
 	agent.LLM = config.AgentLLM()
 	agent.Tools = config.GetTools()
+	agent.History = mem.NewPersistentChatHistory(config)
 
-	chatHistory := mem.NewPersistentChatHistory(config)
-	memoryBuffer := memory.NewConversationTokenBuffer(
-		agent.LLM,
-		8024,
-		memory.WithChatHistory(chatHistory),
-	)
+	// memoryBuffer := memory.NewConversationTokenBuffer(
+	// 	agent.LLM,
+	// 	8024,
+	// 	memory.WithChatHistory(agent.History),
+	// )
 
 	mainAgent := agents.NewConversationalAgent(
 		agent.LLM,
@@ -44,7 +43,10 @@ func NewAgent(config config.AppConfig) *Agent {
 		agents.WithCallbacksHandler(agent.callback),
 	)
 
-	agent.Executor = agents.NewExecutor(mainAgent, agents.WithMemory(memoryBuffer))
+	agent.Executor = agents.NewExecutor(
+		mainAgent,
+		// agents.WithMemory(memoryBuffer),
+	)
 
 	return agent
 }
@@ -57,6 +59,10 @@ func (agent *Agent) Run(ctx context.Context, input string) error {
 	log.Println("Agent running with input:", input)
 
 	agent.History.SetSession(agent.config.CurrentSession())
+
+	if agent.Executor == nil {
+		log.Println("Agent executor is nil")
+	}
 
 	_, err := chains.Run(ctx, agent.Executor, input)
 	if err != nil {

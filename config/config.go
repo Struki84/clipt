@@ -62,7 +62,7 @@ func (config *AppConfig) InitDB() {
 	sqlDB.Exec("PRAGMA foreign_keys = ON;")
 	sqlDB.Exec("PRAGMA journal_mode = WAL;")
 
-	err = config.DB.AutoMigrate(&models.ChatHistory{})
+	err = db.AutoMigrate(&models.ChatHistory{})
 	if err != nil {
 		log.Printf("Error migrating DB: %v", err)
 		return
