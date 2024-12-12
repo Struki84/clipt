@@ -83,9 +83,12 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		// log.Printf("ChatView handling WindowSizeMsg")
 		chat.windowSize = msg
+		chat.textarea.SetWidth(msg.Width)
+
 		chat.viewport.Width = msg.Width
 		chat.viewport.Height = msg.Height - chat.textarea.Height() - 1
-		chat.textarea.SetWidth(msg.Width)
+
+		chat.messages = chat.agent.GetConvresationHistory()
 		chat.viewport.SetContent(chat.renderMessages())
 
 	case ChatMsgs:
@@ -104,7 +107,7 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if chat.textarea.Focused() && strings.TrimSpace(chat.textarea.Value()) != "" {
 				userMsg := "You: " + chat.textarea.Value()
 				chat.messages = append(chat.messages, userMsg)
-				chat.messages = append(chat.messages, "Clipt:")
+				chat.messages = append(chat.messages, "Clipt: ")
 
 				chat.viewport.SetContent(chat.renderMessages())
 				chat.textarea.Reset()
@@ -138,20 +141,17 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (chat ChatView) renderMessages() string {
 	// log.Println("renderMessages called")
 	// Join messages with double newlines for proper separation
-	messageContent := strings.Join(chat.messages, "\n\n")
+	messageContent := strings.Join(chat.messages, "\n")
 
 	// Add proper markdown formatting for messages
 	formattedContent := strings.ReplaceAll(messageContent, "You: ", "### You:\n")
 	formattedContent = strings.ReplaceAll(formattedContent, "Clipt: ", "### Clipt:\n")
-
-	// formattedContent := messageContent
 
 	rendered, err := chat.renderer.Render(formattedContent)
 	if err != nil {
 		log.Printf("Error rendering messages: %v", err)
 		return messageContent
 	}
-	return rendered
 
-	// return formattedContent
+	return rendered
 }

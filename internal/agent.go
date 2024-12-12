@@ -10,6 +10,7 @@ import (
 	"github.com/tmc/langchaingo/agents"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/memory"
 	"github.com/tmc/langchaingo/tools"
 )
 
@@ -31,11 +32,11 @@ func NewAgent(config config.AppConfig) *Agent {
 	agent.Tools = config.GetTools()
 	agent.History = mem.NewPersistentChatHistory(config)
 
-	// memoryBuffer := memory.NewConversationTokenBuffer(
-	// 	agent.LLM,
-	// 	8024,
-	// 	memory.WithChatHistory(agent.History),
-	// )
+	memoryBuffer := memory.NewConversationTokenBuffer(
+		agent.LLM,
+		agent.config.MemorySize(),
+		memory.WithChatHistory(agent.History),
+	)
 
 	mainAgent := agents.NewConversationalAgent(
 		agent.LLM,
@@ -45,10 +46,32 @@ func NewAgent(config config.AppConfig) *Agent {
 
 	agent.Executor = agents.NewExecutor(
 		mainAgent,
-		// agents.WithMemory(memoryBuffer),
+		agents.WithMemory(memoryBuffer),
 	)
 
 	return agent
+}
+
+func (agent *Agent) GetConvresationHistory() []string {
+	agent.History.SetSession(agent.config.CurrentSession())
+
+	history, err := agent.History.Messages(context.Background())
+	if err != nil {
+		log.Println("Error getting conversation history:", err)
+	}
+
+	messages := make([]string, 0)
+	for _, msg := range history {
+		msgContent := msg.GetContent()
+
+		if msg.GetType() == "ai" {
+			msgContent = "Clipt: " + msg.GetContent()
+		}
+
+		messages = append(messages, msgContent)
+	}
+
+	return messages
 }
 
 func (agent *Agent) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte)) {

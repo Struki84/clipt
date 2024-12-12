@@ -85,6 +85,10 @@ func (config *AppConfig) AgentLLM() llms.Model {
 	return llm
 }
 
+func (config *AppConfig) MemorySize() int {
+	return 8096
+}
+
 func (config *AppConfig) GetTools() []tools.Tool {
 
 	return []tools.Tool{}
