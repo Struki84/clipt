@@ -49,6 +49,7 @@ func NewAgent(config config.AppConfig) *Agent {
 		agents.WithMemory(memoryBuffer),
 	)
 
+	log.Println("Agent created")
 	return agent
 }
 

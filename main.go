@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/struki84/clipt/config"
 	"github.com/struki84/clipt/internal"
+	"github.com/struki84/clipt/internal/graphs"
+	"github.com/struki84/clipt/network"
 	"github.com/struki84/clipt/ui"
 )
 
@@ -29,13 +32,21 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			agent := internal.NewAgent(appConfig)
 
-			agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
+			ctx := context.Background()
+
+			log.Printf("Running prompt")
+
+			agent.Stream(ctx, func(ctx context.Context, chunk []byte) {
 				fmt.Print(string(chunk))
 			})
 
 			input := args[0]
 
-			agent.Run(context.Background(), input)
+			err := agent.Run(ctx, input)
+
+			if err != nil {
+				log.Println("Error running prompt:", err)
+			}
 		},
 	}
 
@@ -46,7 +57,7 @@ func init() {
 		Short: "Run chat UI",
 		Run: func(cmd *cobra.Command, args []string) {
 			agent := internal.NewAgent(appConfig)
-			ShowUI(agent)
+			ui.ShowUI(agent)
 		},
 	}
 
@@ -56,7 +67,7 @@ func init() {
 		Use:   "node",
 		Short: "Run node",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := RunNode(); err != nil {
+			if err := network.RunNode(); err != nil {
 				fmt.Fprintf(os.Stderr, "Error running node: %v\n", err)
 				os.Exit(1)
 			}
@@ -65,25 +76,15 @@ func init() {
 
 	cliptCmd.AddCommand(nodeCmd)
 
-	uiCmd := &cobra.Command{
-		Use:   "ui",
-		Short: "Run UI",
+	graphCmd := &cobra.Command{
+		Use:   "graph",
+		Short: "Run graph",
 		Run: func(cmd *cobra.Command, args []string) {
-			ui.ShowUI(internal.NewAgent(appConfig))
+			graphs.SearchGraph(args[0])
 		},
 	}
 
-	cliptCmd.AddCommand(uiCmd)
-
-	testCmd := &cobra.Command{
-		Use:   "test",
-		Short: "Run test",
-		Run: func(cmd *cobra.Command, args []string) {
-			ShowTestUI(internal.NewAgent(appConfig))
-		},
-	}
-
-	cliptCmd.AddCommand(testCmd)
+	cliptCmd.AddCommand(graphCmd)
 }
 
 func main() {

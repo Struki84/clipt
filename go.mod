@@ -13,15 +13,22 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/thanhpk/randstr v1.0.6
 	github.com/tmc/langchaingo v0.1.12
+	github.com/tmc/langgraphgo v0.0.0-00010101000000-000000000000
 	gorm.io/driver/sqlite v1.5.7
 	gorm.io/gorm v1.25.12
 )
+
+replace github.com/tmc/langgraphgo => github.com/Struki84/GoLangGraph v0.0.0-20241219211233-13ceffc9020c
+
+replace github.com/tmc/langchaingo => github.com/Struki84/GoLangChain v0.0.0-20241219194721-954f863c8619
 
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.2.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
+	github.com/PuerkitoBio/goquery v1.8.1 // indirect
 	github.com/alecthomas/chroma/v2 v2.14.0 // indirect
+	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect

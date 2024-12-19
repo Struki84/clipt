@@ -6,6 +6,7 @@ import (
 	"github.com/struki84/clipt/internal/models"
 	"github.com/thanhpk/randstr"
 	"github.com/tmc/langchaingo/llms"
+	// "github.com/tmc/langchaingo/llms/anthropic"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/tools"
 	"gorm.io/driver/sqlite"
@@ -23,6 +24,7 @@ type AppConfig struct {
 type ConfigData struct {
 	ActiveLLM      string `json:"ActiveLLM,omitempty"`
 	OpenAIAPIToken string `json:"OpenAIAPIToken,omitempty"`
+	ClaudeAPIToken string `json:"ClaudeAPIToken,omitempty"`
 }
 
 func NewConfig() AppConfig {
@@ -72,6 +74,11 @@ func (config *AppConfig) InitDB() {
 }
 
 func (config *AppConfig) AgentLLM() llms.Model {
+	// llm, err := anthropic.New(
+	// 	anthropic.WithModel(config.Data.ActiveLLM),
+	// 	anthropic.WithToken(config.Data.ClaudeAPIToken),
+	// )
+
 	llm, err := openai.New(
 		openai.WithModel(config.Data.ActiveLLM),
 		openai.WithToken(config.Data.OpenAIAPIToken),
