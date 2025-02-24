@@ -80,7 +80,8 @@ func init() {
 		Use:   "graph",
 		Short: "Run graph",
 		Run: func(cmd *cobra.Command, args []string) {
-			graphs.SearchGraph(args[0])
+			graphs.ReactGraph(context.Background(), args[0])
+			// graphs.SearchGraph(args[0])
 		},
 	}
 
