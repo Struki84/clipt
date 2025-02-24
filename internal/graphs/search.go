@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"os"
 
 	"github.com/Struki84/GoLangGraph/graph"
 	"github.com/struki84/clipt/internal/tools/google"
 	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/openai"
+	"github.com/tmc/langchaingo/tools"
 	"github.com/tmc/langchaingo/tools/duckduckgo"
 )
 
@@ -21,7 +22,7 @@ var (
 			Type: "function",
 			Function: &llms.FunctionDefinition{
 				Name:        "secondarySearch",
-				Description: "Performs DuckDuckGo web search",
+				Description: "Performs DuckDuckGo web search, use this search tool only if primary search fails.",
 				Parameters: map[string]any{
 					"type": "object",
 					"properties": map[string]any{
@@ -37,7 +38,7 @@ var (
 			Type: "function",
 			Function: &llms.FunctionDefinition{
 				Name:        "primarySearch",
-				Description: "Performs google web search via serpapi",
+				Description: "Performs google web search via serpapi. Use this search tool as primary tool.",
 				Parameters: map[string]any{
 					"type": "object",
 					"properties": map[string]any{
@@ -52,19 +53,46 @@ var (
 	}
 )
 
-func SearchGraph(input string) {
+var _ tools.Tool = &WebSearchTool{}
 
-	model, err := openai.New(openai.WithModel("gpt-4o"))
+type WebSearchTool struct {
+	workflow *graph.Runnable
+}
+
+func NewWebSearchTool(llm llms.Model) *WebSearchTool {
+	return &WebSearchTool{
+		workflow: SearchGraph(llm),
+	}
+}
+
+func (search *WebSearchTool) Name() string {
+	return "WebSearch"
+}
+
+func (search *WebSearchTool) Description() string {
+	return "Performs web search using Google and DuckDuckGo, will resolve to DuckDuckGo if Google is unavailable."
+}
+
+func (search *WebSearchTool) Call(ctx context.Context, input string) (string, error) {
+	initialState := []llms.MessageContent{
+		llms.TextParts(llms.ChatMessageTypeSystem, searchPrimer),
+		llms.TextParts(llms.ChatMessageTypeHuman, input),
+	}
+
+	response, err := search.workflow.Invoke(ctx, initialState)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	intialState := []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeSystem, ""),
-	}
+	lastMsg := response[len(response)-1].Parts[0].(llms.TextContent).Text
+
+	return lastMsg, nil
+}
+
+func SearchGraph(llm llms.Model) *graph.Runnable {
 
 	agent := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-		response, err := model.GenerateContent(ctx, state, llms.WithTools(tools))
+		response, err := llm.GenerateContent(ctx, state, llms.WithTools(searchTools))
 		if err != nil {
 			return state, err
 		}
@@ -96,7 +124,9 @@ func SearchGraph(input string) {
 
 				var toolResponse string
 				if toolCall.FunctionCall.Name == "primarySearch" {
-					google, err := google.New("", 5)
+					apiKey := os.Getenv("SERPAPI_API_KEY")
+
+					google, err := google.New(apiKey, 5)
 					if err != nil {
 						log.Printf("search error: %v", err)
 						return state, err
@@ -164,20 +194,8 @@ func SearchGraph(input string) {
 	app, err := workflow.Compile()
 	if err != nil {
 		log.Printf("error: %v", err)
-		return
+		return nil
 	}
 
-	intialState = append(
-		intialState,
-		llms.TextParts(llms.ChatMessageTypeHuman, input),
-	)
-
-	response, err := app.Invoke(context.Background(), intialState)
-	if err != nil {
-		log.Printf("error: %v", err)
-		return
-	}
-
-	lastMsg := response[len(response)-1]
-	log.Printf("last msg: %v", lastMsg.Parts[0])
+	return app
 }
