@@ -71,6 +71,7 @@ func ReactGraph(ctx context.Context, input string) {
 
 	graphTools = append(graphTools,
 		NewWebSearchTool(llm),
+		NewLibraryTool(llm),
 		library.NewFileListTool(),
 	)
 

@@ -16,14 +16,14 @@ import (
 	"github.com/tmc/langchaingo/textsplitter"
 )
 
-type PDFAgent struct {
+type PDFReaderTool struct {
 	Splitter textsplitter.RecursiveCharacter
 	Embedder embeddings.Embedder
 	Model    llms.Model
 }
 
-func NewPDFAgent(options ...LibraryOptions) (*PDFAgent, error) {
-	pdfAgent := &PDFAgent{}
+func NewPDFReaderTool(options ...LibraryOptions) (*PDFReaderTool, error) {
+	pdfAgent := &PDFReaderTool{}
 
 	opts := LibraryAgentOptions{}
 	for _, option := range options {
@@ -40,11 +40,11 @@ func NewPDFAgent(options ...LibraryOptions) (*PDFAgent, error) {
 	return pdfAgent, nil
 }
 
-func (agent *PDFAgent) Name() string {
+func (agent *PDFReaderTool) Name() string {
 	return "PDF tool."
 }
 
-func (agent *PDFAgent) Description() string {
+func (agent *PDFReaderTool) Description() string {
 	str := `Enables you to read PDF documents.
 
 	The tool exepects input in JSON format with search query and filename.
@@ -59,7 +59,7 @@ func (agent *PDFAgent) Description() string {
 	return str
 }
 
-func (agent *PDFAgent) Call(ctx context.Context, input string) (string, error) {
+func (agent *PDFReaderTool) Call(ctx context.Context, input string) (string, error) {
 	log.Printf("PDF Agent running with input: %s", input)
 
 	var toolInput struct {

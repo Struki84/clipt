@@ -16,19 +16,19 @@ import (
 	"github.com/tmc/langchaingo/textsplitter"
 )
 
-type OfficeAgent struct {
+type OfficeReaderTool struct {
 	Splitter textsplitter.RecursiveCharacter
 	Embedder embeddings.Embedder
 	Model    llms.Model
 }
 
-func NewOfficeTool(options ...LibraryOptions) (*OfficeAgent, error) {
+func NewOfficeTool(options ...LibraryOptions) (*OfficeReaderTool, error) {
 	opts := LibraryAgentOptions{}
 	for _, option := range options {
 		option(&opts)
 	}
 
-	officeAgent := &OfficeAgent{}
+	officeAgent := &OfficeReaderTool{}
 
 	officeAgent.Embedder = opts.Embedder
 	officeAgent.Model = opts.Model
@@ -39,11 +39,11 @@ func NewOfficeTool(options ...LibraryOptions) (*OfficeAgent, error) {
 	return officeAgent, nil
 }
 
-func (agent *OfficeAgent) Name() string {
+func (agent *OfficeReaderTool) Name() string {
 	return "Office tool."
 }
 
-func (agent *OfficeAgent) Description() string {
+func (agent *OfficeReaderTool) Description() string {
 	str := `Enables you to read Office documents.
 
 	The tool exepects input in JSON format with search query and filename.
@@ -57,7 +57,7 @@ func (agent *OfficeAgent) Description() string {
 	return str
 }
 
-func (agent *OfficeAgent) Call(ctx context.Context, input string) (string, error) {
+func (agent *OfficeReaderTool) Call(ctx context.Context, input string) (string, error) {
 	log.Printf("Office Agent running with input: %s", input)
 
 	var toolInput struct {
