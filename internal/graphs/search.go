@@ -3,6 +3,7 @@ package graphs
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -74,6 +75,9 @@ func (search *WebSearchTool) Description() string {
 }
 
 func (search *WebSearchTool) Call(ctx context.Context, input string) (string, error) {
+	fmt.Println("Performing web search...")
+	log.Printf("Input: %s", input)
+
 	initialState := []llms.MessageContent{
 		llms.TextParts(llms.ChatMessageTypeSystem, searchPrimer),
 		llms.TextParts(llms.ChatMessageTypeHuman, input),

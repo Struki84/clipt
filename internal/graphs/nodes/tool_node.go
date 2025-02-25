@@ -3,7 +3,6 @@ package nodes
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/tools"
@@ -15,22 +14,18 @@ var (
 
 func ToolNode(nodeTools []tools.Tool) func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
 	return func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-		fmt.Println("=================== ToolNode ===================")
-
+		fmt.Println("=================== Tool Node ===================")
 		lastMsg := state[len(state)-1]
 
 		for _, part := range lastMsg.Parts {
-			if toolCall, ok := part.(llms.ToolCall); ok {
-
+			toolCall, ok := part.(llms.ToolCall)
+			if ok {
 				for _, tool := range nodeTools {
-
 					if tool.Name() == toolCall.FunctionCall.Name {
 						toolResonse, err := tool.Call(ctx, toolCall.FunctionCall.Arguments)
 						if err != nil {
 							return state, err
 						}
-
-						log.Println("Tool response:", toolResonse)
 
 						msg := llms.MessageContent{
 							Role: llms.ChatMessageTypeTool,
@@ -44,6 +39,7 @@ func ToolNode(nodeTools []tools.Tool) func(ctx context.Context, state []llms.Mes
 						}
 
 						state = append(state, msg)
+						return state, nil
 					}
 				}
 			}

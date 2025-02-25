@@ -8,6 +8,7 @@ import (
 
 	"github.com/Struki84/GoLangGraph/graph"
 	"github.com/struki84/clipt/internal/graphs/nodes"
+	"github.com/struki84/clipt/internal/tools/library"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/tools"
@@ -17,8 +18,19 @@ var (
 	primer = `
 	You are a ReAct agent with access to a DuckDuckGo search tool.
 	Reason step-by-step to answer the user's query.
-	Use the 'search' tool when needed.
-	When you have the final answer, end your response with '[FINISH]' on a new line.`
+	Use the 'WebSearch' tool ONLY when needed.
+	Use the 'FileList' tool to list files you can read and search through.
+	`
+
+	reasonPrimer = `
+	Reason step-by-step about the next action to achieve the user's goal based on the current state.
+	`
+
+	observePrimer = `
+	Review the current state and decide if the user's goal is met. 
+	If the user's goal is met, construct your final response to the user and end it with '[FINISH]' on a new line. 
+	If not, suggest the next step.
+	`
 
 	functions = []llms.Tool{
 		{
@@ -37,6 +49,14 @@ var (
 				},
 			},
 		},
+		{
+			Type: "function",
+			Function: &llms.FunctionDefinition{
+				Name:        "ListFiles",
+				Description: "Lists all files you can read and search.",
+				Parameters:  map[string]any{},
+			},
+		},
 	}
 
 	graphTools = []tools.Tool{}
@@ -49,11 +69,14 @@ func ReactGraph(ctx context.Context, input string) {
 		return
 	}
 
-	graphTools = append(graphTools, NewWebSearchTool(llm))
+	graphTools = append(graphTools,
+		NewWebSearchTool(llm),
+		library.NewFileListTool(),
+	)
 
 	reason := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
 		fmt.Println("=================== Reason ===================")
-		prompt := llms.TextParts(llms.ChatMessageTypeSystem, "Reason step-by-step about the next action to achieve the user's goal based on the current state.")
+		prompt := llms.TextParts(llms.ChatMessageTypeSystem, reasonPrimer)
 		state = append(state, prompt)
 
 		log.Println(prompt.Parts[0].(llms.TextContent).Text)
@@ -91,48 +114,10 @@ func ReactGraph(ctx context.Context, input string) {
 		return state, nil
 	}
 
-	// execute := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-	// 	log.Println("=================== Execute ===================")
-	// 	lastMsg := state[len(state)-1]
-	//
-	// 	for _, part := range lastMsg.Parts {
-	// 		if toolCall, ok := part.(llms.ToolCall); ok {
-	// 			log.Println(toolCall.FunctionCall.Name)
-	//
-	// 			for _, tool := range graphTools {
-	//
-	// 				if tool.Name() == toolCall.FunctionCall.Name {
-	// 					toolResonse, err := tool.Call(ctx, toolCall.FunctionCall.Arguments)
-	// 					if err != nil {
-	// 						return state, err
-	// 					}
-	//
-	// 					log.Println("tool response:", toolResonse)
-	//
-	// 					msg := llms.MessageContent{
-	// 						Role: llms.ChatMessageTypeTool,
-	// 						Parts: []llms.ContentPart{
-	// 							llms.ToolCallResponse{
-	// 								ToolCallID: toolCall.ID,
-	// 								Name:       toolCall.FunctionCall.Name,
-	// 								Content:    toolResonse,
-	// 							},
-	// 						},
-	// 					}
-	//
-	// 					state = append(state, msg)
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	//
-	// 	return state, nil
-	// }
-
 	observe := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
 		fmt.Println("=================== Observe ===================")
 
-		prompt := llms.TextParts(llms.ChatMessageTypeSystem, "Review the current state and decide if the user's goal is met. If so, end your response with '[FINISH]' on a new line. If not, suggest the next step.")
+		prompt := llms.TextParts(llms.ChatMessageTypeSystem, observePrimer)
 		state = append(state, prompt)
 
 		log.Println(prompt.Parts[0].(llms.TextContent).Text)
@@ -175,7 +160,6 @@ func ReactGraph(ctx context.Context, input string) {
 
 	workflow.AddNode("reason", reason)
 	workflow.AddNode("decide", decide)
-	// workflow.AddNode("execute", execute)
 	workflow.AddNode("execute", nodes.ToolNode(graphTools))
 	workflow.AddNode("observe", observe)
 
