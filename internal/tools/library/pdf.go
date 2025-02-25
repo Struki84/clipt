@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/documentloaders"
@@ -60,17 +59,14 @@ func (agent *PDFReaderTool) Description() string {
 }
 
 func (agent *PDFReaderTool) Call(ctx context.Context, input string) (string, error) {
-	log.Printf("PDF Agent running with input: %s", input)
+	log.Printf("PDF reader tool running with input: %s", input)
 
 	var toolInput struct {
 		File  string `json:"file,omitempty"`
-		Query string `json:"query,omitempty"`
+		Query string `json:"query,omitempty,omitempty"`
 	}
 
-	re := regexp.MustCompile(`(?s)\{.*\}`)
-	jsonString := re.FindString(input)
-
-	err := json.Unmarshal([]byte(jsonString), &toolInput)
+	err := json.Unmarshal([]byte(input), &toolInput)
 	if err != nil {
 		fmt.Println(err)
 		return fmt.Sprintf("%v: %s", "invalid input", err), nil
@@ -78,6 +74,10 @@ func (agent *PDFReaderTool) Call(ctx context.Context, input string) (string, err
 
 	dirPath := "./files"
 	fileByte, err := os.ReadFile(dirPath + "/" + toolInput.File)
+	if err != nil {
+		log.Printf("Error opening file: %s", err)
+		return "", err
+	}
 
 	file := bytes.NewReader(fileByte)
 	PDFLoader := documentloaders.NewPDF(file, file.Size())
@@ -88,6 +88,11 @@ func (agent *PDFReaderTool) Call(ctx context.Context, input string) (string, err
 	}
 
 	QAChain := chains.LoadStuffQA(agent.Model)
+
+	if toolInput.Query == "" {
+		toolInput.Query = "Provide the a summary of the document"
+	}
+
 	answer, err := chains.Call(ctx, QAChain, map[string]any{
 		"input_documents": docs,
 		"question":        toolInput.Query,

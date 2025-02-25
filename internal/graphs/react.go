@@ -57,6 +57,26 @@ var (
 				Parameters:  map[string]any{},
 			},
 		},
+		{
+			Type: "function",
+			Function: &llms.FunctionDefinition{
+				Name:        "ReadFile",
+				Description: "Use this tool to read and search the contents of Office and PDF files.",
+				Parameters: map[string]any{
+					"type": "object",
+					"properties": map[string]any{
+						"query": map[string]any{
+							"type":        "string",
+							"description": "Search query or inquery about the file",
+						},
+						"file": map[string]any{
+							"type":        "string",
+							"description": "The file to read",
+						},
+					},
+				},
+			},
+		},
 	}
 
 	graphTools = []tools.Tool{}
@@ -77,10 +97,9 @@ func ReactGraph(ctx context.Context, input string) {
 
 	reason := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
 		fmt.Println("=================== Reason ===================")
+
 		prompt := llms.TextParts(llms.ChatMessageTypeSystem, reasonPrimer)
 		state = append(state, prompt)
-
-		log.Println(prompt.Parts[0].(llms.TextContent).Text)
 
 		resp, err := llm.GenerateContent(ctx, state)
 		if err != nil {
@@ -95,7 +114,7 @@ func ReactGraph(ctx context.Context, input string) {
 	}
 
 	decide := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-		fmt.Println("=================== Decide ===================")
+		fmt.Println("=================== Act ===================")
 		resp, err := llm.GenerateContent(ctx, state, llms.WithTools(functions))
 		if err != nil {
 			return state, err
@@ -120,8 +139,6 @@ func ReactGraph(ctx context.Context, input string) {
 
 		prompt := llms.TextParts(llms.ChatMessageTypeSystem, observePrimer)
 		state = append(state, prompt)
-
-		log.Println(prompt.Parts[0].(llms.TextContent).Text)
 
 		resp, err := llm.GenerateContent(ctx, state)
 		if err != nil {
@@ -187,6 +204,8 @@ func ReactGraph(ctx context.Context, input string) {
 		return
 	}
 
+	fmt.Println("=================== Final Response ===================")
+
 	lastMsg := response[len(response)-1]
-	log.Printf("last msg: %v", lastMsg.Parts[0].(llms.TextContent).Text)
+	fmt.Println(lastMsg.Parts[0].(llms.TextContent).Text)
 }

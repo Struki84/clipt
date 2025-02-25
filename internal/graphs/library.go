@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	libraryPrimer = `You are a agent that can read Office and PDF documents.`
+	libraryPrimer = `You are an agent that can read Office and PDF documents.`
 
 	libraryTools = []llms.Tool{
 		{
@@ -109,11 +109,13 @@ func LibraryGraph(llm llms.Model) *graph.Runnable {
 				if toolCall.FunctionCall.Name == "ReadPDFFile" {
 					tool, err := library.NewPDFReaderTool(library.WithModel(llm))
 					if err != nil {
+						log.Println("Error creating PDF reader tool:", err)
 						return state, err
 					}
 
 					toolResponse, err = tool.Call(ctx, toolCall.FunctionCall.Arguments)
 					if err != nil {
+						log.Println("Error calling PDF reader tool:", err)
 						return state, err
 					}
 				}
@@ -121,17 +123,19 @@ func LibraryGraph(llm llms.Model) *graph.Runnable {
 				if toolCall.FunctionCall.Name == "ReadOfficeFile" {
 					tool, err := library.NewOfficeTool(library.WithModel(llm))
 					if err != nil {
+						log.Println("Error creating Office reader tool:", err)
 						return state, err
 					}
 
 					toolResponse, err = tool.Call(ctx, toolCall.FunctionCall.Arguments)
 					if err != nil {
+						log.Println("Error calling Office reader tool:", err)
 						return state, err
 					}
 				}
 
 				msg := llms.MessageContent{
-					Role: llms.ChatMessageTypeAI,
+					Role: llms.ChatMessageTypeTool,
 					Parts: []llms.ContentPart{
 						llms.ToolCallResponse{
 							ToolCallID: toolCall.ID,

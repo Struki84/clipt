@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 
 	"github.com/struki84/clipt/internal/loaders"
 	"github.com/tmc/langchaingo/chains"
@@ -58,17 +57,14 @@ func (agent *OfficeReaderTool) Description() string {
 }
 
 func (agent *OfficeReaderTool) Call(ctx context.Context, input string) (string, error) {
-	log.Printf("Office Agent running with input: %s", input)
+	log.Printf("Office reader tool running with input: %s", input)
 
 	var toolInput struct {
 		File  string `json:"file"`
-		Query string `json:"query"`
+		Query string `json:"query,omitempty"`
 	}
 
-	re := regexp.MustCompile(`(?s)\{.*\}`)
-	jsonString := re.FindString(input)
-
-	err := json.Unmarshal([]byte(jsonString), &toolInput)
+	err := json.Unmarshal([]byte(input), &toolInput)
 	if err != nil {
 		log.Printf("Error unmarshalling JSON: %s", err)
 		return fmt.Sprintf("%v: %s", "invalid input", err), nil
@@ -92,6 +88,12 @@ func (agent *OfficeReaderTool) Call(ctx context.Context, input string) (string, 
 	}
 
 	QAChain := chains.LoadStuffQA(agent.Model)
+
+	if toolInput.Query == "" {
+		toolInput.Query = "Provide a summary of the document."
+	}
+
+	log.Printf("Query: %s", toolInput.Query)
 
 	answer, err := chains.Call(ctx, QAChain, map[string]any{
 		"input_documents": docs,
