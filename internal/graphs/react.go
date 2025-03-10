@@ -16,10 +16,11 @@ import (
 
 var (
 	primer = `
-	You are a ReAct agent with access to a DuckDuckGo search tool.
+	You are a ReAct agent who can serch the web and read files.
 	Reason step-by-step to answer the user's query.
 	Use the 'WebSearch' tool ONLY when needed.
 	Use the 'FileList' tool to list files you can read and search through.
+	Use the 'ReadFile tool to read Office and PDF files.'
 	`
 
 	reasonPrimer = `
