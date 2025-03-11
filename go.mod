@@ -4,10 +4,12 @@ go 1.23.5
 
 require (
 	github.com/Struki84/GoLangGraph v0.0.0-20250221185209-5468393cf3de
+	github.com/amikos-tech/chroma-go v0.1.2
 	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.3.3
 	github.com/charmbracelet/glamour v0.8.0
 	github.com/charmbracelet/lipgloss v1.0.0
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/libp2p/go-libp2p v0.40.0
 	github.com/libp2p/go-libp2p-kad-dht v0.29.1
 	github.com/multiformats/go-multiaddr v0.14.0
@@ -23,6 +25,7 @@ require (
 require (
 	github.com/AssemblyAI/assemblyai-go-sdk v1.3.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.2.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
@@ -127,6 +130,7 @@ require (
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
+	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.22.2 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
