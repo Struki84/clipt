@@ -2,7 +2,6 @@ package files
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,13 +11,19 @@ import (
 )
 
 type FileSentry struct {
-	chromaClient library.ChromaClient
+	chromaClient *library.ChromaClient
 	dirPath      string
 }
 
 func NewFileSentry(dirPath string) *FileSentry {
+	client, err := library.NewChromaClient()
+	if err != nil {
+		log.Println("Error creating chroma client:", err)
+		return nil
+	}
+
 	return &FileSentry{
-		chromaClient: *library.NewChromaClient(),
+		chromaClient: client,
 		dirPath:      dirPath,
 	}
 
@@ -32,7 +37,10 @@ func (sentry *FileSentry) ScanFiles() error {
 		}
 
 		if !info.IsDir() {
-			log.Println(path)
+			err := sentry.chromaClient.SaveFile(context.Background(), path, info)
+			if err != nil {
+				log.Println("Error saving file to chroma DB:", err)
+			}
 		}
 
 		return nil
@@ -72,7 +80,7 @@ func (sentry *FileSentry) WatchFiles(ctx context.Context) error {
 					return
 				}
 
-				if event.Op&fsnotify.Write == fsnotify.Write {
+				if event.Op&fsnotify.Create == fsnotify.Create {
 					fileInfo, err := os.Stat(event.Name)
 					if err != nil {
 						log.Println("Error getting file info:", err)
@@ -80,10 +88,9 @@ func (sentry *FileSentry) WatchFiles(ctx context.Context) error {
 					}
 
 					if !fileInfo.IsDir() {
-						log.Println("File changed:", event.Name)
+						log.Println("File created:", event.Name)
 
-						path := fmt.Sprintf("%s/%s", sentry.dirPath, event.Name)
-						err := sentry.chromaClient.SaveFile(ctx, path, fileInfo)
+						err := sentry.chromaClient.SaveFile(ctx, event.Name, fileInfo)
 						if err != nil {
 							log.Println("Error saving file to chroma DB:", err)
 						}
@@ -100,5 +107,9 @@ func (sentry *FileSentry) WatchFiles(ctx context.Context) error {
 		}
 	}()
 
-	return nil
+	<-ctx.Done()
+
+	log.Println("Stopping watcher...")
+
+	return ctx.Err()
 }
