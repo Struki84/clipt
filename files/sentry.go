@@ -15,12 +15,7 @@ type FileSentry struct {
 	dirPath      string
 }
 
-func NewFileSentry(dirPath string) *FileSentry {
-	client, err := library.NewChromaClient()
-	if err != nil {
-		log.Println("Error creating chroma client:", err)
-		return nil
-	}
+func NewFileSentry(dirPath string, client *library.ChromaClient) *FileSentry {
 
 	return &FileSentry{
 		chromaClient: client,
@@ -29,7 +24,7 @@ func NewFileSentry(dirPath string) *FileSentry {
 
 }
 
-func (sentry *FileSentry) ScanFiles() error {
+func (sentry *FileSentry) ScanFiles(ctx context.Context) error {
 	err := filepath.Walk(sentry.dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Println(err)
@@ -37,7 +32,7 @@ func (sentry *FileSentry) ScanFiles() error {
 		}
 
 		if !info.IsDir() {
-			err := sentry.chromaClient.SaveFile(context.Background(), path, info)
+			err := sentry.chromaClient.SaveFile(ctx, path, info)
 			if err != nil {
 				log.Println("Error saving file to chroma DB:", err)
 			}

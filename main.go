@@ -8,8 +8,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/struki84/clipt/config"
+	"github.com/struki84/clipt/files"
 	"github.com/struki84/clipt/internal"
 	"github.com/struki84/clipt/internal/graphs"
+	"github.com/struki84/clipt/internal/tools/library"
 	"github.com/struki84/clipt/network"
 	"github.com/struki84/clipt/ui"
 )
@@ -80,12 +82,74 @@ func init() {
 		Use:   "graph",
 		Short: "Run graph",
 		Run: func(cmd *cobra.Command, args []string) {
-			graphs.ReactGraph(context.Background(), args[0])
-			// graphs.SearchGraph(args[0])
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			client, err := library.NewChromaClient()
+			if err != nil {
+				log.Println("Error creating chroma client:", err)
+				return
+			}
+
+			sentry := files.NewFileSentry("./files", client)
+
+			err = sentry.ScanFiles(ctx)
+			if err != nil {
+				log.Println("Error scanning for files:", err)
+				return
+			}
+
+			go func() {
+				err = sentry.WatchFiles(ctx)
+				if err != nil {
+					log.Println("Error watching files:", err)
+				}
+			}()
+
+			graphs.ReactGraph(ctx, args[0])
 		},
 	}
 
 	cliptCmd.AddCommand(graphCmd)
+
+	testCmd := &cobra.Command{
+		Use:   "test",
+		Short: "Run test",
+		Run: func(cmd *cobra.Command, args []string) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			client, err := library.NewChromaClient()
+			if err != nil {
+				log.Println("Error creating chroma client:", err)
+				return
+			}
+
+			err = client.InitVBD()
+			if err != nil {
+				log.Println("Error initializing vector database:", err)
+				return
+			}
+
+			sentry := files.NewFileSentry("./files", client)
+
+			err = sentry.ScanFiles(ctx)
+			if err != nil {
+				log.Println("Error scanning for files:", err)
+				return
+			}
+
+			go func() {
+				err = sentry.WatchFiles(ctx)
+				if err != nil {
+					log.Println("Error watching files:", err)
+				}
+			}()
+		},
+	}
+
+	cliptCmd.AddCommand(testCmd)
+
 }
 
 func main() {
