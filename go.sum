@@ -42,6 +42,10 @@ github.com/PuerkitoBio/goquery v1.8.1 h1:uQxhNlArOIdbrH1tr0UXwdVFgDcZDrZVdcpygAc
 github.com/PuerkitoBio/goquery v1.8.1/go.mod h1:Q8ICL1kNUJ2sXGoAhPGUdYDJvgQgHzJsnnd3H7Ho5jQ=
 github.com/Struki84/GoLangGraph v0.0.0-20250221185209-5468393cf3de h1:0SbOz2o7LUH5c+bdiy5Gzf3GKKrrJJ9Qto6GFqhXqHI=
 github.com/Struki84/GoLangGraph v0.0.0-20250221185209-5468393cf3de/go.mod h1:60LRoqT4wxs7hE6HxcTuqlAWbCdFDHt9KhDTsF3J7sE=
+github.com/Struki84/GoLangGraph v0.0.0-20250328201844-21684def0097 h1:jgVmEIgBVdYdfwXM9S471SNUivogtcIY1PX0p89DXDY=
+github.com/Struki84/GoLangGraph v0.0.0-20250328201844-21684def0097/go.mod h1:nBymp0xY6SVtUQf41sgo9eVwDmOCeHnCcKCIawa37rA=
+github.com/Struki84/GoLangGraph v0.0.0-20250329005611-9f2d7dce0358 h1:8Bhmv5zZkZaKFEqiUAq55nW9cuWuECeMytGTRfV1OlQ=
+github.com/Struki84/GoLangGraph v0.0.0-20250329005611-9f2d7dce0358/go.mod h1:nBymp0xY6SVtUQf41sgo9eVwDmOCeHnCcKCIawa37rA=
 github.com/airbrake/gobrake v3.6.1+incompatible/go.mod h1:wM4gu3Cn0W0K7GUuVWnlXZU11AGBXMILnrdOU8Kn00o=
 github.com/alecthomas/assert/v2 v2.7.0 h1:QtqSACNS3tF7oasA8CU6A6sXZSBDqnm7RfpLl9bZqbE=
 github.com/alecthomas/assert/v2 v2.7.0/go.mod h1:Bze95FyfUr7x34QZrjL+XP+0qgp/zg8yS+TtBj1WA3k=

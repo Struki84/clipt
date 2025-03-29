@@ -3,7 +3,7 @@ module github.com/struki84/clipt
 go 1.23.5
 
 require (
-	github.com/Struki84/GoLangGraph v0.0.0-20250221185209-5468393cf3de
+	github.com/Struki84/GoLangGraph v0.0.0-20250329005611-9f2d7dce0358
 	github.com/amikos-tech/chroma-go v0.1.4
 	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.3.3

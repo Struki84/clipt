@@ -10,6 +10,7 @@ import (
 	"github.com/struki84/clipt/config"
 	"github.com/struki84/clipt/files"
 	"github.com/struki84/clipt/internal"
+	"github.com/struki84/clipt/internal/callbacks"
 	"github.com/struki84/clipt/internal/graphs"
 	"github.com/struki84/clipt/internal/tools/library"
 	"github.com/struki84/clipt/network"
@@ -85,28 +86,29 @@ func init() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			client, err := library.NewChromaClient()
-			if err != nil {
-				log.Println("Error creating chroma client:", err)
-				return
-			}
+			// client, err := library.NewChromaClient()
+			// if err != nil {
+			// 	log.Println("Error creating chroma client:", err)
+			// 	return
+			// }
+			//
+			// sentry := files.NewFileSentry("./files", client)
+			//
+			// err = sentry.ScanFiles(ctx)
+			// if err != nil {
+			// 	log.Println("Error scanning for files:", err)
+			// 	return
+			// }
+			//
+			// go func() {
+			// 	err = sentry.WatchFiles(ctx)
+			// 	if err != nil {
+			// 		log.Println("Error watching files:", err)
+			// 	}
+			// }()
 
-			sentry := files.NewFileSentry("./files", client)
-
-			err = sentry.ScanFiles(ctx)
-			if err != nil {
-				log.Println("Error scanning for files:", err)
-				return
-			}
-
-			go func() {
-				err = sentry.WatchFiles(ctx)
-				if err != nil {
-					log.Println("Error watching files:", err)
-				}
-			}()
-
-			graphs.ReactGraph(ctx, args[0])
+			callback := callbacks.NewReActCallbackHandler()
+			graphs.ReactGraph(ctx, args[0], callback)
 		},
 	}
 

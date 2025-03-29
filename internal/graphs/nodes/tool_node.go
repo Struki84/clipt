@@ -2,8 +2,8 @@ package nodes
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/Struki84/GoLangGraph/graph"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/tools"
 )
@@ -12,9 +12,9 @@ var (
 	nodeTools = []llms.Tool{}
 )
 
-func ToolNode(nodeTools []tools.Tool) func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-	return func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-		fmt.Println("=================== Tool Node ===================")
+func ToolNode(nodeTools []tools.Tool) graph.NodeFunction {
+	return func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
+		options.CallbackHandler.HandleNodeStart(ctx, "Execute", state)
 		lastMsg := state[len(state)-1]
 
 		for _, part := range lastMsg.Parts {
@@ -39,11 +39,14 @@ func ToolNode(nodeTools []tools.Tool) func(ctx context.Context, state []llms.Mes
 						}
 
 						state = append(state, msg)
+						options.CallbackHandler.HandleNodeEnd(ctx, "Execute", state)
 						return state, nil
 					}
 				}
 			}
 		}
+
+		options.CallbackHandler.HandleNodeEnd(ctx, "Execute", state)
 		return state, nil
 	}
 }

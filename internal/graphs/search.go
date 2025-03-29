@@ -95,7 +95,7 @@ func (search *WebSearchTool) Call(ctx context.Context, input string) (string, er
 
 func SearchGraph(llm llms.Model) *graph.Runnable {
 
-	agent := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
+	agent := func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
 		response, err := llm.GenerateContent(ctx, state, llms.WithTools(searchTools))
 		if err != nil {
 			return state, err
@@ -113,7 +113,7 @@ func SearchGraph(llm llms.Model) *graph.Runnable {
 		return state, nil
 	}
 
-	search := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
+	search := func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
 		lastMsg := state[len(state)-1]
 
 		for _, part := range lastMsg.Parts {
@@ -175,7 +175,7 @@ func SearchGraph(llm llms.Model) *graph.Runnable {
 		return state, nil
 	}
 
-	shouldSearch := func(ctx context.Context, state []llms.MessageContent) string {
+	shouldSearch := func(ctx context.Context, state []llms.MessageContent, options graph.Options) string {
 		lastMsg := state[len(state)-1]
 		for _, part := range lastMsg.Parts {
 			if _, ok := part.(llms.ToolCall); ok {

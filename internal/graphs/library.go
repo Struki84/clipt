@@ -99,7 +99,7 @@ func (tool *LibraryTool) Call(ctx context.Context, input string) (string, error)
 
 func LibraryGraph(llm llms.Model) *graph.Runnable {
 
-	read := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
+	read := func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
 		lastMsg := state[len(state)-1]
 
 		for _, part := range lastMsg.Parts {
@@ -145,13 +145,16 @@ func LibraryGraph(llm llms.Model) *graph.Runnable {
 					},
 				}
 
+				options.CallbackHandler.HandleNodeEnd(ctx, "Read", state)
 				state = append(state, msg)
 			}
 		}
+
+		options.CallbackHandler.HandleNodeEnd(ctx, "Read", state)
 		return state, nil
 	}
 
-	shouldRead := func(ctx context.Context, state []llms.MessageContent) string {
+	shouldRead := func(ctx context.Context, state []llms.MessageContent, options graph.Options) string {
 		lastMsg := state[len(state)-1]
 
 		for _, part := range lastMsg.Parts {

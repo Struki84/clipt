@@ -163,3 +163,19 @@ func (client *ChromaClient) SaveFile(ctx context.Context, path string, fileInfo 
 	log.Printf("File saved to chroma DB: %s", path)
 	return nil
 }
+
+func (client *ChromaClient) GetFile(ctx context.Context, ID string) (string, error) {
+	log.Println("Getting file from chroma DB:", ID)
+
+	return "", nil
+}
+
+func (client *ChromaClient) DeleteFile(ctx context.Context, ID string) error {
+	log.Println("Deleting file from chroma DB:", ID)
+	return nil
+}
+
+func (client *ChromaClient) SearchFiles(ctx context.Context, query string) ([]string, error) {
+	log.Println("Searching for files in chroma DB:", query)
+	return nil, nil
+}

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Struki84/GoLangGraph/graph"
+	"github.com/struki84/clipt/internal/callbacks"
 	"github.com/struki84/clipt/internal/graphs/nodes"
 	"github.com/struki84/clipt/internal/tools/library"
 	"github.com/tmc/langchaingo/llms"
@@ -83,7 +84,7 @@ var (
 	graphTools = []tools.Tool{}
 )
 
-func ReactGraph(ctx context.Context, input string) {
+func ReactGraph(ctx context.Context, input string, callback callbacks.GraphCallbackHandler) {
 	llm, err := openai.New(openai.WithModel("gpt-4o"))
 	if err != nil {
 		log.Fatalf("failed to create LLM: %v", err)
@@ -96,27 +97,38 @@ func ReactGraph(ctx context.Context, input string) {
 		library.NewFileListTool(),
 	)
 
-	reason := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-		fmt.Println("=================== Reason ===================")
+	reason := func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
+		options.CallbackHandler.HandleNodeStart(ctx, "Reason", state)
 
-		prompt := llms.TextParts(llms.ChatMessageTypeSystem, reasonPrimer)
-		state = append(state, prompt)
+		streamFunc := func(ctx context.Context, chunk []byte) error {
+			options.CallbackHandler.HandleNodeStream(ctx, "Reason", chunk)
+			return nil
+		}
 
-		resp, err := llm.GenerateContent(ctx, state)
+		resp, err := llm.GenerateContent(ctx, state, llms.WithStreamingFunc(streamFunc))
 		if err != nil {
 			return state, err
 		}
 
 		state = append(state, llms.TextParts(llms.ChatMessageTypeAI, resp.Choices[0].Content))
 
-		log.Println(resp.Choices[0].Content)
-
+		options.CallbackHandler.HandleNodeEnd(ctx, "Reason", state)
 		return state, nil
 	}
 
-	decide := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-		fmt.Println("=================== Act ===================")
-		resp, err := llm.GenerateContent(ctx, state, llms.WithTools(functions))
+	act := func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
+		options.CallbackHandler.HandleNodeStart(ctx, "Act", state)
+
+		stramFunc := func(ctx context.Context, chunk []byte) error {
+			options.CallbackHandler.HandleNodeStream(ctx, "Act", chunk)
+			return nil
+		}
+
+		resp, err := llm.GenerateContent(ctx, state,
+			llms.WithTools(functions),
+			llms.WithStreamingFunc(stramFunc),
+		)
+
 		if err != nil {
 			return state, err
 		}
@@ -132,59 +144,70 @@ func ReactGraph(ctx context.Context, input string) {
 			state = append(state, msg)
 		}
 
+		options.CallbackHandler.HandleNodeEnd(ctx, "Act", state)
 		return state, nil
 	}
 
-	observe := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-		fmt.Println("=================== Observe ===================")
+	observe := func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
+		options.CallbackHandler.HandleNodeStart(ctx, "Observe", state)
 
 		prompt := llms.TextParts(llms.ChatMessageTypeSystem, observePrimer)
 		state = append(state, prompt)
 
-		resp, err := llm.GenerateContent(ctx, state)
+		streamFunc := func(ctx context.Context, chunk []byte) error {
+			options.CallbackHandler.HandleNodeStream(ctx, "Observe", chunk)
+			return nil
+		}
+
+		resp, err := llm.GenerateContent(ctx, state, llms.WithStreamingFunc(streamFunc))
 		if err != nil {
 			return state, err
 		}
 
-		log.Println(resp.Choices[0].Content)
-
+		options.CallbackHandler.HandleNodeEnd(ctx, "Observe", state)
 		return append(state, llms.TextParts(llms.ChatMessageTypeAI, resp.Choices[0].Content)), nil
 	}
 
-	shouldAct := func(ctx context.Context, state []llms.MessageContent) string {
+	shouldAct := func(ctx context.Context, state []llms.MessageContent, options graph.Options) string {
+		callback.HandleEdgeEntry(ctx, "shouldAct", state)
 		lastMsg := state[len(state)-1]
 
 		for _, part := range lastMsg.Parts {
 			if _, ok := part.(llms.ToolCall); ok {
+				callback.HandleEdgeExit(ctx, "shouldAct", state, "execute")
 				return "execute"
 			}
 		}
 
+		callback.HandleEdgeExit(ctx, "shouldAct", state, "observe")
 		return "observe"
 	}
 
-	shouldContinue := func(ctx context.Context, state []llms.MessageContent) string {
+	shouldContinue := func(ctx context.Context, state []llms.MessageContent, options graph.Options) string {
+		callback.HandleEdgeEntry(ctx, "shouldContinue", state)
 		lastMsg := state[len(state)-1]
 
 		textContent, ok := lastMsg.Parts[0].(llms.TextContent)
 
 		if ok && strings.Contains(textContent.Text, "[FINISH]") {
+			callback.HandleEdgeExit(ctx, "shouldContinue", state, graph.END)
 			return graph.END
 		}
 
+		callback.HandleEdgeExit(ctx, "shouldContinue", state, "reason")
 		return "reason"
 	}
 
 	workflow := graph.NewMessageGraph()
 
 	workflow.AddNode("reason", reason)
-	workflow.AddNode("decide", decide)
+	workflow.AddNode("act", act)
 	workflow.AddNode("execute", nodes.ToolNode(graphTools))
 	workflow.AddNode("observe", observe)
 
 	workflow.SetEntryPoint("reason")
-	workflow.AddEdge("reason", "decide")
-	workflow.AddConditionalEdge("decide", shouldAct)
+	workflow.AddEdge("reason", "act")
+	workflow.AddConditionalEdge("act", shouldAct)
 	workflow.AddEdge("execute", "observe")
 	workflow.AddConditionalEdge("observe", shouldContinue)
 
