@@ -2,12 +2,10 @@ package graphs
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
 
 	"github.com/Struki84/GoLangGraph/graph"
-	"github.com/struki84/clipt/internal/callbacks"
 	"github.com/struki84/clipt/internal/graphs/nodes"
 	"github.com/struki84/clipt/internal/tools/library"
 	"github.com/tmc/langchaingo/llms"
@@ -29,8 +27,8 @@ var (
 	`
 
 	observePrimer = `
-	Review the current state and decide if the user's goal is met. 
-	If the user's goal is met, construct your final response to the user and end it with '[FINISH]' on a new line. 
+	Review the current state and first decide if the user's request is met. 
+	If the user's goal is met, construct your final response to the user and wrap it with '[FINISH][/FINISH]' tags on a new line. 
 	If not, suggest the next step.
 	`
 
@@ -84,7 +82,7 @@ var (
 	graphTools = []tools.Tool{}
 )
 
-func ReactGraph(ctx context.Context, input string, callback callbacks.GraphCallbackHandler) {
+func ReactGraph(ctx context.Context, input string, callback graph.GraphCallback) {
 	llm, err := openai.New(openai.WithModel("gpt-4o"))
 	if err != nil {
 		log.Fatalf("failed to create LLM: %v", err)
@@ -96,6 +94,8 @@ func ReactGraph(ctx context.Context, input string, callback callbacks.GraphCallb
 		NewLibraryTool(llm),
 		library.NewFileListTool(),
 	)
+
+	workflow := graph.NewMessageGraph(graph.WithCallback(callback))
 
 	reason := func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
 		options.CallbackHandler.HandleNodeStart(ctx, "Reason", state)
@@ -198,8 +198,6 @@ func ReactGraph(ctx context.Context, input string, callback callbacks.GraphCallb
 		return "reason"
 	}
 
-	workflow := graph.NewMessageGraph()
-
 	workflow.AddNode("reason", reason)
 	workflow.AddNode("act", act)
 	workflow.AddNode("execute", nodes.ToolNode(graphTools))
@@ -222,14 +220,9 @@ func ReactGraph(ctx context.Context, input string, callback callbacks.GraphCallb
 		return
 	}
 
-	response, err := app.Invoke(ctx, initialState)
+	_, err = app.Invoke(ctx, initialState)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return
 	}
-
-	fmt.Println("=================== Final Response ===================")
-
-	lastMsg := response[len(response)-1]
-	fmt.Println(lastMsg.Parts[0].(llms.TextContent).Text)
 }

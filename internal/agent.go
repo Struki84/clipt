@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/struki84/clipt/config"
@@ -24,6 +25,7 @@ type Agent struct {
 }
 
 func NewAgent(config config.AppConfig) *Agent {
+	log.Println("Creating agent...")
 	agent := &Agent{}
 
 	agent.config = config
@@ -50,6 +52,19 @@ func NewAgent(config config.AppConfig) *Agent {
 	)
 
 	log.Println("Agent created")
+
+	memory, err := memoryBuffer.LoadMemoryVariables(context.Background(), nil)
+	if err != nil {
+		log.Println("Error loading memory variables:", err)
+	}
+
+	prettyMemory, err := json.MarshalIndent(memory, "", "  ")
+	if err != nil {
+		log.Println("Error marshalling memory variables:", err)
+	}
+
+	log.Println("Agent memory:", string(prettyMemory))
+
 	return agent
 }
 

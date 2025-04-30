@@ -86,27 +86,6 @@ func init() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			// client, err := library.NewChromaClient()
-			// if err != nil {
-			// 	log.Println("Error creating chroma client:", err)
-			// 	return
-			// }
-			//
-			// sentry := files.NewFileSentry("./files", client)
-			//
-			// err = sentry.ScanFiles(ctx)
-			// if err != nil {
-			// 	log.Println("Error scanning for files:", err)
-			// 	return
-			// }
-			//
-			// go func() {
-			// 	err = sentry.WatchFiles(ctx)
-			// 	if err != nil {
-			// 		log.Println("Error watching files:", err)
-			// 	}
-			// }()
-
 			callback := callbacks.NewReActCallbackHandler()
 			graphs.ReactGraph(ctx, args[0], callback)
 		},
@@ -118,18 +97,15 @@ func init() {
 		Use:   "test",
 		Short: "Run test",
 		Run: func(cmd *cobra.Command, args []string) {
+
+			// _ = internal.NewAgent(appConfig)
+
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
 			client, err := library.NewChromaClient()
 			if err != nil {
 				log.Println("Error creating chroma client:", err)
-				return
-			}
-
-			err = client.InitVBD()
-			if err != nil {
-				log.Println("Error initializing vector database:", err)
 				return
 			}
 

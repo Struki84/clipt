@@ -7,16 +7,10 @@ import (
 	"github.com/tmc/langchaingo/llms"
 )
 
-func AgentNode(llm llms.Model, functions []llms.Tool) graph.NodeFunction {
+func AgentNode(llm llms.Model, functions []llms.Tool) func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
 	return func(ctx context.Context, state []llms.MessageContent, options graph.Options) ([]llms.MessageContent, error) {
-		options.CallbackHandler.HandleNodeStart(ctx, "Agent", state)
 
-		streamFunc := func(ctx context.Context, chunk []byte) error {
-			options.CallbackHandler.HandleNodeStream(ctx, "Agent", chunk)
-			return nil
-		}
-
-		response, err := llm.GenerateContent(ctx, state, llms.WithTools(functions), llms.WithStreamingFunc(streamFunc))
+		response, err := llm.GenerateContent(ctx, state, llms.WithTools(functions))
 		if err != nil {
 			return state, err
 		}
@@ -30,7 +24,6 @@ func AgentNode(llm llms.Model, functions []llms.Tool) graph.NodeFunction {
 		}
 
 		state = append(state, msg)
-		options.CallbackHandler.HandleNodeEnd(ctx, "Agent", state)
 		return state, nil
 	}
 }

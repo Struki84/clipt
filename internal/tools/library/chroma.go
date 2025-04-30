@@ -17,7 +17,6 @@ import (
 
 type ChromaClient struct {
 	client        *chromago.Client
-	collection    *chromago.Collection
 	embeddingFunc *openai.OpenAIEmbeddingFunction
 }
 
@@ -28,68 +27,23 @@ func NewChromaClient() (*ChromaClient, error) {
 		return nil, err
 	}
 
-	return &ChromaClient{
-		client: client,
-	}, nil
-}
-
-func (client *ChromaClient) InitVBD() error {
-
-	tenant, err := client.client.GetTenant(context.Background(), "clipt-tenant")
-	if err != nil {
-		log.Println("Error getting tenant:", err)
-	}
-
-	if tenant == nil {
-		_, err := client.client.CreateTenant(context.Background(), "clipt-tenant")
-		if err != nil {
-			log.Println("Error creating tenant:", err)
-			return err
-		}
-	}
-
-	tenantName := "clipt-tenant"
-	db, err := client.client.GetDatabase(context.Background(), "clipt-vdb", &tenantName)
-	if err != nil {
-		log.Println("Error getting database:", err)
-	}
-
-	if db == nil {
-		_, err = client.client.CreateDatabase(context.Background(), "clipt-vdb", &tenantName)
-		if err != nil {
-			log.Println("Error creating database:", err)
-			return err
-		}
-	}
-
-	client.client.SetTenant("clipt-tenant")
-	client.client.SetDatabase("clipt-vdb")
-
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	embeddingFunc, err := openai.NewOpenAIEmbeddingFunction(apiKey)
+	embeddingFunc, err := openai.NewOpenAIEmbeddingFunction(os.Getenv("MAR_MAR_OPENAI_API_KEY"), openai.WithModel("text-embedding-3-large"))
 	if err != nil {
 		log.Println("Error creating embedding function:", err)
-		return err
+		return nil, err
 	}
 
-	coll, err := client.client.NewCollection(context.Background(),
-		collection.WithName("documents-2"),
-		collection.WithEmbeddingFunction(embeddingFunc),
+	_, err = client.NewCollection(context.Background(),
+		collection.WithName("clipt_documents"),
 		collection.WithHNSWDistanceFunction(types.L2),
-		collection.WithDatabase("clipt-vdb"),
-		collection.WithTenant("clipt-tenant"),
 		collection.WithCreateIfNotExist(true),
+		collection.WithEmbeddingFunction(embeddingFunc),
 	)
 
-	if err != nil {
-		log.Println("Error creating collection:", err)
-		return err
-	}
-
-	client.collection = coll
-	client.embeddingFunc = embeddingFunc
-
-	return nil
+	return &ChromaClient{
+		client:        client,
+		embeddingFunc: embeddingFunc,
+	}, nil
 }
 
 func (client *ChromaClient) SaveFile(ctx context.Context, path string, fileInfo os.FileInfo) error {
@@ -128,12 +82,17 @@ func (client *ChromaClient) SaveFile(ctx context.Context, path string, fileInfo 
 
 		fileContent = docs[0].PageContent
 	default:
-		log.Println("Unsupported file type:", path)
 		return fmt.Errorf("unsupported file type: %s", filepath.Ext(path))
 	}
 
+	collection, err := client.client.GetCollection(ctx, "clipt_documents", client.embeddingFunc)
+	if err != nil {
+		log.Println("Error getting collection:", err)
+		return err
+	}
+
 	recordSet, err := types.NewRecordSet(
-		types.WithEmbeddingFunction(client.collection.EmbeddingFunction),
+		types.WithEmbeddingFunction(collection.EmbeddingFunction),
 		types.WithIDGenerator(types.NewUUIDGenerator()),
 	)
 
@@ -143,20 +102,20 @@ func (client *ChromaClient) SaveFile(ctx context.Context, path string, fileInfo 
 	}
 
 	// convert int64 to string
-	fileSizeStr := fmt.Sprintf("%d", fileInfo.Size())
+	// fileSizeStr := fmt.Sprintf("%d", fileInfo.Size())
 
 	recordSet.WithRecord(
 		types.WithDocument(fileContent),
-		types.WithMetadata("fileType", filepath.Ext(path)),
-		types.WithMetadata("fileName", fileInfo.Name()),
-		types.WithMetadata("filePath", path),
-		types.WithMetadata("fileSize", fileSizeStr),
-		types.WithMetadata("createdAt", fileInfo.ModTime().String()),
 	)
 
-	_, err = client.collection.AddRecords(ctx, recordSet)
+	_, err = recordSet.BuildAndValidate(ctx)
 	if err != nil {
-		log.Println("Error adding record to collection:", err)
+		log.Println("Error validating record set:", err)
+		return err
+	}
+
+	_, err = collection.AddRecords(ctx, recordSet)
+	if err != nil {
 		return err
 	}
 
