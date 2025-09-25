@@ -8,5 +8,5 @@ type AIEngine interface {
 	Description() string
 	GetChatHistory() []string
 	Run(ctx context.Context, input string) error
-	Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte))
+	Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error)
 }

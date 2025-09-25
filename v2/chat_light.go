@@ -52,12 +52,15 @@ func NewChatViewLight(agent AIEngine) ChatViewLight {
 }
 
 func (chat ChatViewLight) Init() tea.Cmd {
-	chat.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) {
+	chat.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) error {
 		chat.streamChan <- string(chunk)
+		return nil
 	})
+
 	cmds := []tea.Cmd{}
 	cmds = append(cmds, textarea.Blink)
 	cmds = append(cmds, chat.handleStream)
+
 	return tea.Batch(cmds...)
 }
 
