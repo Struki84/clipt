@@ -1,4 +1,4 @@
-package v2
+package main
 
 import (
 	"context"
@@ -18,7 +18,7 @@ type ChatMsgs struct {
 	Content string
 }
 
-type ChatViewLight struct {
+type ChatView struct {
 	agent      AIEngine
 	messages   []string
 	streamChan chan string
@@ -28,7 +28,7 @@ type ChatViewLight struct {
 	renderer   *glamour.TermRenderer
 }
 
-func NewChatViewLight(agent AIEngine) ChatViewLight {
+func NewChatViewLight(agent AIEngine) ChatView {
 	ta := textarea.New()
 	ta.Placeholder = "Send a message..."
 	ta.ShowLineNumbers = false
@@ -41,17 +41,17 @@ func NewChatViewLight(agent AIEngine) ChatViewLight {
 		glamour.WithWordWrap(120),
 	)
 
-	return ChatViewLight{
+	return ChatView{
 		agent:      agent,
 		messages:   make([]string, 0),
-		streamChan: make(chan string),
+		streamChan: make(chan string, 100),
 		viewport:   viewport.New(120, 35),
 		textarea:   ta,
 		renderer:   renderer,
 	}
 }
 
-func (chat ChatViewLight) Init() tea.Cmd {
+func (chat ChatView) Init() tea.Cmd {
 	chat.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) error {
 		chat.streamChan <- string(chunk)
 		return nil
@@ -64,8 +64,7 @@ func (chat ChatViewLight) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (chat ChatViewLight) handleStream() tea.Msg {
-	// log.Println("handleStream")
+func (chat ChatView) handleStream() tea.Msg {
 	content := <-chat.streamChan
 
 	return ChatMsgs{
@@ -73,19 +72,26 @@ func (chat ChatViewLight) handleStream() tea.Msg {
 	}
 }
 
-func (chat ChatViewLight) View() string {
+func (chat ChatView) View() string {
+	textareaStyle := lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderTop(false).
+		BorderBottom(false)
+
 	joinVertical := lipgloss.JoinVertical(
 		lipgloss.Left,
 		chat.viewport.View(),
-		chat.textarea.View(),
+		textareaStyle.Render(chat.textarea.View()),
 	)
 	return joinVertical
 }
 
-func (chat ChatViewLight) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		log.Printf("ChatView handling WindowSizeMsg")
 		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
 		chat.viewport.Height = msg.Height - chat.textarea.Height() - 1
@@ -108,7 +114,7 @@ func (chat ChatViewLight) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if chat.textarea.Focused() && strings.TrimSpace(chat.textarea.Value()) != "" {
 				userMsg := "You: " + chat.textarea.Value()
 				chat.messages = append(chat.messages, userMsg)
-				chat.messages = append(chat.messages, "Clipt:")
+				chat.messages = append(chat.messages, "Clipt: ")
 
 				chat.viewport.SetContent(chat.renderMessages())
 				chat.textarea.Reset()
@@ -139,12 +145,9 @@ func (chat ChatViewLight) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return chat, tea.Batch(cmds...)
 }
 
-func (chat ChatViewLight) renderMessages() string {
-	// log.Println("renderMessages called")
-	// Join messages with double newlines for proper separation
+func (chat ChatView) renderMessages() string {
 	messageContent := strings.Join(chat.messages, "\n\n")
 
-	// Add proper markdown formatting for messages
 	formattedContent := strings.ReplaceAll(messageContent, "You: ", "### You:\n")
 	formattedContent = strings.ReplaceAll(formattedContent, "Clipt: ", "### Clipt:\n")
 
