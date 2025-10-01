@@ -37,8 +37,8 @@ func (model *TestModel) Description() string {
 	return "GPT-4o by OpenAI"
 }
 
-func (model *TestModel) GetChatHistory() []string {
-	return []string{}
+func (model *TestModel) ChatHistory(sessionID string) ChatHistory {
+	return &History{}
 }
 
 func (model *TestModel) Run(ctx context.Context, input string) error {
@@ -63,4 +63,15 @@ func (model *TestModel) Run(ctx context.Context, input string) error {
 func (model *TestModel) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
 	log.Printf("Set stream")
 	model.streamHandler = callback
+}
+
+type History struct {
+}
+
+func (history *History) LoadHistory(sessionID string) []ChatMsg {
+	return []ChatMsg{}
+}
+
+func (history *History) SaveHistory(sessionID string, msgs []ChatMsg) error {
+	return nil
 }
