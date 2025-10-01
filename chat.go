@@ -1,7 +1,6 @@
 // TODO
 // - load chat history
 // - top bar with session name / timestamp
-// - add user msg timestapm and handle
 // - add error msgs
 // - tool msgs
 // - add some kind of debug view for reading reasoning steps
@@ -15,7 +14,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -25,22 +26,21 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type ChatMsgs struct {
-	Content string
-	Role    string
+type StreamMsg struct {
+	Chunk string
 }
 
 type ChatView struct {
-	agent      AIEngine
-	messages   []string
+	user       *user.User
+	provider   ChatProvider
+	msgs       []ChatMsg
 	streamChan chan string
 	viewport   viewport.Model
 	textarea   textarea.Model
-	windowSize tea.WindowSizeMsg
 	renderer   *glamour.TermRenderer
 }
 
-func NewChatViewLight(agent AIEngine) ChatView {
+func NewChatViewLight(agent ChatProvider) ChatView {
 	ta := textarea.New()
 	ta.Prompt = ""
 	ta.ShowLineNumbers = false
@@ -60,7 +60,7 @@ func NewChatViewLight(agent AIEngine) ChatView {
 
 	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(120),
+		glamour.WithWordWrap(240),
 	)
 
 	vp := viewport.New(120, 35)
@@ -71,9 +71,14 @@ func NewChatViewLight(agent AIEngine) ChatView {
 		Up:       key.NewBinding(key.WithKeys("up")),
 	}
 
+	user, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return ChatView{
-		agent:      agent,
-		messages:   make([]string, 0),
+		user:       user,
+		provider:   agent,
 		streamChan: make(chan string, 100),
 		viewport:   vp,
 		textarea:   ta,
@@ -82,7 +87,7 @@ func NewChatViewLight(agent AIEngine) ChatView {
 }
 
 func (chat ChatView) Init() tea.Cmd {
-	chat.agent.Stream(context.Background(), func(ctx context.Context, chunk []byte) error {
+	chat.provider.Stream(context.Background(), func(ctx context.Context, chunk []byte) error {
 		chat.streamChan <- string(chunk)
 		return nil
 	})
@@ -97,8 +102,8 @@ func (chat ChatView) Init() tea.Cmd {
 func (chat ChatView) handleStream() tea.Msg {
 	content := <-chat.streamChan
 
-	return ChatMsgs{
-		Content: content,
+	return StreamMsg{
+		Chunk: content,
 	}
 }
 
@@ -114,19 +119,11 @@ func (chat ChatView) View() string {
 func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
 		chat.viewport.Height = msg.Height - chat.textarea.Height() - 3
 		chat.textarea.SetWidth(msg.Width - 4)
 		chat.viewport.SetContent(chat.renderMessages())
 
-	case ChatMsgs:
-		chat.messages[len(chat.messages)-1] += msg.Content
-
-		chat.viewport.SetContent(chat.renderMessages())
-		chat.viewport.GotoBottom()
-
-		return chat, chat.handleStream
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC:
@@ -134,23 +131,47 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case tea.KeyEnter:
 			if chat.textarea.Focused() && strings.TrimSpace(chat.textarea.Value()) != "" {
-				userMsg := "You: " + chat.textarea.Value()
-				chat.messages = append(chat.messages, userMsg)
-				chat.messages = append(chat.messages, "Clipt: ")
+				input := chat.textarea.Value()
+
+				usrMsg := ChatMsg{
+					Content:   input,
+					Role:      "User",
+					Timestamp: time.Now().Unix(),
+				}
+
+				chat.msgs = append(chat.msgs, usrMsg)
+
+				aiMsg := ChatMsg{
+					Content:   "",
+					Role:      "AI",
+					Timestamp: time.Now().Unix(),
+				}
+
+				chat.msgs = append(chat.msgs, aiMsg)
 
 				chat.viewport.SetContent(chat.renderMessages())
 				chat.textarea.Reset()
 				chat.viewport.GotoBottom()
 
 				go func() {
-					err := chat.agent.Run(context.Background(), userMsg)
+					err := chat.provider.Run(context.Background(), input)
 					if err != nil {
 						log.Println("Run error:", err)
 					}
 				}()
+
 				return chat, nil
 			}
 		}
+
+	case StreamMsg:
+		chat.msgs[len(chat.msgs)-1].Content += msg.Chunk
+		chat.msgs[len(chat.msgs)-1].Timestamp = time.Now().Unix()
+
+		chat.viewport.SetContent(chat.renderMessages())
+		chat.viewport.GotoBottom()
+
+		return chat, chat.handleStream
 	}
 
 	cmds := []tea.Cmd{}
@@ -187,13 +208,17 @@ func (chat ChatView) renderMessages() string {
 		Align(lipgloss.Left).
 		Width(chat.viewport.Width - 2)
 
-	for _, msg := range chat.messages {
-		if strings.HasPrefix(msg, "You:") {
-			content := strings.TrimPrefix(msg, "You: ")
-			content = content + "\n" + "simun (17 Sep 2025 15:00)"
-			styledMessages = append(styledMessages, userStyle.Render(content))
-		} else if strings.HasPrefix(msg, "Clipt:") {
-			renderedTxt, _ := chat.renderer.Render(strings.TrimPrefix(msg, "Clipt: "))
+	for _, msg := range chat.msgs {
+		if msg.Role == "User" {
+			date := time.Unix(msg.Timestamp, 0).Format("2 Jan 2006 15:04")
+			username := chat.user.Username
+			fullMsg := fmt.Sprintf("%s\n\n%s (%s) ", msg.Content, username, date)
+
+			styledMessages = append(styledMessages, userStyle.Render(fullMsg))
+
+		} else if msg.Role == "AI" {
+			renderedTxt, _ := chat.renderer.Render(msg.Content)
+
 			styledMessages = append(styledMessages, aiStyle.Render(renderedTxt))
 		}
 	}
@@ -201,7 +226,7 @@ func (chat ChatView) renderMessages() string {
 	return lipgloss.JoinVertical(lipgloss.Center, styledMessages...)
 }
 
-func ShowChatViewLight(agent AIEngine) {
+func ShowChatViewLight(agent ChatProvider) {
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		log.Fatal(err)

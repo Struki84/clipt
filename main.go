@@ -12,7 +12,12 @@ var cliptCmd = &cobra.Command{
 	Short: "",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
+		providers := []ChatProvider{}
+
 		model := NewTestModel()
+
+		providers = append(providers, model)
+
 		ShowChatViewLight(model)
 	},
 }
