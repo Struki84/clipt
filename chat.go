@@ -5,7 +5,8 @@
 // - tool msgs
 // - add some kind of debug view for reading reasoning steps
 // - bottom bar with active mode and active engine
-// - commands menu
+// - 3 modes: Chat, Execute, Debug
+// - commands menu: models, agents, tools, session, exit
 
 package main
 
@@ -38,6 +39,7 @@ type ChatView struct {
 	viewport   viewport.Model
 	textarea   textarea.Model
 	renderer   *glamour.TermRenderer
+	windowSize tea.WindowSizeMsg
 }
 
 func NewChatViewLight(agent ChatProvider) ChatView {
@@ -60,7 +62,7 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 
 	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(240),
+		glamour.WithWordWrap(120),
 	)
 
 	vp := viewport.New(120, 35)
@@ -108,10 +110,65 @@ func (chat ChatView) handleStream() tea.Msg {
 }
 
 func (chat ChatView) View() string {
+	baseStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color("#181825")).
+		Foreground(lipgloss.Color("#ebdbb2"))
+
+	tabStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#7f849c")).
+		PaddingRight(1)
+
+	modeStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color("#b4befe")).
+		Foreground(lipgloss.Color("#181825")).
+		PaddingLeft(1).
+		PaddingRight(1).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderForeground(lipgloss.Color("#b4befe")).
+		BorderLeft(true).
+		BorderRight(false).
+		BorderTop(false).
+		BorderBottom(false)
+
+	providerTypeSyle := lipgloss.NewStyle().
+		Background(lipgloss.Color("#b4befe")).
+		Foreground(lipgloss.Color("#181825")).
+		PaddingLeft(1).
+		PaddingRight(1).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderForeground(lipgloss.Color("#b4befe")).
+		BorderRight(true)
+
+	providerNameStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color("#45475a")).
+		Foreground(lipgloss.Color("fff")).
+		PaddingLeft(1).
+		PaddingRight(1).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderForeground(lipgloss.Color("#45475a")).
+		BorderLeft(true)
+
+	providerType := providerTypeSyle.Render("MODEL")
+	providerName := providerNameStyle.Render("GPT-4o")
+	tab := tabStyle.Render("tab")
+	mode := modeStyle.Render("CHAT")
+
+	leftPart := lipgloss.JoinHorizontal(lipgloss.Top, providerType, providerName)
+	rightPart := lipgloss.JoinHorizontal(lipgloss.Top, tab, mode)
+
+	fillerWidth := chat.windowSize.Width - lipgloss.Width(leftPart) - lipgloss.Width(rightPart)
+	if fillerWidth < 0 {
+		fillerWidth = 0
+	}
+	filler := baseStyle.Width(fillerWidth).Render("")
+
+	statusView := lipgloss.JoinHorizontal(lipgloss.Top, leftPart, filler, rightPart)
+
 	joinVertical := lipgloss.JoinVertical(
 		lipgloss.Center,
 		chat.viewport.View(),
 		chat.textarea.View(),
+		statusView,
 	)
 	return joinVertical
 }
@@ -119,8 +176,9 @@ func (chat ChatView) View() string {
 func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
-		chat.viewport.Height = msg.Height - chat.textarea.Height() - 3
+		chat.viewport.Height = msg.Height - chat.textarea.Height() - 4
 		chat.textarea.SetWidth(msg.Width - 4)
 		chat.viewport.SetContent(chat.renderMessages())
 
