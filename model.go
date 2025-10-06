@@ -37,7 +37,7 @@ func (model *TestModel) Description() string {
 	return "GPT-4o by OpenAI"
 }
 
-func (model *TestModel) GetChatHistory(sessionID string) ChatHistory {
+func (model *TestModel) ChatHistory(sessionID string) ChatHistory {
 	return nil
 }
 
