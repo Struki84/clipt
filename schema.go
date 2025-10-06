@@ -2,6 +2,8 @@ package main
 
 import "context"
 
+var Providers = []ChatProvider{}
+
 type ChatMsg struct {
 	Role      string
 	Content   string

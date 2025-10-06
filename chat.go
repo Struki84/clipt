@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,6 +32,14 @@ type StreamMsg struct {
 	Chunk string
 }
 
+type menuItem struct {
+	title, desc string
+}
+
+func (i menuItem) Title() string       { return i.title }
+func (i menuItem) Description() string { return i.desc }
+func (i menuItem) FilterValue() string { return i.title }
+
 type ChatView struct {
 	user       *user.User
 	provider   ChatProvider
@@ -40,6 +49,8 @@ type ChatView struct {
 	textarea   textarea.Model
 	renderer   *glamour.TermRenderer
 	windowSize tea.WindowSizeMsg
+	menuMode   bool
+	menuList   list.Model
 }
 
 func NewChatViewLight(agent ChatProvider) ChatView {
@@ -48,8 +59,7 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 	ta.ShowLineNumbers = false
 	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.FocusedStyle.Base = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).
-		BorderStyle(lipgloss.ThickBorder()).
+		Background(lipgloss.Color("#11111b")).BorderStyle(lipgloss.ThickBorder()).
 		BorderForeground(lipgloss.Color("#ffffff")).
 		BorderLeft(true).
 		BorderRight(true).
@@ -78,6 +88,16 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 		log.Fatal(err)
 	}
 
+	menuItems := []list.Item{
+		menuItem{title: "/models", desc: "List available models"},
+		menuItem{title: "/agents", desc: "List available agents"},
+		menuItem{title: "/session", desc: "List session history"},
+		menuItem{title: "/exit", desc: "Exit"},
+	}
+
+	menuDelegate := list.NewDefaultDelegate()
+	list := list.New(menuItems, menuDelegate, 0, 0)
+
 	return ChatView{
 		user:       user,
 		provider:   agent,
@@ -85,6 +105,8 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 		viewport:   vp,
 		textarea:   ta,
 		renderer:   renderer,
+		menuMode:   false,
+		menuList:   list,
 	}
 }
 
@@ -164,13 +186,52 @@ func (chat ChatView) View() string {
 
 	statusView := lipgloss.JoinHorizontal(lipgloss.Top, leftPart, filler, rightPart)
 
+	sessionBarStyle := lipgloss.NewStyle().
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderForeground(lipgloss.Color("#11111b")).
+		Padding(1).
+		BorderLeft(true).
+		BorderRight(true).
+		Width(chat.windowSize.Width - 4)
+
+	sessionBar := sessionBarStyle.Render("New Session - 04 Oct 2025 23:34")
 	joinVertical := lipgloss.JoinVertical(
 		lipgloss.Center,
+		sessionBar,
 		chat.viewport.View(),
 		chat.textarea.View(),
 		statusView,
 	)
+
+	menuStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color("#11111b")).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderForeground(lipgloss.Color("#ffffff")).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderTop(false).
+		BorderBottom(false).
+		PaddingLeft(1).
+		PaddingRight(1).
+		Width(chat.windowSize.Width - 6)
+
+	menu := menuStyle.Render("/exit \n/models \n/agents \n/sessions")
+
+	if chat.menuMode {
+		joinVertical := lipgloss.JoinVertical(
+			lipgloss.Center,
+			sessionBar,
+			chat.viewport.View(),
+			menu,
+			chat.textarea.View(),
+			statusView,
+		)
+
+		return joinVertical
+	}
+
 	return joinVertical
+
 }
 
 func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -178,11 +239,28 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
-		chat.viewport.Height = msg.Height - chat.textarea.Height() - 4
+		chat.viewport.Height = msg.Height - chat.textarea.Height() - 7
 		chat.textarea.SetWidth(msg.Width - 4)
+
+		if chat.menuMode {
+			chat.viewport.Height = msg.Height - chat.textarea.Height() - 10
+		}
 		chat.viewport.SetContent(chat.renderMessages())
 
 	case tea.KeyMsg:
+		if !chat.menuMode && msg.String() == "/" {
+			chat.menuMode = true
+		} else {
+			chat.menuMode = false
+		}
+
+		if chat.menuMode {
+			switch msg.Type {
+			case tea.KeyEsc:
+				chat.menuMode = false
+			}
+		}
+
 		switch msg.Type {
 		case tea.KeyCtrlC:
 			return chat, tea.Quit
@@ -231,7 +309,6 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return chat, chat.handleStream
 	}
-
 	cmds := []tea.Cmd{}
 
 	ta, cmd := chat.textarea.Update(msg)
@@ -260,7 +337,7 @@ func (chat ChatView) renderMessages() string {
 		Padding(1).
 		Margin(1).
 		Align(lipgloss.Left).
-		Width(chat.viewport.Width - 6)
+		Width(chat.viewport.Width - 4)
 
 	aiStyle := lipgloss.NewStyle().
 		Align(lipgloss.Left).
