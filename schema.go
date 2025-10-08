@@ -1,6 +1,10 @@
 package main
 
-import "context"
+import (
+	"context"
+
+	"github.com/charmbracelet/bubbles/list"
+)
 
 var Providers = []ChatProvider{}
 
@@ -8,6 +12,12 @@ type ChatMsg struct {
 	Role      string
 	Content   string
 	Timestamp int64
+}
+
+type ChatCmd interface {
+	list.Item
+
+	Exec() func() error
 }
 
 type ChatHistory interface {
