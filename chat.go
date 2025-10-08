@@ -13,6 +13,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/user"
@@ -40,6 +41,38 @@ func (i menuItem) Title() string       { return i.title }
 func (i menuItem) Description() string { return i.desc }
 func (i menuItem) FilterValue() string { return i.title }
 
+type delegate struct{}
+
+func (d delegate) Height() int                             { return 1 }
+func (d delegate) Spacing() int                            { return 0 }
+func (d delegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+func (d delegate) Render(w io.Writer, m list.Model, index int, item list.Item) {
+	var (
+		normalStyle = lipgloss.NewStyle().
+				Background(lipgloss.Color("#11111b")).
+				Foreground(lipgloss.Color("#FFFFFF")).
+				Padding(0, 0, 0, 0).
+				Width(120)
+
+		selectedStyle = lipgloss.NewStyle().
+				Background(lipgloss.Color("#11111b")).
+				Foreground(lipgloss.Color("#b4befe")).
+				Padding(0).
+				Width(120)
+	)
+	i, ok := item.(menuItem)
+	if !ok {
+		return
+	}
+	style := normalStyle
+
+	if index == m.Index() {
+		style = selectedStyle
+	}
+
+	fmt.Fprint(w, style.Render(string(i.Title())))
+}
+
 type ChatView struct {
 	user       *user.User
 	provider   ChatProvider
@@ -59,7 +92,8 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 	ta.ShowLineNumbers = false
 	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.FocusedStyle.Base = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).BorderStyle(lipgloss.ThickBorder()).
+		Background(lipgloss.Color("#11111b")).
+		BorderStyle(lipgloss.ThickBorder()).
 		BorderForeground(lipgloss.Color("#ffffff")).
 		BorderLeft(true).
 		BorderRight(true).
@@ -95,8 +129,13 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 		menuItem{title: "/exit", desc: "Exit"},
 	}
 
-	menuDelegate := list.NewDefaultDelegate()
-	list := list.New(menuItems, menuDelegate, 0, 0)
+	list := list.New(menuItems, delegate{}, 0, 0)
+	list.SetShowTitle(false)
+	list.SetShowHelp(false)
+	list.SetShowPagination(false)
+	list.SetShowFilter(false)
+	list.SetShowStatusBar(false)
+	list.SetFilteringEnabled(false)
 
 	return ChatView{
 		user:       user,
@@ -213,11 +252,15 @@ func (chat ChatView) View() string {
 		BorderBottom(false).
 		PaddingLeft(1).
 		PaddingRight(1).
-		Width(chat.windowSize.Width - 6)
-
-	menu := menuStyle.Render("/exit \n/models \n/agents \n/sessions")
+		Width(chat.windowSize.Width - 6).
+		Height(4)
 
 	if chat.menuMode {
+		chat.viewport.Height = chat.windowSize.Height - chat.textarea.Height() - 11
+
+		chat.menuList.SetSize(chat.textarea.Width()-6, 4)
+		menu := menuStyle.Render(chat.menuList.View())
+
 		joinVertical := lipgloss.JoinVertical(
 			lipgloss.Center,
 			sessionBar,
@@ -239,20 +282,15 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
-		chat.viewport.Height = msg.Height - chat.textarea.Height() - 7
 		chat.textarea.SetWidth(msg.Width - 4)
+		chat.viewport.Height = msg.Height - chat.textarea.Height() - 7
 
-		if chat.menuMode {
-			chat.viewport.Height = msg.Height - chat.textarea.Height() - 10
-		}
 		chat.viewport.SetContent(chat.renderMessages())
 
 	case tea.KeyMsg:
-		if !chat.menuMode && msg.String() == "/" {
-			chat.menuMode = true
-		} else {
-			chat.menuMode = false
-		}
+		// if strings.HasPrefix(msg.String(), "/") {
+		// 	chat.menuMode = !chat.menuMode
+		// }
 
 		if chat.menuMode {
 			switch msg.Type {
@@ -298,6 +336,10 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return chat, nil
 			}
+		case tea.KeyEsc:
+			if chat.menuMode {
+				chat.menuMode = false
+			}
 		}
 
 	case StreamMsg:
@@ -309,7 +351,19 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return chat, chat.handleStream
 	}
+
 	cmds := []tea.Cmd{}
+
+	if chat.menuMode {
+		var cmd tea.Cmd
+		chat.menuList, cmd = chat.menuList.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+	// else {
+	// 	ta, cmd := chat.textarea.Update(msg)
+	// 	chat.textarea = ta
+	// 	cmds = append(cmds, cmd)
+	// }
 
 	ta, cmd := chat.textarea.Update(msg)
 	chat.textarea = ta
@@ -318,6 +372,12 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	vp, cmd := chat.viewport.Update(msg)
 	chat.viewport = vp
 	cmds = append(cmds, cmd)
+
+	if strings.HasPrefix(chat.textarea.Value(), "/") {
+		chat.menuMode = true
+	} else {
+		chat.menuMode = false
+	}
 
 	return chat, tea.Batch(cmds...)
 }
