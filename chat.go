@@ -84,6 +84,8 @@ type ChatView struct {
 	windowSize tea.WindowSizeMsg
 	menuMode   bool
 	menuList   list.Model
+	menuItems  []list.Item
+	menuHeight int
 }
 
 func NewChatViewLight(agent ChatProvider) ChatView {
@@ -137,6 +139,9 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 	list.SetShowStatusBar(false)
 	list.SetFilteringEnabled(false)
 
+	list.KeyMap.CursorDown = key.NewBinding(key.WithKeys("down"))
+	list.KeyMap.CursorUp = key.NewBinding(key.WithKeys("up"))
+
 	return ChatView{
 		user:       user,
 		provider:   agent,
@@ -146,6 +151,7 @@ func NewChatViewLight(agent ChatProvider) ChatView {
 		renderer:   renderer,
 		menuMode:   false,
 		menuList:   list,
+		menuItems:  menuItems,
 	}
 }
 
@@ -228,12 +234,13 @@ func (chat ChatView) View() string {
 	sessionBarStyle := lipgloss.NewStyle().
 		BorderStyle(lipgloss.ThickBorder()).
 		BorderForeground(lipgloss.Color("#11111b")).
-		Padding(1).
+		PaddingLeft(1).
+		PaddingRight(1).
 		BorderLeft(true).
 		BorderRight(true).
 		Width(chat.windowSize.Width - 4)
 
-	sessionBar := sessionBarStyle.Render("New Session - 04 Oct 2025 23:34")
+	sessionBar := sessionBarStyle.Render("New Session \n04 Oct 2025 23:34")
 	joinVertical := lipgloss.JoinVertical(
 		lipgloss.Center,
 		sessionBar,
@@ -253,12 +260,12 @@ func (chat ChatView) View() string {
 		PaddingLeft(1).
 		PaddingRight(1).
 		Width(chat.windowSize.Width - 6).
-		Height(4)
+		Height(chat.menuHeight)
 
 	if chat.menuMode {
-		chat.viewport.Height = chat.windowSize.Height - chat.textarea.Height() - 11
+		chat.viewport.Height = chat.windowSize.Height - chat.textarea.Height() - chat.menuHeight - 6
 
-		chat.menuList.SetSize(chat.textarea.Width()-6, 4)
+		chat.menuList.SetSize(chat.textarea.Width()-6, chat.menuHeight)
 		menu := menuStyle.Render(chat.menuList.View())
 
 		joinVertical := lipgloss.JoinVertical(
@@ -283,22 +290,11 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		chat.windowSize = msg
 		chat.viewport.Width = msg.Width
 		chat.textarea.SetWidth(msg.Width - 4)
-		chat.viewport.Height = msg.Height - chat.textarea.Height() - 7
+		chat.viewport.Height = msg.Height - chat.textarea.Height() - 6
 
 		chat.viewport.SetContent(chat.renderMessages())
 
 	case tea.KeyMsg:
-		// if strings.HasPrefix(msg.String(), "/") {
-		// 	chat.menuMode = !chat.menuMode
-		// }
-
-		if chat.menuMode {
-			switch msg.Type {
-			case tea.KeyEsc:
-				chat.menuMode = false
-			}
-		}
-
 		switch msg.Type {
 		case tea.KeyCtrlC:
 			return chat, tea.Quit
@@ -354,17 +350,6 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	cmds := []tea.Cmd{}
 
-	if chat.menuMode {
-		var cmd tea.Cmd
-		chat.menuList, cmd = chat.menuList.Update(msg)
-		cmds = append(cmds, cmd)
-	}
-	// else {
-	// 	ta, cmd := chat.textarea.Update(msg)
-	// 	chat.textarea = ta
-	// 	cmds = append(cmds, cmd)
-	// }
-
 	ta, cmd := chat.textarea.Update(msg)
 	chat.textarea = ta
 	cmds = append(cmds, cmd)
@@ -373,10 +358,36 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	chat.viewport = vp
 	cmds = append(cmds, cmd)
 
-	if strings.HasPrefix(chat.textarea.Value(), "/") {
+	input := chat.textarea.Value()
+	if strings.HasPrefix(input, "/") {
 		chat.menuMode = true
+		filterValue := strings.TrimPrefix(input, "/")
+		var filtered []list.Item
+
+		for _, item := range chat.menuItems {
+
+			if strings.Contains(strings.ToLower(item.FilterValue()), strings.ToLower(filterValue)) {
+				filtered = append(filtered, item)
+			}
+
+		}
+
+		chat.menuList.SetItems(filtered)
+		chat.menuList.SetHeight(len(filtered))
+		chat.menuHeight = len(filtered)
+		if len(filtered) > 0 {
+			chat.menuList.Select(0)
+		}
+
+		var cmd tea.Cmd
+		chat.menuList, cmd = chat.menuList.Update(msg)
+		cmds = append(cmds, cmd)
+
 	} else {
 		chat.menuMode = false
+		chat.menuList.SetItems(chat.menuItems)
+		chat.menuList.SetHeight(len(chat.menuItems))
+		chat.menuHeight = (len(chat.menuItems))
 	}
 
 	return chat, tea.Batch(cmds...)
