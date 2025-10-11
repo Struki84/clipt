@@ -1,12 +1,11 @@
 // TODO
-// - load chat history
-// - top bar with session name / timestamp
-// - add error msgs
-// - tool msgs
+// - 2 modes: Chat, Debug
 // - add some kind of debug view for reading reasoning steps
-// - bottom bar with active mode and active engine
-// - 3 modes: Chat, Execute, Debug
-// - commands menu: models, agents, tools, session, exit
+// - load chat history
+// [x] top bar with session name / timestamp
+// [x] add error msgs
+// [x] bottom bar with active mode and active engine
+// [x] commands menu: models, agents, session, exit
 
 package main
 
@@ -375,9 +374,9 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		chat.menuList.SetItems(filtered)
 		chat.menuList.SetHeight(len(filtered))
 		chat.menuHeight = len(filtered)
-		if len(filtered) > 0 {
-			chat.menuList.Select(0)
-		}
+		// if len(filtered) > 0 {
+		// 	chat.menuList.Select(0)
+		// }
 
 		var cmd tea.Cmd
 		chat.menuList, cmd = chat.menuList.Update(msg)
@@ -396,6 +395,45 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (chat ChatView) renderMessages() string {
 
 	var styledMessages []string
+
+	// sysMsgStyle := lipgloss.NewStyle().
+	// 	Background(lipgloss.Color("#181825")).
+	// 	BorderStyle(lipgloss.ThickBorder()).
+	// 	BorderForeground(lipgloss.Color("#181825")).
+	// 	BorderLeft(true).
+	// 	BorderRight(true).
+	// 	BorderTop(false).
+	// 	BorderBottom(false).
+	// 	Padding(1).
+	// 	Margin(1).
+	// 	Align(lipgloss.Left).
+	// 	Width(chat.viewport.Width - 4)
+
+	// errMsgStyle := lipgloss.NewStyle().
+	// 	Background(lipgloss.Color("#181825")).
+	// 	BorderStyle(lipgloss.ThickBorder()).
+	// 	BorderForeground(lipgloss.Color("#e64553")).
+	// 	BorderLeft(true).
+	// 	BorderRight(true).
+	// 	BorderTop(false).
+	// 	BorderBottom(false).
+	// 	Padding(1).
+	// 	Margin(1).
+	// 	Align(lipgloss.Left).
+	// 	Width(chat.viewport.Width - 4)
+
+	// internalMsg := lipgloss.NewStyle().
+	// 	Background(lipgloss.Color("#181825")).
+	// 	BorderStyle(lipgloss.ThickBorder()).
+	// 	BorderForeground(lipgloss.Color("#fab387")).
+	// 	BorderLeft(true).
+	// 	BorderRight(true).
+	// 	BorderTop(false).
+	// 	BorderBottom(false).
+	// 	Padding(1).
+	// 	Margin(1).
+	// 	Align(lipgloss.Left).
+	// 	Width(chat.viewport.Width - 4)
 
 	userStyle := lipgloss.NewStyle().
 		Background(lipgloss.Color("#181825")).
