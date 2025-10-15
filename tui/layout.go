@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/user"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -16,6 +17,8 @@ import (
 )
 
 type LayoutView struct {
+	Style Styles
+
 	WindowSize tea.WindowSizeMsg
 
 	Provider ChatProvider
@@ -29,17 +32,25 @@ type LayoutView struct {
 	MenuActive        bool
 	MenuItems         []list.Item
 	FilteredMenuItems []list.Item
-
-	Style Styles
 }
 
 func NewLayoutView(provider ChatProvider) LayoutView {
+	menuItems := []list.Item{
+		MenuItem{title: "/models", desc: "List available models"},
+		MenuItem{title: "/agents", desc: "List available agents"},
+		MenuItem{title: "/session", desc: "List session history"},
+		MenuItem{title: "/exit", desc: "Exit"},
+	}
+
 	return LayoutView{
-		Provider:   provider,
-		MenuActive: false,
-		ChatInput:  textarea.New(),
-		ChatView:   viewport.New(120, 35),
-		Style:      DefaultStyles(),
+		Style:             DefaultStyles(),
+		Provider:          provider,
+		ChatInput:         textarea.New(),
+		ChatView:          viewport.New(120, 35),
+		ChatMenu:          list.New(menuItems, MenuDelegate{}, 0, 0),
+		MenuActive:        false,
+		MenuItems:         menuItems,
+		FilteredMenuItems: menuItems,
 	}
 }
 
@@ -78,10 +89,21 @@ func (layout LayoutView) View() string {
 	//The textarea and the menu list
 	if layout.MenuActive {
 		menuHeight := len(layout.FilteredMenuItems)
-		layout.Style.ChatMenu.Width(layout.WindowSize.Width - 6).Height(menuHeight)
 
 		layout.ChatView.Height = layout.WindowSize.Height - menuHeight - 7
+
+		layout.Style.ChatMenu.Width(layout.WindowSize.Width - 6).Height(menuHeight)
+
+		layout.ChatMenu.SetItems(layout.FilteredMenuItems)
 		layout.ChatMenu.SetSize(layout.WindowSize.Width-10, menuHeight)
+		layout.ChatMenu.SetShowTitle(false)
+		layout.ChatMenu.SetShowHelp(false)
+		layout.ChatMenu.SetShowPagination(false)
+		layout.ChatMenu.SetShowFilter(false)
+		layout.ChatMenu.SetShowStatusBar(false)
+		layout.ChatMenu.SetFilteringEnabled(false)
+		layout.ChatMenu.KeyMap.CursorDown = key.NewBinding(key.WithKeys("down"))
+		layout.ChatMenu.KeyMap.CursorUp = key.NewBinding(key.WithKeys("up"))
 
 		menu := layout.Style.ChatMenu.Render(layout.ChatMenu.View())
 
@@ -99,7 +121,6 @@ func (layout LayoutView) View() string {
 	elements = append(elements, layout.ChatInput.View())
 
 	//Setup the nvim like status line
-
 	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Provider.Type())
 	providerName := layout.Style.StatusLine.ProviderName.Render(layout.Provider.Name())
 	tab := layout.Style.StatusLine.Tab.Render("tab")
@@ -154,10 +175,39 @@ func (layout LayoutView) RenderMsgs() string {
 }
 
 func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		layout.WindowSize = msg
 	}
 
-	return layout, nil
+	cmds := []tea.Cmd{}
+
+	input, cmd := layout.ChatInput.Update(msg)
+	layout.ChatInput = input
+	cmds = append(cmds, cmd)
+
+	chat, cmd := layout.ChatView.Update(msg)
+	layout.ChatView = chat
+	cmds = append(cmds, cmd)
+
+	prompt := layout.ChatInput.Value()
+	if strings.HasPrefix(prompt, "/") {
+		layout.MenuActive = true
+
+		for _, item := range layout.MenuItems {
+			if strings.Contains(strings.ToLower(item.FilterValue()), strings.ToLower(prompt)) {
+				layout.FilteredMenuItems = append(layout.FilteredMenuItems, item)
+			}
+		}
+
+		menu, cmd := layout.ChatMenu.Update(msg)
+		layout.ChatMenu = menu
+		cmds = append(cmds, cmd)
+	} else {
+		layout.MenuActive = false
+		layout.FilteredMenuItems = layout.MenuItems
+	}
+
+	return layout, tea.Batch(cmds...)
 }

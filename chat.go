@@ -59,10 +59,12 @@ func (d delegate) Render(w io.Writer, m list.Model, index int, item list.Item) {
 				Padding(0).
 				Width(120)
 	)
+
 	i, ok := item.(menuItem)
 	if !ok {
 		return
 	}
+
 	style := normalStyle
 
 	if index == m.Index() {
