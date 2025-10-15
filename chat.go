@@ -226,6 +226,7 @@ func (chat ChatView) View() string {
 	if fillerWidth < 0 {
 		fillerWidth = 0
 	}
+
 	filler := baseStyle.Width(fillerWidth).Render("")
 
 	statusView := lipgloss.JoinHorizontal(lipgloss.Top, leftPart, filler, rightPart)
@@ -287,10 +288,11 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		chat.windowSize = msg
-		chat.viewport.Width = msg.Width
-		chat.textarea.SetWidth(msg.Width - 4)
-		chat.viewport.Height = msg.Height - chat.textarea.Height() - 6
 
+		chat.textarea.SetWidth(msg.Width - 4)
+
+		chat.viewport.Width = msg.Width
+		chat.viewport.Height = msg.Height - chat.textarea.Height() - 6
 		chat.viewport.SetContent(chat.renderMessages())
 
 	case tea.KeyMsg:
@@ -374,9 +376,6 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		chat.menuList.SetItems(filtered)
 		chat.menuList.SetHeight(len(filtered))
 		chat.menuHeight = len(filtered)
-		// if len(filtered) > 0 {
-		// 	chat.menuList.Select(0)
-		// }
 
 		var cmd tea.Cmd
 		chat.menuList, cmd = chat.menuList.Update(msg)
