@@ -33,7 +33,8 @@ func DefaultStyles() (s Styles) {
 		PaddingLeft(1).
 		PaddingRight(1).
 		BorderLeft(true).
-		BorderRight(true)
+		BorderRight(true).
+		MarginTop(1)
 
 	s.ChatMenu = lipgloss.NewStyle().
 		Background(lipgloss.Color("#11111b")).
@@ -66,6 +67,7 @@ func DefaultStyles() (s Styles) {
 		PaddingRight(1)
 
 	s.StatusLine.Mode = lipgloss.NewStyle().
+		Background(lipgloss.Color("#b4befe")).
 		Foreground(lipgloss.Color("#181825")).
 		PaddingLeft(1).
 		PaddingRight(1).
@@ -133,7 +135,7 @@ func DefaultStyles() (s Styles) {
 		Margin(1).
 		Align(lipgloss.Left)
 
-	s.Msg.Err = lipgloss.NewStyle().
+	s.Msg.Internal = lipgloss.NewStyle().
 		Background(lipgloss.Color("#181825")).
 		BorderStyle(lipgloss.ThickBorder()).
 		BorderForeground(lipgloss.Color("#fab387")).
