@@ -16,6 +16,34 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var TestMsgs = []ChatMsg{
+	{
+		Role:      "User",
+		Content:   "Hello there...",
+		Timestamp: 0,
+	},
+	{
+		Role:      "AI",
+		Content:   "Hello Back at you.",
+		Timestamp: 0,
+	},
+	{
+		Role:      "System",
+		Content:   "This is a system message",
+		Timestamp: 0,
+	},
+	{
+		Role:      "Err",
+		Content:   "This is an error message",
+		Timestamp: 0,
+	},
+	{
+		Role:      "Internal",
+		Content:   "This is an internal message",
+		Timestamp: 0,
+	},
+}
+
 type LayoutView struct {
 	Style Styles
 
@@ -25,9 +53,9 @@ type LayoutView struct {
 	Session  ChatHistory
 	Msgs     []ChatMsg
 
-	ChatInput textarea.Model
-	ChatView  viewport.Model
-	ChatMenu  list.Model
+	ChatInput *textarea.Model
+	ChatView  *viewport.Model
+	ChatMenu  *list.Model
 
 	MenuActive        bool
 	MenuItems         []list.Item
@@ -42,12 +70,17 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 		MenuItem{title: "/exit", desc: "Exit"},
 	}
 
+	ta := textarea.New()
+	vp := viewport.New(0, 0)
+	ls := list.New(menuItems, MenuDelegate{}, 0, 0)
+
 	return LayoutView{
+		Msgs:              TestMsgs,
 		Style:             DefaultStyles(),
 		Provider:          provider,
-		ChatInput:         textarea.New(),
-		ChatView:          viewport.New(120, 35),
-		ChatMenu:          list.New(menuItems, MenuDelegate{}, 0, 0),
+		ChatInput:         &ta,
+		ChatView:          &vp,
+		ChatMenu:          &ls,
 		MenuActive:        false,
 		MenuItems:         menuItems,
 		FilteredMenuItems: menuItems,
@@ -55,6 +88,7 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 }
 
 func (layout LayoutView) Init() tea.Cmd {
+	log.Printf("Layout Init()")
 	cmds := []tea.Cmd{}
 
 	cmds = append(cmds, textarea.Blink)
@@ -63,17 +97,19 @@ func (layout LayoutView) Init() tea.Cmd {
 }
 
 func (layout LayoutView) View() string {
+	log.Printf("Layout View()")
 	// Setup Chat View
-	// The session bar and the chat messages(viewport)
+	// The session bar and the chat view(viewport)
 	elements := []string{}
 
-	layout.Style.SessionBar.Width(layout.WindowSize.Width - 4)
-	sessionBar := layout.Style.SessionBar.Render("New Session \n04 Oct 2025 23:34")
+	sessionBar := layout.Style.SessionBar.
+		Width(layout.WindowSize.Width - 8).
+		Render("New Session \n04 Oct 2025 23:34")
 
 	elements = append(elements, sessionBar)
 
-	layout.ChatView.Width = layout.WindowSize.Width
-	layout.ChatView.Height = layout.WindowSize.Height - 9
+	layout.ChatView.Width = layout.WindowSize.Width - 4
+	layout.ChatView.Height = layout.WindowSize.Height - 8
 	layout.ChatView.KeyMap = viewport.KeyMap{
 		PageDown: key.NewBinding(key.WithKeys("pgdown")),
 		PageUp:   key.NewBinding(key.WithKeys("pgup")),
@@ -83,19 +119,15 @@ func (layout LayoutView) View() string {
 
 	layout.ChatView.SetContent(layout.RenderMsgs())
 
-	elements = append(elements, layout.ChatView.View())
-
 	//Setup the Chat Input
 	//The textarea and the menu list
 	if layout.MenuActive {
 		menuHeight := len(layout.FilteredMenuItems)
 
-		layout.ChatView.Height = layout.WindowSize.Height - menuHeight - 7
-
-		layout.Style.ChatMenu.Width(layout.WindowSize.Width - 6).Height(menuHeight)
+		layout.ChatView.Height = layout.WindowSize.Height - 8 - menuHeight
 
 		layout.ChatMenu.SetItems(layout.FilteredMenuItems)
-		layout.ChatMenu.SetSize(layout.WindowSize.Width-10, menuHeight)
+		layout.ChatMenu.SetSize(layout.WindowSize.Width-4, menuHeight)
 		layout.ChatMenu.SetShowTitle(false)
 		layout.ChatMenu.SetShowHelp(false)
 		layout.ChatMenu.SetShowPagination(false)
@@ -105,17 +137,23 @@ func (layout LayoutView) View() string {
 		layout.ChatMenu.KeyMap.CursorDown = key.NewBinding(key.WithKeys("down"))
 		layout.ChatMenu.KeyMap.CursorUp = key.NewBinding(key.WithKeys("up"))
 
-		menu := layout.Style.ChatMenu.Render(layout.ChatMenu.View())
+		menu := layout.Style.ChatMenu.
+			Width(layout.WindowSize.Width - 6).
+			Height(menuHeight).
+			Render(layout.ChatMenu.View())
 
+		elements = append(elements, layout.ChatView.View())
 		elements = append(elements, menu)
+	} else {
+		elements = append(elements, layout.ChatView.View())
 	}
 
 	layout.ChatInput.Prompt = ""
-	layout.ChatInput.ShowLineNumbers = false
 	layout.ChatInput.SetHeight(1)
 	layout.ChatInput.SetWidth(layout.WindowSize.Width - 4)
 	layout.ChatInput.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	layout.ChatInput.FocusedStyle.Base = layout.Style.ChatInput
+	layout.ChatInput.ShowLineNumbers = false
 	layout.ChatInput.Focus()
 
 	elements = append(elements, layout.ChatInput.View())
@@ -155,19 +193,35 @@ func (layout LayoutView) RenderMsgs() string {
 	width := layout.ChatView.Width - 4
 
 	for _, msg := range layout.Msgs {
-		if msg.Role == "User" {
+		switch msg.Role {
+		case "Internal":
+			fullMsg := fmt.Sprintf("%s", msg.Content)
+			chatMsg := layout.Style.Msg.Internal.Width(width).Render(fullMsg)
+
+			styledMessages = append(styledMessages, chatMsg)
+		case "Err":
+			fullMsg := fmt.Sprintf("%s", msg.Content)
+			chatMsg := layout.Style.Msg.Err.Width(width).Render(fullMsg)
+
+			styledMessages = append(styledMessages, chatMsg)
+		case "System":
+			fullMsg := fmt.Sprintf("%s", msg.Content)
+			chatMsg := layout.Style.Msg.Sys.Width(width).Render(fullMsg)
+
+			styledMessages = append(styledMessages, chatMsg)
+		case "User":
 			date := time.Unix(msg.Timestamp, 0).Format("2 Jan 2006 15:04")
 			username := user.Username
+
 			fullMsg := fmt.Sprintf("%s\n\n%s (%s) ", msg.Content, username, date)
+			chatMsg := layout.Style.Msg.User.Width(width).Render(fullMsg)
 
-			layout.Style.Msg.User.Width(width)
-			styledMessages = append(styledMessages, layout.Style.Msg.User.Render(fullMsg))
-
-		} else if msg.Role == "AI" {
+			styledMessages = append(styledMessages, chatMsg)
+		case "AI":
 			renderedTxt, _ := renderer.Render(msg.Content)
-			layout.Style.Msg.AI.Width(layout.ChatView.Width - 2)
+			chatMsg := layout.Style.Msg.AI.Width(width).Render(renderedTxt)
 
-			styledMessages = append(styledMessages, layout.Style.Msg.AI.Render(renderedTxt))
+			styledMessages = append(styledMessages, chatMsg)
 		}
 	}
 
@@ -175,25 +229,35 @@ func (layout LayoutView) RenderMsgs() string {
 }
 
 func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	log.Printf("Layout Update()")
+	cmds := []tea.Cmd{}
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		layout.WindowSize = msg
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyCtrlC:
+			return layout, tea.Quit
+		case tea.KeyEsc:
+			if layout.MenuActive {
+				layout.MenuActive = false
+			}
+		}
 	}
 
-	cmds := []tea.Cmd{}
-
 	input, cmd := layout.ChatInput.Update(msg)
-	layout.ChatInput = input
+	layout.ChatInput = &input
 	cmds = append(cmds, cmd)
 
 	chat, cmd := layout.ChatView.Update(msg)
-	layout.ChatView = chat
+	layout.ChatView = &chat
 	cmds = append(cmds, cmd)
 
 	prompt := layout.ChatInput.Value()
 	if strings.HasPrefix(prompt, "/") {
 		layout.MenuActive = true
+		layout.FilteredMenuItems = []list.Item{}
 
 		for _, item := range layout.MenuItems {
 			if strings.Contains(strings.ToLower(item.FilterValue()), strings.ToLower(prompt)) {
@@ -202,7 +266,7 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		menu, cmd := layout.ChatMenu.Update(msg)
-		layout.ChatMenu = menu
+		layout.ChatMenu = &menu
 		cmds = append(cmds, cmd)
 	} else {
 		layout.MenuActive = false
