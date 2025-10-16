@@ -10,12 +10,15 @@ import (
 )
 
 type MenuItem struct {
-	title, desc string
+	title string
+	desc  string
+	exe   func(*LayoutView) (LayoutView, tea.Cmd)
 }
 
-func (item MenuItem) Title() string       { return item.title }
-func (item MenuItem) Description() string { return item.desc }
-func (item MenuItem) FilterValue() string { return item.title }
+func (item MenuItem) Title() string                               { return item.title }
+func (item MenuItem) Description() string                         { return item.desc }
+func (item MenuItem) FilterValue() string                         { return item.title }
+func (item MenuItem) Execute(l *LayoutView) (LayoutView, tea.Cmd) { return item.exe(l) }
 
 type MenuDelegate struct{}
 

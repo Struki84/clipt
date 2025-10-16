@@ -7,6 +7,7 @@ import (
 )
 
 var Providers = []ChatProvider{}
+var Commands = []ChatCmd{}
 
 type ChatMsg struct {
 	Role      string
@@ -16,7 +17,6 @@ type ChatMsg struct {
 
 type ChatCmd interface {
 	list.Item
-
 	Exec() func() error
 }
 
@@ -32,4 +32,11 @@ type ChatProvider interface {
 	ChatHistory(sessionID string) ChatHistory
 	Run(ctx context.Context, input string) error
 	Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error)
+}
+
+type Session interface {
+	NewSession() error
+	LoadSession(ID string) ([]ChatMsg, error)
+	SaveSession(ID string, msgs []ChatMsg) error
+	DeleteSession(ID string) error
 }

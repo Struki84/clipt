@@ -59,15 +59,49 @@ type LayoutView struct {
 
 	MenuActive        bool
 	MenuItems         []list.Item
+	CurrentMenuItems  []list.Item
 	FilteredMenuItems []list.Item
 }
 
 func NewLayoutView(provider ChatProvider) LayoutView {
+
 	menuItems := []list.Item{
-		MenuItem{title: "/models", desc: "List available models"},
+		MenuItem{
+			title: "/models",
+			desc:  "List available models",
+			exe: func(layout *LayoutView) (LayoutView, tea.Cmd) {
+				items := []list.Item{}
+				for _, provider := range Providers {
+					if strings.ToLower(provider.Type()) == "llm" {
+
+						items = append(items,
+							MenuItem{
+								title: provider.Name(),
+								desc:  provider.Description(),
+								exe: func(lv *LayoutView) (LayoutView, tea.Cmd) {
+									lv.Provider = provider
+									layout.CurrentMenuItems = layout.MenuItems
+									layout.FilteredMenuItems = layout.MenuItems
+									return *lv, nil
+								},
+							},
+						)
+					}
+				}
+
+				layout.CurrentMenuItems = items
+				layout.FilteredMenuItems = items
+				layout.ChatInput.SetValue("/")
+
+				return *layout, nil
+			},
+		},
 		MenuItem{title: "/agents", desc: "List available agents"},
-		MenuItem{title: "/session", desc: "List session history"},
-		MenuItem{title: "/exit", desc: "Exit"},
+		MenuItem{title: "/sessions", desc: "List session history"},
+		MenuItem{title: "/new", desc: "Create new session"},
+		MenuItem{title: "/exit", desc: "Exit", exe: func(layout *LayoutView) (LayoutView, tea.Cmd) {
+			return *layout, tea.Quit
+		}},
 	}
 
 	ta := textarea.New()
@@ -83,6 +117,7 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 		ChatMenu:          &ls,
 		MenuActive:        false,
 		MenuItems:         menuItems,
+		CurrentMenuItems:  menuItems,
 		FilteredMenuItems: menuItems,
 	}
 }
@@ -212,7 +247,6 @@ func (layout LayoutView) RenderMsgs() string {
 		case "User":
 			date := time.Unix(msg.Timestamp, 0).Format("2 Jan 2006 15:04")
 			username := user.Username
-
 			fullMsg := fmt.Sprintf("%s\n\n%s (%s) ", msg.Content, username, date)
 			chatMsg := layout.Style.Msg.User.Width(width).Render(fullMsg)
 
@@ -237,6 +271,15 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		layout.WindowSize = msg
 	case tea.KeyMsg:
 		switch msg.Type {
+		case tea.KeyEnter:
+			if layout.MenuActive {
+				if len(layout.FilteredMenuItems) == 1 {
+
+					selectedItem := layout.FilteredMenuItems[0].(MenuItem)
+					layout.ChatInput.SetValue(selectedItem.title)
+					return selectedItem.Execute(&layout)
+				}
+			}
 		case tea.KeyCtrlC:
 			return layout, tea.Quit
 		case tea.KeyEsc:
@@ -259,7 +302,7 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		layout.MenuActive = true
 		layout.FilteredMenuItems = []list.Item{}
 
-		for _, item := range layout.MenuItems {
+		for _, item := range layout.CurrentMenuItems {
 			if strings.Contains(strings.ToLower(item.FilterValue()), strings.ToLower(prompt)) {
 				layout.FilteredMenuItems = append(layout.FilteredMenuItems, item)
 			}
@@ -270,6 +313,7 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	} else {
 		layout.MenuActive = false
+		layout.CurrentMenuItems = layout.MenuItems
 		layout.FilteredMenuItems = layout.MenuItems
 	}
 

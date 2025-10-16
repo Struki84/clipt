@@ -368,11 +368,9 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var filtered []list.Item
 
 		for _, item := range chat.menuItems {
-
 			if strings.Contains(strings.ToLower(item.FilterValue()), strings.ToLower(filterValue)) {
 				filtered = append(filtered, item)
 			}
-
 		}
 
 		chat.menuList.SetItems(filtered)
