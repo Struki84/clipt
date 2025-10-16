@@ -6,8 +6,49 @@ import (
 
 	"github.com/struki84/clipt/tui"
 	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/llms/anthropic"
 	"github.com/tmc/langchaingo/llms/openai"
 )
+
+type TestProvider2 struct {
+	LLM           *anthropic.LLM
+	streamHandler func(ctx context.Context, chunk []byte) error
+}
+
+func NewTestProvider2() *TestProvider2 {
+	llm, err := anthropic.New()
+	if err != nil {
+		fmt.Println("Can't create model:", err)
+		return nil
+	}
+	return &TestProvider2{
+		LLM: llm,
+	}
+}
+
+func (model *TestProvider2) Type() string {
+	return "LLM"
+}
+
+func (model *TestProvider2) Name() string {
+	return "Claude"
+}
+
+func (model *TestProvider2) Description() string {
+	return "Claude by Anthropic"
+}
+
+func (model *TestProvider2) ChatHistory(sessionID string) tui.ChatHistory {
+	return nil
+}
+
+func (model *TestProvider2) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
+	model.streamHandler = callback
+}
+
+func (model *TestProvider2) Run(ctx context.Context, input string) error {
+	return nil
+}
 
 type TestProvider struct {
 	LLM           *openai.LLM
@@ -63,5 +104,6 @@ func (model *TestProvider) Run(ctx context.Context, input string) error {
 func main() {
 	provider := NewTestProvider()
 
+	tui.SetProviders([]tui.ChatProvider{provider, NewTestProvider2()})
 	tui.Render(provider)
 }
