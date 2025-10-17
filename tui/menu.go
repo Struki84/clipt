@@ -42,6 +42,7 @@ var defualtCmds = []list.Item{
 			return layout, nil
 		},
 	},
+
 	ChatCmd{
 		title: "/agents",
 		desc:  "List available agents",
