@@ -5,13 +5,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func SetCommands(cmds []list.Item) {
-	Commands = cmds
-}
+// func SetCommands(cmds []list.Item) {
+// 	Commands = cmds
+// }
 
 func SetProviders(providers []ChatProvider) {
 	Providers = providers

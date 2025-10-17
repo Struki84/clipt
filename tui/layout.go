@@ -64,49 +64,9 @@ type LayoutView struct {
 }
 
 func NewLayoutView(provider ChatProvider) LayoutView {
-
-	menuItems := []list.Item{
-		MenuItem{
-			title: "/models",
-			desc:  "List available models",
-			exe: func(layout *LayoutView) (LayoutView, tea.Cmd) {
-				items := []list.Item{}
-				for _, provider := range Providers {
-					if strings.ToLower(provider.Type()) == "llm" {
-
-						items = append(items,
-							MenuItem{
-								title: provider.Name(),
-								desc:  provider.Description(),
-								exe: func(lv *LayoutView) (LayoutView, tea.Cmd) {
-									lv.Provider = provider
-									layout.CurrentMenuItems = layout.MenuItems
-									layout.FilteredMenuItems = layout.MenuItems
-									return *lv, nil
-								},
-							},
-						)
-					}
-				}
-
-				layout.CurrentMenuItems = items
-				layout.FilteredMenuItems = items
-				layout.ChatInput.SetValue("/")
-
-				return *layout, nil
-			},
-		},
-		MenuItem{title: "/agents", desc: "List available agents"},
-		MenuItem{title: "/sessions", desc: "List session history"},
-		MenuItem{title: "/new", desc: "Create new session"},
-		MenuItem{title: "/exit", desc: "Exit", exe: func(layout *LayoutView) (LayoutView, tea.Cmd) {
-			return *layout, tea.Quit
-		}},
-	}
-
 	ta := textarea.New()
 	vp := viewport.New(0, 0)
-	ls := list.New(menuItems, MenuDelegate{}, 0, 0)
+	ls := list.New(defualtCmds, MenuDelegate{}, 0, 0)
 
 	return LayoutView{
 		Msgs:              TestMsgs,
@@ -116,9 +76,9 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 		ChatView:          &vp,
 		ChatMenu:          &ls,
 		MenuActive:        false,
-		MenuItems:         menuItems,
-		CurrentMenuItems:  menuItems,
-		FilteredMenuItems: menuItems,
+		MenuItems:         defualtCmds,
+		CurrentMenuItems:  defualtCmds,
+		FilteredMenuItems: defualtCmds,
 	}
 }
 
@@ -158,6 +118,9 @@ func (layout LayoutView) View() string {
 	//The textarea and the menu list
 	if layout.MenuActive {
 		menuHeight := len(layout.FilteredMenuItems)
+		if menuHeight == 0 {
+			menuHeight = 1
+		}
 
 		layout.ChatView.Height = layout.WindowSize.Height - 8 - menuHeight
 
@@ -273,11 +236,10 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			if layout.MenuActive {
-				if len(layout.FilteredMenuItems) == 1 {
-
-					selectedItem := layout.FilteredMenuItems[0].(MenuItem)
+				if len(layout.FilteredMenuItems) > 0 {
+					selectedItem := layout.ChatMenu.SelectedItem().(ChatCmd)
 					layout.ChatInput.SetValue(selectedItem.title)
-					return selectedItem.Execute(&layout)
+					return selectedItem.Execute(layout)
 				}
 			}
 		case tea.KeyCtrlC:
@@ -285,6 +247,10 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEsc:
 			if layout.MenuActive {
 				layout.MenuActive = false
+				layout.ChatInput.SetValue("")
+				layout.CurrentMenuItems = layout.MenuItems
+				layout.FilteredMenuItems = layout.MenuItems
+				return layout, nil
 			}
 		}
 	}
@@ -301,9 +267,10 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if strings.HasPrefix(prompt, "/") {
 		layout.MenuActive = true
 		layout.FilteredMenuItems = []list.Item{}
+		filterStr := strings.TrimPrefix(prompt, "/")
 
 		for _, item := range layout.CurrentMenuItems {
-			if strings.Contains(strings.ToLower(item.FilterValue()), strings.ToLower(prompt)) {
+			if strings.Contains(strings.ToLower(item.FilterValue()), strings.ToLower(filterStr)) {
 				layout.FilteredMenuItems = append(layout.FilteredMenuItems, item)
 			}
 		}
@@ -318,4 +285,10 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return layout, tea.Batch(cmds...)
+}
+
+func (layout LayoutView) ResetMenu() {
+	layout.CurrentMenuItems = layout.MenuItems
+	layout.FilteredMenuItems = layout.MenuItems
+	layout.ChatInput.SetValue("/")
 }

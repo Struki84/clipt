@@ -3,22 +3,22 @@ package tui
 import (
 	"context"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 var Providers = []ChatProvider{}
-var Commands = []list.Item{}
+
+// var Commands = []list.Item{}
 
 type ChatCmd struct {
 	title, desc string
-	exe         func(*LayoutView) (LayoutView, tea.Cmd)
+	exe         func(LayoutView) (LayoutView, tea.Cmd)
 }
 
-func (item ChatCmd) Title() string                               { return item.title }
-func (item ChatCmd) Description() string                         { return item.desc }
-func (item ChatCmd) FilterValue() string                         { return item.title }
-func (item ChatCmd) Execute(l *LayoutView) (LayoutView, tea.Cmd) { return item.exe(l) }
+func (item ChatCmd) Title() string                              { return item.title }
+func (item ChatCmd) Description() string                        { return item.desc }
+func (item ChatCmd) FilterValue() string                        { return item.title }
+func (item ChatCmd) Execute(l LayoutView) (LayoutView, tea.Cmd) { return item.exe(l) }
 
 type ChatMsg struct {
 	Role      string
