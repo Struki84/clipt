@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/struki84/clipt"
 	"github.com/struki84/clipt/tui"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/anthropic"
@@ -131,6 +132,6 @@ func (model *TestProvider) Run(ctx context.Context, input string) error {
 func main() {
 	provider := NewTestProvider()
 
-	tui.SetProviders([]tui.ChatProvider{provider, NewTestProvider2(), AgentProvider{}})
-	tui.Render(provider)
+	clipt.SetProviders([]tui.ChatProvider{provider, NewTestProvider2(), AgentProvider{}})
+	clipt.Render(provider)
 }

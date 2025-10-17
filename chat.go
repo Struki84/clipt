@@ -7,7 +7,7 @@
 // [x] bottom bar with active mode and active engine
 // [x] commands menu: models, agents, session, exit
 
-package main
+package clipt
 
 import (
 	"context"

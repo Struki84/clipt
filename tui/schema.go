@@ -46,3 +46,10 @@ type Session interface {
 	SaveSession(ID string, msgs []ChatMsg) error
 	DeleteSession(ID string) error
 }
+
+type ChatSession struct {
+	ID        string
+	title     string
+	msgs      []ChatMsg
+	createdAt int64
+}
