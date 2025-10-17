@@ -10,6 +10,33 @@ import (
 	"github.com/tmc/langchaingo/llms/openai"
 )
 
+type AgentProvider struct {
+}
+
+func (agent AgentProvider) Type() string {
+	return "Agent"
+}
+
+func (agent AgentProvider) Name() string {
+	return "ReAct"
+}
+
+func (agent AgentProvider) Description() string {
+	return "Basic React agent"
+}
+
+func (agent AgentProvider) ChatHistory(sessionID string) tui.ChatHistory {
+	return nil
+}
+
+func (agent AgentProvider) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
+
+}
+
+func (agent AgentProvider) Run(ctx context.Context, input string) error {
+	return nil
+}
+
 type TestProvider2 struct {
 	LLM           *anthropic.LLM
 	streamHandler func(ctx context.Context, chunk []byte) error
@@ -104,6 +131,6 @@ func (model *TestProvider) Run(ctx context.Context, input string) error {
 func main() {
 	provider := NewTestProvider()
 
-	tui.SetProviders([]tui.ChatProvider{provider, NewTestProvider2()})
+	tui.SetProviders([]tui.ChatProvider{provider, NewTestProvider2(), AgentProvider{}})
 	tui.Render(provider)
 }
