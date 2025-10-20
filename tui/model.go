@@ -5,7 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -39,11 +38,8 @@ func (model ChatModel) Init() tea.Cmd {
 		return nil
 	})
 
-	cmds := []tea.Cmd{}
-	cmds = append(cmds, textarea.Blink)
-	cmds = append(cmds, model.HandleStream)
+	return tea.Batch(model.Layout.Init(), model.HandleStream)
 
-	return tea.Batch(cmds...)
 }
 
 func (model ChatModel) View() string {
@@ -80,6 +76,7 @@ func (model ChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					model.Layout.ChatView.SetContent(model.Layout.RenderMsgs())
 					model.Layout.ChatView.GotoBottom()
 					model.Layout.ChatInput.Reset()
+					model.Layout.IsLoading = true
 
 					go func() {
 						err := model.Provider.Run(context.TODO(), input)
@@ -88,12 +85,16 @@ func (model ChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						}
 					}()
 
-					return model, nil
+					return model, model.Layout.Loader.Tick
 				}
 			}
 		}
 
 	case StreamMsg:
+		if model.Layout.IsLoading {
+			model.Layout.IsLoading = false
+		}
+
 		model.Layout.Msgs[len(model.Layout.Msgs)-1].Content += msg.Chunk
 		model.Layout.Msgs[len(model.Layout.Msgs)-1].Timestamp = time.Now().Unix()
 
@@ -106,6 +107,8 @@ func (model ChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds := []tea.Cmd{}
 	l, cmd := model.Layout.Update(msg)
 	model.Layout = l.(LayoutView)
+	model.Provider = model.Layout.Provider
+
 	cmds = append(cmds, cmd)
 
 	return model, tea.Batch(cmds...)

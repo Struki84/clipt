@@ -9,6 +9,10 @@ import (
 	"github.com/struki84/clipt/tui"
 )
 
+func AddProvider(provider tui.ChatProvider) {
+	tui.Providers = append(tui.Providers, provider)
+}
+
 func SetProviders(providers []tui.ChatProvider) {
 	tui.Providers = providers
 }
