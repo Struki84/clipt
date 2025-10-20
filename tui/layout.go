@@ -9,40 +9,13 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 )
-
-var TestMsgs = []ChatMsg{
-	{
-		Role:      "User",
-		Content:   "Hello there...",
-		Timestamp: 0,
-	},
-	{
-		Role:      "AI",
-		Content:   "Hello Back at you.",
-		Timestamp: 0,
-	},
-	{
-		Role:      "System",
-		Content:   "This is a system message",
-		Timestamp: 0,
-	},
-	{
-		Role:      "Err",
-		Content:   "This is an error message",
-		Timestamp: 0,
-	},
-	{
-		Role:      "Internal",
-		Content:   "This is an internal message",
-		Timestamp: 0,
-	},
-}
 
 type LayoutView struct {
 	Style Styles
@@ -61,15 +34,19 @@ type LayoutView struct {
 	MenuItems         []list.Item
 	CurrentMenuItems  []list.Item
 	FilteredMenuItems []list.Item
+
+	Loader    spinner.Model
+	IsLoading bool
 }
 
 func NewLayoutView(provider ChatProvider) LayoutView {
 	ta := textarea.New()
 	vp := viewport.New(0, 0)
 	ls := list.New(defualtCmds, MenuDelegate{}, 0, 0)
+	l := spinner.New()
+	l.Spinner = spinner.Dot
 
 	return LayoutView{
-		Msgs:              TestMsgs,
 		Style:             DefaultStyles(),
 		Provider:          provider,
 		ChatInput:         &ta,
@@ -79,6 +56,8 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 		MenuItems:         defualtCmds,
 		CurrentMenuItems:  defualtCmds,
 		FilteredMenuItems: defualtCmds,
+		Loader:            l,
+		IsLoading:         false,
 	}
 }
 
@@ -120,6 +99,10 @@ func (layout LayoutView) View() string {
 		menuHeight := len(layout.FilteredMenuItems)
 		if menuHeight == 0 {
 			menuHeight = 1
+		}
+
+		if menuHeight > 10 {
+			menuHeight = 10
 		}
 
 		layout.ChatView.Height = layout.WindowSize.Height - 8 - menuHeight
@@ -190,7 +173,7 @@ func (layout LayoutView) RenderMsgs() string {
 
 	width := layout.ChatView.Width - 4
 
-	for _, msg := range layout.Msgs {
+	for i, msg := range layout.Msgs {
 		switch msg.Role {
 		case "Internal":
 			fullMsg := fmt.Sprintf("%s", msg.Content)
@@ -215,7 +198,14 @@ func (layout LayoutView) RenderMsgs() string {
 
 			styledMessages = append(styledMessages, chatMsg)
 		case "AI":
-			renderedTxt, _ := renderer.Render(msg.Content)
+			var renderedTxt string
+
+			if layout.IsLoading && msg.Content == "" && i == len(layout.Msgs)-1 {
+				renderedTxt = layout.Loader.View() + " Working..."
+			} else {
+				renderedTxt, _ = renderer.Render(msg.Content)
+			}
+
 			chatMsg := layout.Style.Msg.AI.Width(width).Render(renderedTxt)
 
 			styledMessages = append(styledMessages, chatMsg)
@@ -253,6 +243,11 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return layout, nil
 			}
 		}
+
+	case spinner.TickMsg:
+		loader, cmd := layout.Loader.Update(msg)
+		layout.Loader = loader
+		cmds = append(cmds, cmd)
 	}
 
 	input, cmd := layout.ChatInput.Update(msg)
