@@ -9,15 +9,8 @@ import (
 	"github.com/struki84/clipt/tui"
 )
 
-func AddProvider(provider tui.ChatProvider) {
-	tui.Providers = append(tui.Providers, provider)
-}
-
-func SetProviders(providers []tui.ChatProvider) {
-	tui.Providers = providers
-}
-
-func Render(provider tui.ChatProvider) {
+// make debug mode optional and allow custom debug.log location !
+func Render(providers []tui.ChatProvider, session tui.SessionStorage) {
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		log.Fatal(err)
@@ -25,7 +18,7 @@ func Render(provider tui.ChatProvider) {
 
 	defer file.Close()
 	app := tea.NewProgram(
-		tui.NewChatModel(tui.Providers),
+		tui.NewChatModel(providers, session),
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),
 	)

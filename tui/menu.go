@@ -14,68 +14,68 @@ var defualtCmds = []list.Item{
 	ChatCmd{
 		title: "/models",
 		desc:  "List available models",
-		exe: func(layout LayoutView) (LayoutView, tea.Cmd) {
+		exe: func(m ChatModel) (ChatModel, tea.Cmd) {
 			items := []list.Item{}
-			for _, provider := range Providers {
+			for _, provider := range m.Providers {
 				if strings.ToLower(provider.Type()) == "llm" || strings.ToLower(provider.Type()) == "model" {
 					provider := provider
 					items = append(items,
 						ChatCmd{
 							title: provider.Name(),
 							desc:  provider.Description(),
-							exe: func(l LayoutView) (LayoutView, tea.Cmd) {
-								l.Provider = provider
-								l.CurrentMenuItems = l.MenuItems
-								l.FilteredMenuItems = l.MenuItems
-								l.ChatInput.SetValue("/")
-								return l, nil
+							exe: func(model ChatModel) (ChatModel, tea.Cmd) {
+								model.Provider = provider
+								model.Layout.CurrentMenuItems = model.Layout.MenuItems
+								model.Layout.FilteredMenuItems = model.Layout.MenuItems
+								model.Layout.ChatInput.SetValue("/")
+								return model, nil
 							},
 						},
 					)
 				}
 			}
 
-			layout.CurrentMenuItems = items
-			layout.FilteredMenuItems = items
-			layout.ChatInput.SetValue("/")
+			m.Layout.CurrentMenuItems = items
+			m.Layout.FilteredMenuItems = items
+			m.Layout.ChatInput.SetValue("/")
 
-			return layout, nil
+			return m, nil
 		},
 	},
 
 	ChatCmd{
 		title: "/agents",
 		desc:  "List available agents",
-		exe: func(layout LayoutView) (LayoutView, tea.Cmd) {
+		exe: func(m ChatModel) (ChatModel, tea.Cmd) {
 			items := []list.Item{}
-			for _, provider := range Providers {
+			for _, provider := range m.Providers {
 				if strings.ToLower(provider.Type()) == "agent" {
 					provider := provider
 					items = append(items, ChatCmd{
 						title: provider.Name(),
 						desc:  provider.Description(),
-						exe: func(l LayoutView) (LayoutView, tea.Cmd) {
-							l.Provider = provider
-							l.CurrentMenuItems = l.MenuItems
-							l.FilteredMenuItems = l.MenuItems
-							l.ChatInput.SetValue("/")
-							return l, nil
+						exe: func(model ChatModel) (ChatModel, tea.Cmd) {
+							model.Layout.Provider = provider
+							model.Layout.CurrentMenuItems = model.Layout.MenuItems
+							model.Layout.FilteredMenuItems = model.Layout.MenuItems
+							model.Layout.ChatInput.SetValue("/")
+							return model, nil
 						},
 					})
 				}
 			}
 
-			layout.CurrentMenuItems = items
-			layout.FilteredMenuItems = items
-			layout.ChatInput.SetValue("/")
+			m.Layout.CurrentMenuItems = items
+			m.Layout.FilteredMenuItems = items
+			m.Layout.ChatInput.SetValue("/")
 
-			return layout, nil
+			return m, nil
 		},
 	},
 	// ChatCmd{title: "/sessions", desc: "List session history"},
 	// ChatCmd{title: "/new", desc: "Create new session"},
-	ChatCmd{title: "/exit", desc: "Exit", exe: func(layout LayoutView) (LayoutView, tea.Cmd) {
-		return layout, tea.Quit
+	ChatCmd{title: "/exit", desc: "Exit", exe: func(model ChatModel) (ChatModel, tea.Cmd) {
+		return model, tea.Quit
 	}},
 }
 

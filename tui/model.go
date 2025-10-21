@@ -13,33 +13,41 @@ type StreamMsg struct {
 }
 
 type ChatModel struct {
-	Layout LayoutView
-
+	Layout    LayoutView
 	Providers []ChatProvider
 	Provider  ChatProvider
-	Session   Session
-
-	Stream chan string
+	Storage   SessionStorage
+	Session   ChatSession
+	Stream    chan string
 }
 
-func NewChatModel(providers []ChatProvider) ChatModel {
+func NewChatModel(providers []ChatProvider, storage SessionStorage) ChatModel {
 	provider := providers[0]
 	return ChatModel{
+		Layout:    NewLayoutView(provider),
 		Providers: providers,
 		Provider:  provider,
-		Layout:    NewLayoutView(provider),
+		Storage:   storage,
 		Stream:    make(chan string),
 	}
 }
 
 func (model ChatModel) Init() tea.Cmd {
+	if model.Storage != nil {
+		currentSession, err := model.Storage.NewSession()
+		if err != nil {
+			log.Printf("Could not load chat history.")
+		}
+
+		model.Layout.Session = currentSession
+	}
+
 	model.Provider.Stream(context.TODO(), func(ctx context.Context, chunk []byte) error {
 		model.Stream <- string(chunk)
 		return nil
 	})
 
 	return tea.Batch(model.Layout.Init(), model.HandleStream)
-
 }
 
 func (model ChatModel) View() string {
@@ -50,10 +58,24 @@ func (model ChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
+		case tea.KeyEsc:
+			if model.Layout.MenuActive {
+				model.Layout.MenuActive = false
+				model.Layout.ChatInput.SetValue("")
+				model.Layout.CurrentMenuItems = model.Layout.MenuItems
+				model.Layout.FilteredMenuItems = model.Layout.MenuItems
+				return model, nil
+			}
 		case tea.KeyCtrlC:
 			return model, tea.Quit
 		case tea.KeyEnter:
-			if !model.Layout.MenuActive {
+			if model.Layout.MenuActive {
+				if len(model.Layout.FilteredMenuItems) > 0 {
+					selectedItem := model.Layout.ChatMenu.SelectedItem().(ChatCmd)
+					model.Layout.ChatInput.SetValue(selectedItem.title)
+					return selectedItem.Execute(model)
+				}
+			} else {
 				if model.Layout.ChatInput.Value() != "" && model.Layout.ChatInput.Focused() {
 					input := model.Layout.ChatInput.Value()
 
