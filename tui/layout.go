@@ -23,7 +23,7 @@ type LayoutView struct {
 	WindowSize tea.WindowSizeMsg
 
 	Provider ChatProvider
-	Session  ChatHistory
+	Session  ChatSession
 	Msgs     []ChatMsg
 
 	ChatInput *textarea.Model
@@ -35,12 +35,13 @@ type LayoutView struct {
 	CurrentMenuItems  []list.Item
 	FilteredMenuItems []list.Item
 
-	Loader    spinner.Model
 	IsLoading bool
+	Loader    spinner.Model
 }
 
 func NewLayoutView(provider ChatProvider) LayoutView {
 	ta := textarea.New()
+	ta.Focus()
 	vp := viewport.New(0, 0)
 	ls := list.New(defualtCmds, MenuDelegate{}, 0, 0)
 	l := spinner.New()
@@ -135,7 +136,6 @@ func (layout LayoutView) View() string {
 	layout.ChatInput.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	layout.ChatInput.FocusedStyle.Base = layout.Style.ChatInput
 	layout.ChatInput.ShowLineNumbers = false
-	layout.ChatInput.Focus()
 
 	elements = append(elements, layout.ChatInput.View())
 
@@ -222,28 +222,6 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		layout.WindowSize = msg
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEnter:
-			if layout.MenuActive {
-				if len(layout.FilteredMenuItems) > 0 {
-					selectedItem := layout.ChatMenu.SelectedItem().(ChatCmd)
-					layout.ChatInput.SetValue(selectedItem.title)
-					return selectedItem.Execute(layout)
-				}
-			}
-		case tea.KeyCtrlC:
-			return layout, tea.Quit
-		case tea.KeyEsc:
-			if layout.MenuActive {
-				layout.MenuActive = false
-				layout.ChatInput.SetValue("")
-				layout.CurrentMenuItems = layout.MenuItems
-				layout.FilteredMenuItems = layout.MenuItems
-				return layout, nil
-			}
-		}
-
 	case spinner.TickMsg:
 		loader, cmd := layout.Loader.Update(msg)
 		layout.Loader = loader

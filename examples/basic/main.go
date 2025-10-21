@@ -26,10 +26,6 @@ func (agent AgentProvider) Description() string {
 	return "Basic React agent"
 }
 
-func (agent AgentProvider) ChatHistory(sessionID string) tui.ChatHistory {
-	return nil
-}
-
 func (agent AgentProvider) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
 
 }
@@ -64,10 +60,6 @@ func (model *TestProvider2) Name() string {
 
 func (model *TestProvider2) Description() string {
 	return "Claude by Anthropic"
-}
-
-func (model *TestProvider2) ChatHistory(sessionID string) tui.ChatHistory {
-	return nil
 }
 
 func (model *TestProvider2) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
@@ -106,10 +98,6 @@ func (model *TestProvider) Description() string {
 	return "GPT-4o by OpenAI"
 }
 
-func (model *TestProvider) ChatHistory(sessionID string) tui.ChatHistory {
-	return nil
-}
-
 func (model *TestProvider) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
 	model.streamHandler = callback
 }
@@ -130,8 +118,10 @@ func (model *TestProvider) Run(ctx context.Context, input string) error {
 }
 
 func main() {
-	provider := NewTestProvider()
+	providers := []tui.ChatProvider{
+		NewTestProvider(),
+		AgentProvider{},
+	}
 
-	clipt.SetProviders([]tui.ChatProvider{provider, NewTestProvider2(), AgentProvider{}})
-	clipt.Render(provider)
+	clipt.Render(providers, nil)
 }
