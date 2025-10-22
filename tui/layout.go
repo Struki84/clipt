@@ -15,6 +15,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/struki84/clipt/tui/menu"
 )
 
 type LayoutView struct {
@@ -29,6 +30,8 @@ type LayoutView struct {
 	ChatInput *textarea.Model
 	ChatView  *viewport.Model
 	ChatMenu  *list.Model
+
+	Menu menu.ChatMenu
 
 	MenuActive        bool
 	MenuItems         []list.Item
@@ -48,6 +51,7 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 	l.Spinner = spinner.Dot
 
 	return LayoutView{
+		Menu:              menu.NewChatMenu(defualtCmds),
 		Style:             DefaultStyles(),
 		Provider:          provider,
 		ChatInput:         &ta,

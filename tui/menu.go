@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -17,14 +18,17 @@ var defualtCmds = []list.Item{
 		exe: func(m ChatModel) (ChatModel, tea.Cmd) {
 			items := []list.Item{}
 			for _, provider := range m.Providers {
+
+				log.Printf("Provider: %s", provider.Name())
 				if strings.ToLower(provider.Type()) == "llm" || strings.ToLower(provider.Type()) == "model" {
 					provider := provider
 					items = append(items,
 						ChatCmd{
-							title: provider.Name(),
+							title: fmt.Sprintf("/%s", provider.Name()),
 							desc:  provider.Description(),
 							exe: func(model ChatModel) (ChatModel, tea.Cmd) {
 								model.Provider = provider
+								model.Layout.Provider = provider
 								model.Layout.CurrentMenuItems = model.Layout.MenuItems
 								model.Layout.FilteredMenuItems = model.Layout.MenuItems
 								model.Layout.ChatInput.SetValue("/")
@@ -52,9 +56,10 @@ var defualtCmds = []list.Item{
 				if strings.ToLower(provider.Type()) == "agent" {
 					provider := provider
 					items = append(items, ChatCmd{
-						title: provider.Name(),
+						title: fmt.Sprintf("/%s", provider.Name()),
 						desc:  provider.Description(),
 						exe: func(model ChatModel) (ChatModel, tea.Cmd) {
+							model.Provider = provider
 							model.Layout.Provider = provider
 							model.Layout.CurrentMenuItems = model.Layout.MenuItems
 							model.Layout.FilteredMenuItems = model.Layout.MenuItems
@@ -73,7 +78,21 @@ var defualtCmds = []list.Item{
 		},
 	},
 	// ChatCmd{title: "/sessions", desc: "List session history"},
-	// ChatCmd{title: "/new", desc: "Create new session"},
+	ChatCmd{
+		title: "/new",
+		desc:  "Create new session",
+		exe: func(model ChatModel) (ChatModel, tea.Cmd) {
+			currentSession, err := model.Storage.NewSession()
+			if err != nil {
+				log.Printf("Error creating new session")
+			}
+
+			model.Session = currentSession
+
+			return model, nil
+
+		},
+	},
 	ChatCmd{title: "/exit", desc: "Exit", exe: func(model ChatModel) (ChatModel, tea.Cmd) {
 		return model, tea.Quit
 	}},
