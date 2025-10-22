@@ -121,6 +121,7 @@ func main() {
 	providers := []tui.ChatProvider{
 		NewTestProvider(),
 		AgentProvider{},
+		&TestProvider2{},
 	}
 
 	clipt.Render(providers, nil)
