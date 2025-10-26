@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/struki84/clipt/tui/schema"
 )
 
 type MenuDelegate struct{}
@@ -35,7 +36,7 @@ func (delegate MenuDelegate) Render(w io.Writer, m list.Model, index int, item l
 				Padding(0).
 				Width(120)
 	)
-	i, ok := item.(list.Item)
+	i, ok := item.(schema.ChatCmd)
 	if !ok {
 		return
 	}

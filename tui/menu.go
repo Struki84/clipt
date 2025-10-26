@@ -20,6 +20,7 @@ var defualtCmds = []list.Item{
 			for _, provider := range m.Providers {
 
 				log.Printf("Provider: %s", provider.Name())
+				// TODO: The provider type should be some kind of enum type, not a free entry string
 				if strings.ToLower(provider.Type()) == "llm" || strings.ToLower(provider.Type()) == "model" {
 					provider := provider
 					items = append(items,
@@ -77,7 +78,39 @@ var defualtCmds = []list.Item{
 			return m, nil
 		},
 	},
-	// ChatCmd{title: "/sessions", desc: "List session history"},
+
+	ChatCmd{
+		title: "/sessions",
+		desc:  "List session history",
+		exe: func(model ChatModel) (ChatModel, tea.Cmd) {
+			sessions := model.Storage.ListSessions()
+			items := []list.Item{}
+
+			for _, session := range sessions {
+				session := session
+				items = append(items, ChatCmd{
+					title: fmt.Sprintf("/%s", session.Title),
+					desc:  fmt.Sprintf("%v", session.CreatedAt),
+					exe: func(model ChatModel) (ChatModel, tea.Cmd) {
+						model.Session = session
+						model.Layout.Session = session
+						model.Layout.Msgs = session.Msgs
+						model.Layout.CurrentMenuItems = model.Layout.MenuItems
+						model.Layout.FilteredMenuItems = model.Layout.MenuItems
+						model.Layout.ChatInput.SetValue("/")
+						return model, nil
+					},
+				})
+			}
+
+			model.Layout.CurrentMenuItems = items
+			model.Layout.FilteredMenuItems = items
+			model.Layout.ChatInput.SetValue("/")
+
+			return model, nil
+		},
+	},
+
 	ChatCmd{
 		title: "/new",
 		desc:  "Create new session",
