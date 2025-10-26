@@ -1,4 +1,4 @@
-package tui
+package schema
 
 import (
 	"context"
@@ -8,13 +8,13 @@ import (
 
 type ChatCmd struct {
 	title, desc string
-	exe         func(ChatModel) (ChatModel, tea.Cmd)
+	exe         func(tea.Model) (tea.Model, tea.Cmd)
 }
 
 func (item ChatCmd) Title() string                            { return item.title }
 func (item ChatCmd) Description() string                      { return item.desc }
 func (item ChatCmd) FilterValue() string                      { return item.title }
-func (item ChatCmd) Execute(m ChatModel) (ChatModel, tea.Cmd) { return item.exe(m) }
+func (item ChatCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) { return item.exe(m) }
 
 type ChatProvider interface {
 	Name() string
@@ -34,9 +34,9 @@ type SessionStorage interface {
 
 type ChatSession struct {
 	ID        string
-	Title     string
-	Msgs      []ChatMsg
-	CreatedAt int64
+	title     string
+	msgs      []ChatMsg
+	createdAt int64
 }
 
 type ChatMsg struct {

@@ -70,6 +70,8 @@ func (layout LayoutView) Init() tea.Cmd {
 	log.Printf("Layout Init()")
 	cmds := []tea.Cmd{}
 
+	layout.Msgs = layout.Session.Msgs
+
 	cmds = append(cmds, textarea.Blink)
 
 	return tea.Batch(cmds...)
