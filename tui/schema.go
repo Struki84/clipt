@@ -27,6 +27,7 @@ type ChatProvider interface {
 type SessionStorage interface {
 	NewSession() (ChatSession, error)
 	ListSessions() []ChatSession
+	LoadRecentSession() (ChatSession, error)
 	LoadSession(string) (ChatSession, error)
 	SaveSession(ChatSession) (ChatSession, error)
 	DeleteSession(string) error

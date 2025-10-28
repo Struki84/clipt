@@ -34,7 +34,11 @@ func NewChatModel(providers []ChatProvider, storage SessionStorage) ChatModel {
 
 func (model ChatModel) Init() tea.Cmd {
 	if model.Storage != nil {
-		currentSession, err := model.Storage.NewSession()
+		currentSession, err := model.Storage.LoadRecentSession()
+		if err != nil {
+			currentSession, err = model.Storage.NewSession()
+		}
+
 		if err != nil {
 			log.Printf("Could not load chat history.")
 		}

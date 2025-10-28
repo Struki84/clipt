@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/struki84/clipt/storage"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
 )
@@ -12,9 +13,10 @@ type OpenAI struct {
 	LLM           *openai.LLM
 	streamHandler func(ctx context.Context, chunk []byte) error
 	currentModel  string
+	storage       storage.SQLite
 }
 
-func NewOpenAI(model string) *OpenAI {
+func NewOpenAI(model string, storage storage.SQLite) *OpenAI {
 	llm, err := openai.New(openai.WithModel(model))
 	if err != nil {
 		fmt.Println("Can't create model:", err)
@@ -23,6 +25,7 @@ func NewOpenAI(model string) *OpenAI {
 	return &OpenAI{
 		LLM:          llm,
 		currentModel: model,
+		storage:      storage,
 	}
 }
 

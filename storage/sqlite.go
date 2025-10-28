@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/struki84/clipt/tui"
 	"gorm.io/driver/sqlite"
@@ -16,9 +17,9 @@ import (
 
 type Session struct {
 	gorm.Model
-	ID    string
-	Title string
-	Msgs  *Messages
+	SessionID string
+	Title     string
+	Msgs      *Messages
 }
 
 type Messages []Message
@@ -77,15 +78,15 @@ func (sql *SQLite) NewSession() (tui.ChatSession, error) {
 	sessionID := randstr.String(8)
 
 	sql.record = Session{
-		ID:    sessionID,
-		Title: "New Session",
-		Msgs:  &Messages{},
+		SessionID: sessionID,
+		Title:     "New Session",
+		Msgs:      &Messages{},
 	}
 
 	err := sql.db.Create(&sql.record).Error
 
 	if err != nil {
-		return tui.ChatSession{}, errors.New(fmt.Sprintf("Error creating session: %v", err))
+		return tui.ChatSession{}, fmt.Errorf("Error creating new session, %v", err)
 	}
 
 	return tui.ChatSession{
@@ -97,14 +98,66 @@ func (sql *SQLite) NewSession() (tui.ChatSession, error) {
 }
 
 func (sql *SQLite) ListSessions() []tui.ChatSession {
+	sessions := []Session{}
+	err := sql.db.Find(&sessions).Error
+	if err != nil {
+		return []tui.ChatSession{}
+	}
 
-	return []tui.ChatSession{}
+	list := []tui.ChatSession{}
+	for _, session := range sessions {
+		msgs := []tui.ChatMsg{}
+		for _, msg := range *session.Msgs {
+			msgs = append(msgs, tui.ChatMsg{
+				Role:    msg.Role,
+				Content: msg.Content,
+			})
+		}
+
+		list = append(list, tui.ChatSession{
+			ID:        session.SessionID,
+			Title:     session.Title,
+			Msgs:      msgs,
+			CreatedAt: session.CreatedAt.Unix(),
+		})
+	}
+
+	return list
+}
+
+func (sql *SQLite) LoadRecentSession() (tui.ChatSession, error) {
+	sessions := []Session{}
+	err := sql.db.Find(&sessions).Order("created_at, ASC").Error
+	if err != nil {
+		return tui.ChatSession{}, fmt.Errorf("Error loading recent sessions, %v", err)
+	}
+
+	if len(sessions) == 0 {
+		return tui.ChatSession{}, fmt.Errorf("No sessions found")
+	}
+
+	sql.record = sessions[0]
+
+	msgs := []tui.ChatMsg{}
+	for _, msg := range *sql.record.Msgs {
+		msgs = append(msgs, tui.ChatMsg{
+			Role:    msg.Role,
+			Content: msg.Content,
+		})
+	}
+
+	return tui.ChatSession{
+		ID:        sql.record.SessionID,
+		Title:     sql.record.Title,
+		Msgs:      msgs,
+		CreatedAt: sql.record.CreatedAt.Unix(),
+	}, nil
 }
 
 func (sql *SQLite) LoadSession(sessionID string) (tui.ChatSession, error) {
-	err := sql.db.Where(Session{ID: sessionID}).Find(&sql.record).Error
+	err := sql.db.Where("session_id = ?", sessionID).Find(&sql.record).Error
 	if err != nil {
-		return tui.ChatSession{}, errors.New(fmt.Sprintf("Error loading session: %v", err))
+		return tui.ChatSession{}, fmt.Errorf("Error loading session: %v", err)
 	}
 
 	msgs := []tui.ChatMsg{}
@@ -116,7 +169,7 @@ func (sql *SQLite) LoadSession(sessionID string) (tui.ChatSession, error) {
 	}
 
 	return tui.ChatSession{
-		ID:        sql.record.ID,
+		ID:        sql.record.SessionID,
 		Title:     sql.record.Title,
 		Msgs:      msgs,
 		CreatedAt: sql.record.CreatedAt.Unix(),
@@ -133,19 +186,65 @@ func (sql *SQLite) SaveSession(session tui.ChatSession) (tui.ChatSession, error)
 	}
 
 	sql.record = Session{
-		ID:    session.ID,
-		Title: session.Title,
-		Msgs:  &msgs,
+		SessionID: session.ID,
+		Title:     session.Title,
+		Msgs:      &msgs,
 	}
 
 	err := sql.db.Save(&sql.record).Error
 	if err != nil {
-		return tui.ChatSession{}, errors.New(fmt.Sprintf("Error saving session: %v", err))
+		return tui.ChatSession{}, fmt.Errorf("Can't save session, %v", err)
 	}
 
 	return session, nil
 }
 
-func (sql *SQLite) DeleteSession(string) error {
+func (sql *SQLite) DeleteSession(sessionID string) error {
+	err := sql.db.Where("session_id = ?", sessionID).Delete(&sql.record)
+	if err != nil {
+		return fmt.Errorf("Error deleting session: %v ", err)
+	}
 	return nil
+}
+
+func (sql *SQLite) SaveSessionMsg(sessionID string, humanMsg string, aiMsg string) error {
+
+	err := sql.db.Where("session_id = ?", sessionID).Find(&sql.record).Error
+	if err != nil {
+		return fmt.Errorf("Error loading session: %v", err)
+	}
+
+	human := Message{
+		Role:    "User",
+		Content: humanMsg,
+	}
+
+	ai := Message{
+		Role:    "AI",
+		Content: aiMsg,
+	}
+
+	*sql.record.Msgs = append(*sql.record.Msgs, human)
+	*sql.record.Msgs = append(*sql.record.Msgs, ai)
+
+	err = sql.db.Save(&sql.record).Error
+	if err != nil {
+		return fmt.Errorf("Can't save session, %v", err)
+	}
+
+	return nil
+}
+
+func (sql *SQLite) LoadSessionMsg(sessionID string) (string, error) {
+	result := []string{}
+	err := sql.db.Where("session_id = ?", sessionID).Find(&sql.record).Error
+	if err != nil {
+		return "", fmt.Errorf("Error loading session: %v", err)
+	}
+
+	for _, msg := range *sql.record.Msgs {
+		result = append(result, fmt.Sprintf("%s: %s", msg.Role, msg.Content))
+	}
+
+	return strings.Join(result, "\n"), nil
 }
