@@ -17,34 +17,34 @@ type ChatModel struct {
 	Providers []ChatProvider
 	Provider  ChatProvider
 	Storage   SessionStorage
-	Session   ChatSession
 	Stream    chan string
 }
 
 func NewChatModel(providers []ChatProvider, storage SessionStorage) ChatModel {
 	provider := providers[0]
-	return ChatModel{
+	model := ChatModel{
 		Layout:    NewLayoutView(provider),
 		Providers: providers,
 		Provider:  provider,
 		Storage:   storage,
 		Stream:    make(chan string),
 	}
-}
 
-func (model ChatModel) Init() tea.Cmd {
 	if model.Storage != nil {
 		currentSession, err := model.Storage.LoadRecentSession()
-		if err != nil {
-			currentSession, err = model.Storage.NewSession()
-		}
-
 		if err != nil {
 			log.Printf("Could not load chat history.")
 		}
 
 		model.Layout.Session = currentSession
+		model.Layout.Msgs = currentSession.Msgs
 	}
+
+	return model
+}
+
+func (model ChatModel) Init() tea.Cmd {
+	log.Printf("ChatMode.Init()")
 
 	model.Provider.Stream(context.TODO(), func(ctx context.Context, chunk []byte) error {
 		model.Stream <- string(chunk)
@@ -105,7 +105,7 @@ func (model ChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					model.Layout.IsLoading = true
 
 					go func() {
-						err := model.Provider.Run(context.TODO(), input)
+						err := model.Provider.Run(context.TODO(), input, model.Layout.Session)
 						if err != nil {
 							log.Printf("Error: %v", err)
 						}

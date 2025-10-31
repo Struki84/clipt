@@ -11,16 +11,19 @@ type ChatCmd struct {
 	exe         func(ChatModel) (ChatModel, tea.Cmd)
 }
 
-func (item ChatCmd) Title() string                            { return item.title }
-func (item ChatCmd) Description() string                      { return item.desc }
-func (item ChatCmd) FilterValue() string                      { return item.title }
+func (item ChatCmd) Title() string       { return item.title }
+func (item ChatCmd) Description() string { return item.desc }
+func (item ChatCmd) FilterValue() string { return item.title }
+
+// TODO: Try this:
+// func (item ChatCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) { return item.exe(m) }
 func (item ChatCmd) Execute(m ChatModel) (ChatModel, tea.Cmd) { return item.exe(m) }
 
 type ChatProvider interface {
 	Name() string
 	Type() string
 	Description() string
-	Run(ctx context.Context, input string) error
+	Run(ctx context.Context, input string, session ChatSession) error
 	Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error)
 }
 
