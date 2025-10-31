@@ -97,7 +97,7 @@ func (layout LayoutView) View() string {
 	}
 
 	layout.ChatView.SetContent(layout.RenderMsgs())
-	layout.ChatView.GotoBottom()
+	// layout.ChatView.GotoBottom()
 
 	//Setup the Chat Input
 	//The textarea and the menu list
