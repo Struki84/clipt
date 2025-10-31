@@ -8,11 +8,11 @@ import (
 )
 
 func main() {
-	p := []tui.ChatProvider{
-		providers.NewOpenAI("gpt-4o"),
-	}
-
 	dbPath := "./basic.db"
+	s := storage.NewSQLite(dbPath)
+	p := []tui.ChatProvider{
+		providers.NewOpenAI("gpt-4o", *s),
+	}
 
 	clipt.Render(p, storage.NewSQLite(dbPath))
 }

@@ -51,9 +51,9 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 	l.Spinner = spinner.Dot
 
 	return LayoutView{
-		Menu:              menu.NewChatMenu(defualtCmds),
 		Style:             DefaultStyles(),
 		Provider:          provider,
+		Session:           ChatSession{},
 		ChatInput:         &ta,
 		ChatView:          &vp,
 		ChatMenu:          &ls,
@@ -67,10 +67,8 @@ func NewLayoutView(provider ChatProvider) LayoutView {
 }
 
 func (layout LayoutView) Init() tea.Cmd {
-	log.Printf("Layout Init()")
+	// log.Printf("Layout Init()")
 	cmds := []tea.Cmd{}
-
-	layout.Msgs = layout.Session.Msgs
 
 	cmds = append(cmds, textarea.Blink)
 
@@ -78,14 +76,14 @@ func (layout LayoutView) Init() tea.Cmd {
 }
 
 func (layout LayoutView) View() string {
-	log.Printf("Layout View()")
 	// Setup Chat View
 	// The session bar and the chat view(viewport)
 	elements := []string{}
 
+	title := fmt.Sprintf("%s \n%v", layout.Session.Title, layout.Session.CreatedAt)
 	sessionBar := layout.Style.SessionBar.
 		Width(layout.WindowSize.Width - 8).
-		Render("New Session \n04 Oct 2025 23:34")
+		Render(title)
 
 	elements = append(elements, sessionBar)
 
@@ -99,6 +97,7 @@ func (layout LayoutView) View() string {
 	}
 
 	layout.ChatView.SetContent(layout.RenderMsgs())
+	layout.ChatView.GotoBottom()
 
 	//Setup the Chat Input
 	//The textarea and the menu list
@@ -222,7 +221,7 @@ func (layout LayoutView) RenderMsgs() string {
 }
 
 func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("Layout Update()")
+	// log.Printf("Layout Update()")
 	cmds := []tea.Cmd{}
 
 	switch msg := msg.(type) {
@@ -264,10 +263,4 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return layout, tea.Batch(cmds...)
-}
-
-func (layout LayoutView) ResetMenu() {
-	layout.CurrentMenuItems = layout.MenuItems
-	layout.FilteredMenuItems = layout.MenuItems
-	layout.ChatInput.SetValue("/")
 }

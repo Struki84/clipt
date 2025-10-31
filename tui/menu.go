@@ -92,7 +92,6 @@ var defualtCmds = []list.Item{
 					title: fmt.Sprintf("/%s", session.Title),
 					desc:  fmt.Sprintf("%v", session.CreatedAt),
 					exe: func(model ChatModel) (ChatModel, tea.Cmd) {
-						model.Session = session
 						model.Layout.Session = session
 						model.Layout.Msgs = session.Msgs
 						model.Layout.CurrentMenuItems = model.Layout.MenuItems
@@ -120,7 +119,7 @@ var defualtCmds = []list.Item{
 				log.Printf("Error creating new session")
 			}
 
-			model.Session = currentSession
+			model.Layout.Session = currentSession
 
 			return model, nil
 
