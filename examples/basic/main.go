@@ -14,5 +14,5 @@ func main() {
 		providers.NewOpenAI("gpt-4o", *s),
 	}
 
-	clipt.Render(p, storage.NewSQLite(dbPath))
+	clipt.Render(p, s)
 }

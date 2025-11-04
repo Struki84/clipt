@@ -80,7 +80,8 @@ func (layout LayoutView) View() string {
 	// The session bar and the chat view(viewport)
 	elements := []string{}
 
-	title := fmt.Sprintf("%s \n%v", layout.Session.Title, layout.Session.CreatedAt)
+	date := time.Unix(layout.Session.CreatedAt, 0).Format("2 Jan 2006 15:04")
+	title := fmt.Sprintf("%s \n%v", layout.Session.Title, date)
 	sessionBar := layout.Style.SessionBar.
 		Width(layout.WindowSize.Width - 8).
 		Render(title)

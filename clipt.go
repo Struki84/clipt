@@ -9,7 +9,7 @@ import (
 	"github.com/struki84/clipt/tui"
 )
 
-// make debug mode optional and allow custom debug.log location !
+// TODO: make debug mode optional and allow custom debug.log location !
 func Render(providers []tui.ChatProvider, session tui.SessionStorage) {
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {

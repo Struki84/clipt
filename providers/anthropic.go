@@ -8,47 +8,48 @@ import (
 	"github.com/struki84/clipt/storage"
 	"github.com/struki84/clipt/tui"
 	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/openai"
+	"github.com/tmc/langchaingo/llms/anthropic"
 )
 
-type OpenAI struct {
-	LLM           *openai.LLM
+type Anthropic struct {
+	LLM           *anthropic.LLM
 	streamHandler func(ctx context.Context, chunk []byte) error
 	currentModel  string
 	storage       storage.SQLite
 }
 
-func NewOpenAI(model string, storage storage.SQLite) *OpenAI {
-	llm, err := openai.New(openai.WithModel(model))
+func NewAnthropic(model string, storage storage.SQLite) *Anthropic {
+	llm, err := anthropic.New(anthropic.WithModel(model))
 	if err != nil {
-		fmt.Println("Can't create model:", err)
+		log.Printf("can't create model: %v", err)
 		return nil
 	}
-	return &OpenAI{
+
+	return &Anthropic{
 		LLM:          llm,
 		currentModel: model,
 		storage:      storage,
 	}
 }
 
-func (model *OpenAI) Type() string {
+func (model *Anthropic) Type() string {
 	return "LLM"
 }
 
-func (model *OpenAI) Name() string {
+func (model *Anthropic) Name() string {
 	return model.currentModel
 }
 
-func (model *OpenAI) Description() string {
-	desc := fmt.Sprintf("%s by OpenAI", model.currentModel)
+func (model *Anthropic) Description() string {
+	desc := fmt.Sprintf("%s by Anthropic", model.currentModel)
 	return desc
 }
 
-func (model *OpenAI) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
+func (model *Anthropic) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
 	model.streamHandler = callback
 }
 
-func (model *OpenAI) Run(ctx context.Context, input string, session tui.ChatSession) error {
+func (model *Anthropic) Run(ctx context.Context, input string, session tui.ChatSession) error {
 	buffer, err := model.storage.LoadSessionMsgs(session.ID)
 	if err != nil {
 		log.Println(err)
@@ -63,7 +64,7 @@ func (model *OpenAI) Run(ctx context.Context, input string, session tui.ChatSess
 
 	response, err := model.LLM.GenerateContent(ctx, content, llms.WithStreamingFunc(model.streamHandler))
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("can't generate content: %v", err)
 		return err
 	}
 
