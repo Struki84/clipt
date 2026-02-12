@@ -2,31 +2,65 @@ package schema
 
 import (
 	"context"
-
-	tea "github.com/charmbracelet/bubbletea"
+	"fmt"
 )
 
-type ChatCmd struct {
-	title, desc string
-	exe         func(tea.Model) (tea.Model, tea.Cmd)
+// Chat schema
+const (
+	AIMsg MsgRole = iota
+	UserMsg
+	SysMsg
+	ErrMsg
+	InternalMsg
+)
+
+type MsgRole int
+
+func (r MsgRole) String() string {
+	switch r {
+	case AIMsg:
+		return "AIMsg"
+	case UserMsg:
+		return "UserMsg"
+	case SysMsg:
+		return "SysMsg"
+	case ErrMsg:
+		return "ErrMsg"
+	case InternalMsg:
+		return "InternalMsg"
+	default:
+		return fmt.Sprintf("MsgRole(%d)", r)
+	}
 }
 
-func (item ChatCmd) Title() string                            { return item.title }
-func (item ChatCmd) Description() string                      { return item.desc }
-func (item ChatCmd) FilterValue() string                      { return item.title }
-func (item ChatCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) { return item.exe(m) }
+func Enum(s string) MsgRole {
+	switch s {
+	case "AIMsg":
+		return AIMsg
+	case "UserMsg":
+		return UserMsg
+	case "SysMsg":
+		return SysMsg
+	case "ErrMsg":
+		return ErrMsg
+	case "InternalMsg":
+		return InternalMsg
+	default:
+		return 0
+	}
+}
 
-type ChatProvider interface {
-	Name() string
-	Type() string
-	Description() string
-	Run(ctx context.Context, input string) error
-	Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error)
+type Msg struct {
+	Stream    bool
+	Role      MsgRole
+	Content   string
+	Timestamp int64
 }
 
 type SessionStorage interface {
 	NewSession() (ChatSession, error)
 	ListSessions() []ChatSession
+	LoadRecentSession() (ChatSession, error)
 	LoadSession(string) (ChatSession, error)
 	SaveSession(ChatSession) (ChatSession, error)
 	DeleteSession(string) error
@@ -34,13 +68,15 @@ type SessionStorage interface {
 
 type ChatSession struct {
 	ID        string
-	title     string
-	msgs      []ChatMsg
-	createdAt int64
+	Title     string
+	Msgs      []Msg
+	CreatedAt int64
 }
 
-type ChatMsg struct {
-	Role      string
-	Content   string
-	Timestamp int64
+type ChatProvider interface {
+	Name() string
+	Type() string
+	Description() string
+	Run(ctx context.Context, input string, session ChatSession) error
+	Stream(ctx context.Context, callback func(ctx context.Context, msg Msg) error)
 }

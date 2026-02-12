@@ -8,7 +8,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/struki84/clipt/tui"
+	"github.com/struki84/clipt/tui/schema"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
@@ -80,7 +80,7 @@ func NewSQLite(dbPath string) *SQLite {
 	}
 }
 
-func (sql SQLite) NewSession() (tui.ChatSession, error) {
+func (sql SQLite) NewSession() (schema.ChatSession, error) {
 	sessionID := randstr.String(8)
 
 	sql.record = Session{
@@ -92,35 +92,35 @@ func (sql SQLite) NewSession() (tui.ChatSession, error) {
 	err := sql.db.Create(&sql.record).Error
 
 	if err != nil {
-		return tui.ChatSession{}, fmt.Errorf("Error creating new session, %v", err)
+		return schema.ChatSession{}, fmt.Errorf("Error creating new session, %v", err)
 	}
 
-	return tui.ChatSession{
+	return schema.ChatSession{
 		ID:        sessionID,
 		Title:     "New Session",
-		Msgs:      []tui.ChatMsg{},
+		Msgs:      []schema.Msg{},
 		CreatedAt: sql.record.CreatedAt.Unix(),
 	}, nil
 }
 
-func (sql SQLite) ListSessions() []tui.ChatSession {
+func (sql SQLite) ListSessions() []schema.ChatSession {
 	sessions := []Session{}
 	err := sql.db.Find(&sessions).Error
 	if err != nil {
-		return []tui.ChatSession{}
+		return []schema.ChatSession{}
 	}
 
-	list := []tui.ChatSession{}
+	list := []schema.ChatSession{}
 	for _, session := range sessions {
-		msgs := []tui.ChatMsg{}
+		msgs := []schema.Msg{}
 		for _, msg := range session.Msgs {
-			msgs = append(msgs, tui.ChatMsg{
-				Role:    msg.Role,
+			msgs = append(msgs, schema.Msg{
+				Role:    schema.Enum(msg.Role),
 				Content: msg.Content,
 			})
 		}
 
-		list = append(list, tui.ChatSession{
+		list = append(list, schema.ChatSession{
 			ID:        session.SessionID,
 			Title:     session.Title,
 			Msgs:      msgs,
@@ -131,27 +131,27 @@ func (sql SQLite) ListSessions() []tui.ChatSession {
 	return list
 }
 
-func (sql SQLite) LoadRecentSession() (tui.ChatSession, error) {
+func (sql SQLite) LoadRecentSession() (schema.ChatSession, error) {
 	sessions := []Session{}
 	err := sql.db.Find(&sessions).Order("created_at, DESC").Error
 	if err != nil {
-		return tui.ChatSession{}, fmt.Errorf("Error loading recent sessions, %v", err)
+		return schema.ChatSession{}, fmt.Errorf("Error loading recent sessions, %v", err)
 	}
 
 	if len(sessions) > 0 {
 		session := sessions[0]
 
-		msgs := []tui.ChatMsg{}
+		msgs := []schema.Msg{}
 		for _, msg := range session.Msgs {
-			msgs = append(msgs, tui.ChatMsg{
-				Role:    msg.Role,
+			msgs = append(msgs, schema.Msg{
+				Role:    schema.Enum(msg.Role),
 				Content: msg.Content,
 			})
 		}
 
 		sql.record = session
 
-		return tui.ChatSession{
+		return schema.ChatSession{
 			ID:        sql.record.SessionID,
 			Title:     sql.record.Title,
 			Msgs:      msgs,
@@ -168,32 +168,32 @@ func (sql SQLite) LoadRecentSession() (tui.ChatSession, error) {
 
 	err = sql.db.Save(&sql.record).Error
 	if err != nil {
-		return tui.ChatSession{}, fmt.Errorf("Error loading recent sessions, %v", err)
+		return schema.ChatSession{}, fmt.Errorf("Error loading recent sessions, %v", err)
 	}
 
-	return tui.ChatSession{
+	return schema.ChatSession{
 		ID:        sql.record.SessionID,
 		Title:     sql.record.Title,
-		Msgs:      []tui.ChatMsg{},
+		Msgs:      []schema.Msg{},
 		CreatedAt: sql.record.CreatedAt.Unix(),
 	}, nil
 }
 
-func (sql SQLite) LoadSession(sessionID string) (tui.ChatSession, error) {
+func (sql SQLite) LoadSession(sessionID string) (schema.ChatSession, error) {
 	err := sql.db.Where("session_id = ?", sessionID).Find(&sql.record).Error
 	if err != nil {
-		return tui.ChatSession{}, fmt.Errorf("Error loading session: %v", err)
+		return schema.ChatSession{}, fmt.Errorf("Error loading session: %v", err)
 	}
 
-	msgs := []tui.ChatMsg{}
+	msgs := []schema.Msg{}
 	for _, msg := range sql.record.Msgs {
-		msgs = append(msgs, tui.ChatMsg{
-			Role:    msg.Role,
+		msgs = append(msgs, schema.Msg{
+			Role:    schema.Enum(msg.Role),
 			Content: msg.Content,
 		})
 	}
 
-	return tui.ChatSession{
+	return schema.ChatSession{
 		ID:        sql.record.SessionID,
 		Title:     sql.record.Title,
 		Msgs:      msgs,
@@ -201,11 +201,11 @@ func (sql SQLite) LoadSession(sessionID string) (tui.ChatSession, error) {
 	}, nil
 }
 
-func (sql SQLite) SaveSession(session tui.ChatSession) (tui.ChatSession, error) {
+func (sql SQLite) SaveSession(session schema.ChatSession) (schema.ChatSession, error) {
 	msgs := Messages{}
 	for i, msg := range session.Msgs {
 		msgs[i] = Message{
-			Role:    msg.Role,
+			Role:    msg.Role.String(),
 			Content: msg.Content,
 		}
 	}
@@ -218,7 +218,7 @@ func (sql SQLite) SaveSession(session tui.ChatSession) (tui.ChatSession, error) 
 
 	err := sql.db.Save(&sql.record).Error
 	if err != nil {
-		return tui.ChatSession{}, fmt.Errorf("Can't save session, %v", err)
+		return schema.ChatSession{}, fmt.Errorf("Can't save session, %v", err)
 	}
 
 	return session, nil
@@ -239,12 +239,12 @@ func (sql SQLite) SaveSessionMsg(sessionID string, humanMsg string, aiMsg string
 	}
 
 	human := Message{
-		Role:    "User",
+		Role:    schema.UserMsg.String(),
 		Content: humanMsg,
 	}
 
 	ai := Message{
-		Role:    "AI",
+		Role:    schema.AIMsg.String(),
 		Content: aiMsg,
 	}
 

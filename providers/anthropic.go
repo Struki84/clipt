@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/struki84/clipt/storage"
-	"github.com/struki84/clipt/tui"
+	"github.com/struki84/clipt/tui/schema"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/anthropic"
 )
@@ -45,11 +46,21 @@ func (model *Anthropic) Description() string {
 	return desc
 }
 
-func (model *Anthropic) Stream(ctx context.Context, callback func(ctx context.Context, chunk []byte) error) {
-	model.streamHandler = callback
+func (model *Anthropic) Stream(ctx context.Context, callback func(ctx context.Context, msg schema.Msg) error) {
+	model.streamHandler = func(ctx context.Context, chunk []byte) error {
+		callback(ctx, schema.Msg{
+			Stream:    true,
+			Role:      schema.AIMsg,
+			Content:   string(chunk),
+			Timestamp: time.Now().Unix(),
+		})
+
+		return nil
+	}
+
 }
 
-func (model *Anthropic) Run(ctx context.Context, input string, session tui.ChatSession) error {
+func (model *Anthropic) Run(ctx context.Context, input string, session schema.ChatSession) error {
 	buffer, err := model.storage.LoadSessionMsgs(session.ID)
 	if err != nil {
 		log.Println(err)

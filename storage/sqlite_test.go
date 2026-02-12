@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/struki84/clipt/tui/schema"
 	"github.com/thanhpk/randstr"
 )
 
@@ -58,13 +59,13 @@ func TestLoadRecentSession(t *testing.T) {
 		t.Errorf("Expected no error on reload, got %v", err)
 	}
 	if len(reloadedSession.Msgs) == 3 {
-		if reloadedSession.Msgs[0].Role != "User" || reloadedSession.Msgs[0].Content != "Hello" {
+		if reloadedSession.Msgs[0].Role != schema.UserMsg || reloadedSession.Msgs[0].Content != "Hello" {
 			t.Errorf("First message mismatch: expected User:Hello, got %s:%s", reloadedSession.Msgs[0].Role, reloadedSession.Msgs[0].Content)
 		}
-		if reloadedSession.Msgs[1].Role != "User" || reloadedSession.Msgs[1].Content != "Dummy human message" {
+		if reloadedSession.Msgs[1].Role != schema.UserMsg || reloadedSession.Msgs[1].Content != "Dummy human message" {
 			t.Errorf("Second message mismatch: expected User:Dummy human message, got %s:%s", reloadedSession.Msgs[1].Role, reloadedSession.Msgs[1].Content)
 		}
-		if reloadedSession.Msgs[2].Role != "AI" || reloadedSession.Msgs[2].Content != "Dummy AI response" {
+		if reloadedSession.Msgs[2].Role != schema.AIMsg || reloadedSession.Msgs[2].Content != "Dummy AI response" {
 			t.Errorf("Third message mismatch: expected AI:Dummy AI response, got %s:%s", reloadedSession.Msgs[2].Role, reloadedSession.Msgs[2].Content)
 		}
 	}

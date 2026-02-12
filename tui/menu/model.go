@@ -1,53 +1,13 @@
 package menu
 
 import (
-	"fmt"
-	"io"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/struki84/clipt/tui/schema"
 )
-
-type MenuDelegate struct{}
-
-func NewMenuDelegate() MenuDelegate {
-	return MenuDelegate{}
-}
-
-func (delegate MenuDelegate) Height() int                             { return 1 }
-func (delegate MenuDelegate) Spacing() int                            { return 0 }
-func (delegate MenuDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
-
-func (delegate MenuDelegate) Render(w io.Writer, m list.Model, index int, item list.Item) {
-	var (
-		normalStyle = lipgloss.NewStyle().
-				Background(lipgloss.Color("#11111b")).
-				Foreground(lipgloss.Color("#FFFFFF")).
-				Padding(0, 0, 0, 0).
-				Width(120)
-
-		selectedStyle = lipgloss.NewStyle().
-				Background(lipgloss.Color("#11111b")).
-				Foreground(lipgloss.Color("#b4befe")).
-				Padding(0).
-				Width(120)
-	)
-	i, ok := item.(schema.ChatCmd)
-	if !ok {
-		return
-	}
-	style := normalStyle
-
-	if index == m.Index() {
-		style = selectedStyle
-	}
-
-	fmt.Fprint(w, style.Render(string(i.Title())))
-}
 
 type ChatMenu struct {
 	WindowSize tea.WindowSizeMsg
@@ -59,7 +19,7 @@ type ChatMenu struct {
 	FilteredItems []list.Item
 	SearchString  string
 
-	MenuActive bool
+	Active bool
 }
 
 func NewChatMenu(cmds []list.Item) ChatMenu {
@@ -73,15 +33,6 @@ func NewChatMenu(cmds []list.Item) ChatMenu {
 }
 
 func (menu ChatMenu) Init() tea.Cmd {
-	menu.List.SetShowTitle(false)
-	menu.List.SetShowHelp(false)
-	menu.List.SetShowPagination(false)
-	menu.List.SetShowFilter(false)
-	menu.List.SetShowStatusBar(false)
-	menu.List.SetFilteringEnabled(false)
-	menu.List.KeyMap.CursorDown = key.NewBinding(key.WithKeys("down"))
-	menu.List.KeyMap.CursorUp = key.NewBinding(key.WithKeys("up"))
-
 	return nil
 }
 
@@ -108,6 +59,15 @@ func (menu ChatMenu) View() string {
 		Width(menu.WindowSize.Width - 6).
 		Height(menuHeight)
 
+	menu.List.SetShowTitle(false)
+	menu.List.SetShowHelp(false)
+	menu.List.SetShowPagination(false)
+	menu.List.SetShowFilter(false)
+	menu.List.SetShowStatusBar(false)
+	menu.List.SetFilteringEnabled(false)
+	menu.List.KeyMap.CursorDown = key.NewBinding(key.WithKeys("down"))
+	menu.List.KeyMap.CursorUp = key.NewBinding(key.WithKeys("up"))
+
 	menu.List.SetItems(menu.FilteredItems)
 	menu.List.SetSize(menu.WindowSize.Width-4, menuHeight)
 
@@ -120,9 +80,16 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		menu.WindowSize = msg
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyEsc:
+			if menu.Active {
+				return menu.Close(), tea.Batch(cmds...)
+			}
+		}
 	}
 
-	if menu.MenuActive {
+	if menu.Active {
 		menu.FilteredItems = []list.Item{}
 
 		for _, item := range menu.CurrentItems {
@@ -142,4 +109,12 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return menu, tea.Batch(cmds...)
+}
+
+func (menu ChatMenu) Close() ChatMenu {
+	menu.Active = false
+	menu.SearchString = ""
+	menu.CurrentItems = menu.DefaultItems
+	menu.FilteredItems = menu.DefaultItems
+	return menu
 }
