@@ -9,6 +9,10 @@ import (
 	"github.com/struki84/clipt/tui/schema"
 )
 
+type MenuExecuteMsg struct {
+	Item schema.CmdItem
+}
+
 type ProvidersCmd struct {
 	title  string
 	desc   string
@@ -81,6 +85,8 @@ func (cmd SessionCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.Item)
 	chat := model.(ChatModel)
 	chat.Layout.Chat.Session = cmd.session
 	chat.Layout.Chat.Msgs = cmd.session.Msgs
+	chat.Layout.Chat.Viewport.SetContent(chat.Layout.Chat.RenderMsgs())
+	chat.Layout.Chat.Viewport.GotoBottom()
 
 	return chat, nil, nil
 }
@@ -98,6 +104,9 @@ func (cmd NewSessionCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.It
 	session, _ := chat.Storage.NewSession()
 
 	chat.Layout.Chat.Session = session
+	chat.Layout.Chat.Msgs = []schema.Msg{}
+	chat.Layout.Chat.Viewport.SetContent(chat.Layout.Chat.RenderMsgs())
+	chat.Layout.Chat.Viewport.GotoBottom()
 
 	return chat, nil, nil
 

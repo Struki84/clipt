@@ -92,17 +92,31 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		layout.WindowSize = msg
 	}
 
-	chatModel, cmd := layout.Chat.Update(msg)
-	layout.Chat = chatModel.(chat.ChatView)
-	cmds = append(cmds, cmd)
-
 	prompt := layout.Chat.Input.Value()
 
 	layout.Menu.Active = strings.HasPrefix(prompt, "/")
-	layout.Menu.SearchString = strings.TrimPrefix(prompt, "/")
+	if layout.Menu.Active {
+		layout.Menu.SearchString = strings.TrimPrefix(prompt, "/")
+	}
 
 	menuModel, cmd := layout.Menu.Update(msg)
 	layout.Menu = menuModel.(menu.ChatMenu)
+	cmds = append(cmds, cmd)
+
+	if keyMsg, ok := msg.(tea.KeyMsg); ok && keyMsg.Type == tea.KeyEnter {
+		if layout.Menu.Active && len(layout.Menu.FilteredItems) > 0 {
+			selected, ok := layout.Menu.List.SelectedItem().(schema.CmdItem)
+			if ok && selected != nil {
+				// Emit the message — ChatModel handles execution next cycle
+				cmds = append(cmds, func() tea.Msg {
+					return MenuExecuteMsg{Item: selected}
+				})
+			}
+		}
+	}
+
+	chatModel, cmd := layout.Chat.Update(msg)
+	layout.Chat = chatModel.(chat.ChatView)
 	cmds = append(cmds, cmd)
 
 	return layout, tea.Batch(cmds...)

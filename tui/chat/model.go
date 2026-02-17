@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os/user"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -85,6 +86,8 @@ func (chat ChatView) View() string {
 	chat.Input.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	chat.Input.FocusedStyle.Base = chat.Style.Input
 	chat.Input.ShowLineNumbers = false
+
+	chat.Loader.Style.PaddingBottom(1)
 
 	return ""
 }
@@ -199,7 +202,9 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
-			if chat.Input.Value() != "" && chat.Input.Focused() {
+			prompt := chat.Input.Value()
+			menuActive := strings.HasPrefix(prompt, "/")
+			if !menuActive && chat.Input.Focused() {
 				input := chat.Input.Value()
 
 				chat.Input.Reset()
