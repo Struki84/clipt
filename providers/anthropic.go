@@ -33,8 +33,8 @@ func NewAnthropic(model string, storage storage.SQLite) *Anthropic {
 	}
 }
 
-func (model *Anthropic) Type() string {
-	return "LLM"
+func (model *Anthropic) Type() schema.ProviderType {
+	return schema.LLM
 }
 
 func (model *Anthropic) Name() string {
@@ -57,7 +57,6 @@ func (model *Anthropic) Stream(ctx context.Context, callback func(ctx context.Co
 
 		return nil
 	}
-
 }
 
 func (model *Anthropic) Run(ctx context.Context, input string, session schema.ChatSession) error {

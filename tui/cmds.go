@@ -2,7 +2,6 @@ package tui
 
 import (
 	"context"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,23 +15,26 @@ type MenuExecuteMsg struct {
 type ProvidersCmd struct {
 	title  string
 	desc   string
-	filter string
+	filter schema.ProviderType
 }
 
 func (cmd ProvidersCmd) Title() string       { return cmd.title }
 func (cmd ProvidersCmd) Description() string { return cmd.desc }
 func (cmd ProvidersCmd) FilterValue() string { return cmd.title }
-func (cmd ProvidersCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.Item) {
-	chat := model.(ChatModel)
+func (cmd ProvidersCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) {
+	model := m.(ChatModel)
 	items := []list.Item{}
 
-	for _, provider := range chat.Providers {
-		if strings.ToLower(provider.Type()) == cmd.filter {
+	for _, provider := range model.Providers {
+		if provider.Type() == cmd.filter {
 			items = append(items, ProviderCmd{provider: provider})
 		}
 	}
 
-	return chat, nil, items
+	model.Layout.Menu = model.Layout.Menu.PushMenu(items)
+	model.Layout.Chat.Input.SetValue("/")
+
+	return model, nil
 }
 
 type ProviderCmd struct {
@@ -42,16 +44,19 @@ type ProviderCmd struct {
 func (cmd ProviderCmd) Title() string       { return "/" + cmd.provider.Name() }
 func (cmd ProviderCmd) Description() string { return cmd.provider.Description() }
 func (cmd ProviderCmd) FilterValue() string { return cmd.provider.Name() }
-func (cmd ProviderCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.Item) {
-	chat := model.(ChatModel)
+func (cmd ProviderCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) {
+	model := m.(ChatModel)
 
-	chat.Layout.Chat.Provider = cmd.provider
-	chat.Layout.Chat.Provider.Stream(context.TODO(), func(ctx context.Context, msg schema.Msg) error {
-		chat.Layout.Chat.Stream <- msg
+	model.Layout.Chat.Provider = cmd.provider
+	model.Layout.Chat.Provider.Stream(context.TODO(), func(ctx context.Context, msg schema.Msg) error {
+		model.Layout.Chat.Stream <- msg
 		return nil
 	})
 
-	return chat, nil, nil
+	model.Layout.Menu = model.Layout.Menu.Close()
+	model.Layout.Chat.Input.SetValue("")
+
+	return model, nil
 }
 
 type SessionsCmd struct {
@@ -62,16 +67,19 @@ type SessionsCmd struct {
 func (cmd SessionsCmd) Title() string       { return cmd.title }
 func (cmd SessionsCmd) Description() string { return cmd.desc }
 func (cmd SessionsCmd) FilterValue() string { return cmd.title }
-func (cmd SessionsCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.Item) {
-	chat := model.(ChatModel)
-	sessions := chat.Storage.ListSessions()
+func (cmd SessionsCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) {
+	model := m.(ChatModel)
+	sessions := model.Storage.ListSessions()
 	items := []list.Item{}
 
 	for _, session := range sessions {
 		items = append(items, SessionCmd{session: session})
 	}
 
-	return chat, nil, items
+	model.Layout.Menu = model.Layout.Menu.PushMenu(items)
+	model.Layout.Chat.Input.SetValue("/")
+
+	return model, nil
 }
 
 type SessionCmd struct {
@@ -81,14 +89,17 @@ type SessionCmd struct {
 func (cmd SessionCmd) Title() string       { return "/" + cmd.session.Title }
 func (cmd SessionCmd) Description() string { return "" }
 func (cmd SessionCmd) FilterValue() string { return cmd.session.Title }
-func (cmd SessionCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.Item) {
-	chat := model.(ChatModel)
-	chat.Layout.Chat.Session = cmd.session
-	chat.Layout.Chat.Msgs = cmd.session.Msgs
-	chat.Layout.Chat.Viewport.SetContent(chat.Layout.Chat.RenderMsgs())
-	chat.Layout.Chat.Viewport.GotoBottom()
+func (cmd SessionCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) {
+	model := m.(ChatModel)
+	model.Layout.Chat.Session = cmd.session
+	model.Layout.Chat.Msgs = cmd.session.Msgs
+	model.Layout.Chat.Viewport.SetContent(model.Layout.Chat.RenderMsgs())
+	model.Layout.Chat.Viewport.GotoBottom()
+	model.Layout.Chat.Input.SetValue("")
 
-	return chat, nil, nil
+	model.Layout.Menu = model.Layout.Menu.Close()
+
+	return model, nil
 }
 
 type NewSessionCmd struct {
@@ -99,16 +110,19 @@ type NewSessionCmd struct {
 func (cmd NewSessionCmd) Title() string       { return cmd.title }
 func (cmd NewSessionCmd) Description() string { return cmd.desc }
 func (cmd NewSessionCmd) FilterValue() string { return cmd.title }
-func (cmd NewSessionCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.Item) {
-	chat := model.(ChatModel)
-	session, _ := chat.Storage.NewSession()
+func (cmd NewSessionCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) {
+	model := m.(ChatModel)
+	session, _ := model.Storage.NewSession()
 
-	chat.Layout.Chat.Session = session
-	chat.Layout.Chat.Msgs = []schema.Msg{}
-	chat.Layout.Chat.Viewport.SetContent(chat.Layout.Chat.RenderMsgs())
-	chat.Layout.Chat.Viewport.GotoBottom()
+	model.Layout.Chat.Session = session
+	model.Layout.Chat.Msgs = []schema.Msg{}
+	model.Layout.Chat.Viewport.SetContent(model.Layout.Chat.RenderMsgs())
+	model.Layout.Chat.Viewport.GotoBottom()
+	model.Layout.Chat.Input.SetValue("")
 
-	return chat, nil, nil
+	model.Layout.Menu = model.Layout.Menu.Close()
+
+	return model, nil
 
 }
 
@@ -120,13 +134,13 @@ type ExitCmd struct {
 func (cmd ExitCmd) Title() string       { return cmd.title }
 func (cmd ExitCmd) Description() string { return cmd.desc }
 func (cmd ExitCmd) FilterValue() string { return cmd.title }
-func (cmd ExitCmd) Execute(model tea.Model) (tea.Model, tea.Cmd, []list.Item) {
-	return model, tea.Quit, nil
+func (cmd ExitCmd) Execute(model tea.Model) (tea.Model, tea.Cmd) {
+	return model, tea.Quit
 }
 
 var defaultCmds = []list.Item{
-	ProvidersCmd{title: "/models", desc: "List available models", filter: "llm"},
-	ProvidersCmd{title: "/agents", desc: "List available agents", filter: "agent"},
+	ProvidersCmd{title: "/models", desc: "List available models", filter: schema.LLM},
+	ProvidersCmd{title: "/agents", desc: "List available agents", filter: schema.Agent},
 	SessionsCmd{title: "/sessions", desc: "List saved sessions"},
 	NewSessionCmd{title: "/new", desc: "Start new session"},
 	ExitCmd{title: "/exit", desc: "Close tui chat app"},

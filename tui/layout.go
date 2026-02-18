@@ -66,7 +66,7 @@ func (layout LayoutView) View() string {
 	elements = append(elements, layout.Chat.Input.View())
 
 	// the bottom bar, status line
-	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Chat.Provider.Type())
+	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Chat.Provider.Type().String())
 	providerName := layout.Style.StatusLine.ProviderName.Render(layout.Chat.Provider.Name())
 	tab := layout.Style.StatusLine.Tab.Render("tab")
 	mode := layout.Style.StatusLine.Mode.Render("CHAT")
@@ -107,9 +107,8 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if layout.Menu.Active && len(layout.Menu.FilteredItems) > 0 {
 			selected, ok := layout.Menu.List.SelectedItem().(schema.CmdItem)
 			if ok && selected != nil {
-				// Emit the message — ChatModel handles execution next cycle
 				cmds = append(cmds, func() tea.Msg {
-					return MenuExecuteMsg{Item: selected}
+					return schema.ExecuteCmd{Cmd: selected}
 				})
 			}
 		}

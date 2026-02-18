@@ -46,23 +46,18 @@ func (model ChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
+		case tea.KeyEsc:
+			if model.Layout.Menu.Active {
+				model.Layout.Menu = model.Layout.Menu.Close()
+				model.Layout.Chat.Input.SetValue("")
+				return model, nil
+			}
+
 		case tea.KeyCtrlC:
 			return model, tea.Quit
 		}
-	case MenuExecuteMsg:
-		m, cmd, submenu := msg.Item.Execute(model)
-		log.Printf("%s", msg.Item.Title())
-		model = m.(ChatModel)
-
-		if submenu != nil {
-			model.Layout.Menu = model.Layout.Menu.PushMenu(submenu)
-			model.Layout.Chat.Input.SetValue("/")
-		} else {
-			model.Layout.Menu = model.Layout.Menu.Close()
-			model.Layout.Chat.Input.SetValue("")
-		}
-
-		return model, cmd
+	case schema.ExecuteCmd:
+		return msg.Cmd.Execute(model)
 	}
 
 	cmds := []tea.Cmd{}

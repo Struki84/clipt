@@ -32,8 +32,8 @@ func NewOpenAI(model string, storage storage.SQLite) *OpenAI {
 	}
 }
 
-func (model *OpenAI) Type() string {
-	return "LLM"
+func (model *OpenAI) Type() schema.ProviderType {
+	return schema.LLM
 }
 
 func (model *OpenAI) Name() string {

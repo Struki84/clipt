@@ -68,7 +68,6 @@ func (menu ChatMenu) View() string {
 	menu.List.KeyMap.CursorDown = key.NewBinding(key.WithKeys("down"))
 	menu.List.KeyMap.CursorUp = key.NewBinding(key.WithKeys("up"))
 
-	menu.List.SetItems(menu.FilteredItems)
 	menu.List.SetSize(menu.WindowSize.Width-4, menuHeight)
 
 	return menu.Style.Render(menu.List.View())
@@ -80,13 +79,6 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		menu.WindowSize = msg
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEsc:
-			if menu.Active {
-				return menu.Close(), tea.Batch(cmds...)
-			}
-		}
 	}
 
 	if menu.Active {
@@ -99,13 +91,10 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		menu.List.SetItems(menu.FilteredItems)
-
 	} else {
-		menu.SearchString = ""
-		menu.FilteredItems = menu.DefaultItems
-		menu.CurrentItems = menu.DefaultItems
-		menu.List.SetItems(menu.DefaultItems)
+		menu = menu.Reset()
 	}
+
 	list, cmd := menu.List.Update(msg)
 	menu.List = list
 	cmds = append(cmds, cmd)
@@ -113,19 +102,26 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return menu, tea.Batch(cmds...)
 }
 
-func (menu ChatMenu) Close() ChatMenu {
-	menu.Active = false
-	menu.SearchString = ""
-	menu.CurrentItems = menu.DefaultItems
-	menu.FilteredItems = menu.DefaultItems
-	menu.List.SetItems(menu.DefaultItems)
-	return menu
-}
-
 func (menu ChatMenu) PushMenu(submenu []list.Item) ChatMenu {
 	menu.FilteredItems = submenu
 	menu.CurrentItems = submenu
 	menu.List.SetItems(submenu)
+
+	return menu
+}
+
+func (menu ChatMenu) Reset() ChatMenu {
+	menu.SearchString = ""
+	menu.CurrentItems = menu.DefaultItems
+	menu.FilteredItems = menu.DefaultItems
+	menu.List.SetItems(menu.DefaultItems)
+
+	return menu
+}
+
+func (menu ChatMenu) Close() ChatMenu {
+	menu.Active = false
+	menu = menu.Reset()
 
 	return menu
 }

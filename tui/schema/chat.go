@@ -75,8 +75,29 @@ type ChatSession struct {
 
 type ChatProvider interface {
 	Name() string
-	Type() string
+	Type() ProviderType
 	Description() string
 	Run(ctx context.Context, input string, session ChatSession) error
 	Stream(ctx context.Context, callback func(ctx context.Context, msg Msg) error)
+}
+
+type ProviderType int
+
+const (
+	LLM ProviderType = iota
+	Agent
+	Workflow
+)
+
+func (t ProviderType) String() string {
+	switch t {
+	case LLM:
+		return "LLM"
+	case Agent:
+		return "Agent"
+	case Workflow:
+		return "Workflow"
+	default:
+		return fmt.Sprintf("ProviderType(%d)", t)
+	}
 }
