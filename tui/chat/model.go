@@ -180,18 +180,11 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			lastMsg.Role = msg.Role
 			lastMsg.Content += msg.Content
-			lastMsg.Timestamp = time.Now().Unix()
+			lastMsg.Timestamp = msg.Timestamp
 
 			chat.Msgs[len(chat.Msgs)-1] = lastMsg
 		} else {
-			chat.Msgs = append(
-				chat.Msgs,
-				schema.Msg{
-					Role:      msg.Role,
-					Content:   msg.Content,
-					Timestamp: time.Now().Unix(),
-				},
-			)
+			chat.Msgs = append(chat.Msgs, msg)
 		}
 
 		chat.Viewport.SetContent(chat.RenderMsgs())

@@ -13,7 +13,7 @@ type ChatMenu struct {
 	WindowSize tea.WindowSizeMsg
 	Style      lipgloss.Style
 
-	List          list.Model
+	List          *list.Model
 	DefaultItems  []list.Item
 	CurrentItems  []list.Item
 	FilteredItems []list.Item
@@ -25,7 +25,7 @@ type ChatMenu struct {
 func NewChatMenu(cmds []list.Item) ChatMenu {
 	list := list.New(cmds, NewMenuDelegate(), 0, 0)
 	return ChatMenu{
-		List:          list,
+		List:          &list,
 		DefaultItems:  cmds,
 		CurrentItems:  cmds,
 		FilteredItems: cmds,
@@ -65,8 +65,8 @@ func (menu ChatMenu) View() string {
 	menu.List.SetShowFilter(false)
 	menu.List.SetShowStatusBar(false)
 	menu.List.SetFilteringEnabled(false)
-	menu.List.KeyMap.CursorDown = key.NewBinding(key.WithKeys("down"))
-	menu.List.KeyMap.CursorUp = key.NewBinding(key.WithKeys("up"))
+	menu.List.KeyMap.CursorDown = key.NewBinding(key.WithKeys("ctrl+j"))
+	menu.List.KeyMap.CursorUp = key.NewBinding(key.WithKeys("ctrl+k"))
 
 	menu.List.SetSize(menu.WindowSize.Width-4, menuHeight)
 
@@ -96,7 +96,7 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	list, cmd := menu.List.Update(msg)
-	menu.List = list
+	menu.List = &list
 	cmds = append(cmds, cmd)
 
 	return menu, tea.Batch(cmds...)
