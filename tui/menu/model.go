@@ -99,6 +99,17 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	menu.List = &list
 	cmds = append(cmds, cmd)
 
+	// if keyMsg, ok := msg.(tea.KeyMsg); ok && keyMsg.Type == tea.KeyEnter {
+	// 	if menu.Active && len(menu.FilteredItems) > 0 {
+	// 		selected, ok := menu.List.SelectedItem().(schema.CmdItem)
+	// 		if ok && selected != nil {
+	// 			cmds = append(cmds, func() tea.Msg {
+	// 				return schema.ExecuteCmd{Cmd: selected}
+	// 			})
+	// 		}
+	// 	}
+	// }
+
 	return menu, tea.Batch(cmds...)
 }
 

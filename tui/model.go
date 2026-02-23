@@ -52,7 +52,6 @@ func (model ChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				model.Layout.Chat.Input.SetValue("")
 				return model, nil
 			}
-
 		case tea.KeyCtrlC:
 			return model, tea.Quit
 		}

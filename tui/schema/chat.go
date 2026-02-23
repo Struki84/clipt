@@ -33,7 +33,7 @@ func (r MsgRole) String() string {
 	}
 }
 
-func Enum(s string) MsgRole {
+func EnumRole(s string) MsgRole {
 	switch s {
 	case "AIMsg":
 		return AIMsg

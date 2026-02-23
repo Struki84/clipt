@@ -21,28 +21,38 @@ func (delegate MenuDelegate) Spacing() int                            { return 0
 func (delegate MenuDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 
 func (delegate MenuDelegate) Render(w io.Writer, m list.Model, index int, item list.Item) {
+	titleWidth := 30
 	var (
 		normalStyle = lipgloss.NewStyle().
 				Background(lipgloss.Color("#11111b")).
 				Foreground(lipgloss.Color("#FFFFFF")).
 				Padding(0, 0, 0, 0).
-				Width(120)
+				Width(titleWidth)
 
 		selectedStyle = lipgloss.NewStyle().
 				Background(lipgloss.Color("#11111b")).
 				Foreground(lipgloss.Color("#b4befe")).
 				Padding(0).
-				Width(120)
+				Width(titleWidth)
+
+		descStyle = lipgloss.NewStyle().
+				Background(lipgloss.Color("#11111b")).
+				Foreground(lipgloss.Color("#6c7086")).
+				Width(60)
 	)
 	i, ok := item.(schema.CmdItem)
 	if !ok {
 		return
 	}
-	style := normalStyle
+
+	titleStyle := normalStyle
 
 	if index == m.Index() {
-		style = selectedStyle
+		titleStyle = selectedStyle
 	}
 
-	fmt.Fprint(w, style.Render(string(i.Title())))
+	title := titleStyle.Render(i.Title())
+	desc := descStyle.Render(i.Description())
+
+	fmt.Fprint(w, title+desc)
 }

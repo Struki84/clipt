@@ -33,7 +33,7 @@ func (m Messages) Value() (driver.Value, error) {
 	return json.Marshal(m)
 }
 
-func (m *Messages) Scan(src interface{}) error {
+func (m *Messages) Scan(src any) error {
 	var bytes []byte
 	switch v := src.(type) {
 	case []byte:
@@ -85,7 +85,7 @@ func (sql SQLite) NewSession() (schema.ChatSession, error) {
 
 	sql.record = Session{
 		SessionID: sessionID,
-		Title:     "New Session",
+		Title:     fmt.Sprintf("Session - %s", sessionID),
 		Msgs:      Messages{},
 	}
 
@@ -97,7 +97,7 @@ func (sql SQLite) NewSession() (schema.ChatSession, error) {
 
 	return schema.ChatSession{
 		ID:        sessionID,
-		Title:     "New Session",
+		Title:     sql.record.Title,
 		Msgs:      []schema.Msg{},
 		CreatedAt: sql.record.CreatedAt.Unix(),
 	}, nil
@@ -115,7 +115,7 @@ func (sql SQLite) ListSessions() []schema.ChatSession {
 		msgs := []schema.Msg{}
 		for _, msg := range session.Msgs {
 			msgs = append(msgs, schema.Msg{
-				Role:    schema.Enum(msg.Role),
+				Role:    schema.EnumRole(msg.Role),
 				Content: msg.Content,
 			})
 		}
@@ -133,7 +133,7 @@ func (sql SQLite) ListSessions() []schema.ChatSession {
 
 func (sql SQLite) LoadRecentSession() (schema.ChatSession, error) {
 	sessions := []Session{}
-	err := sql.db.Find(&sessions).Order("created_at, DESC").Error
+	err := sql.db.Order("updated_at DESC").Limit(1).Find(&sessions).Error
 	if err != nil {
 		return schema.ChatSession{}, fmt.Errorf("Error loading recent sessions, %v", err)
 	}
@@ -144,7 +144,7 @@ func (sql SQLite) LoadRecentSession() (schema.ChatSession, error) {
 		msgs := []schema.Msg{}
 		for _, msg := range session.Msgs {
 			msgs = append(msgs, schema.Msg{
-				Role:    schema.Enum(msg.Role),
+				Role:    schema.EnumRole(msg.Role),
 				Content: msg.Content,
 			})
 		}
@@ -160,9 +160,10 @@ func (sql SQLite) LoadRecentSession() (schema.ChatSession, error) {
 
 	}
 
+	sessionID := randstr.String(8)
 	sql.record = Session{
-		SessionID: randstr.String(8),
-		Title:     "New Session",
+		SessionID: sessionID,
+		Title:     fmt.Sprintf("Session - %s", sessionID),
 		Msgs:      Messages{},
 	}
 
@@ -188,7 +189,7 @@ func (sql SQLite) LoadSession(sessionID string) (schema.ChatSession, error) {
 	msgs := []schema.Msg{}
 	for _, msg := range sql.record.Msgs {
 		msgs = append(msgs, schema.Msg{
-			Role:    schema.Enum(msg.Role),
+			Role:    schema.EnumRole(msg.Role),
 			Content: msg.Content,
 		})
 	}

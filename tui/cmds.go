@@ -2,6 +2,7 @@ package tui
 
 import (
 	"context"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -86,8 +87,10 @@ type SessionCmd struct {
 	session schema.ChatSession
 }
 
-func (cmd SessionCmd) Title() string       { return "/" + cmd.session.Title }
-func (cmd SessionCmd) Description() string { return "" }
+func (cmd SessionCmd) Title() string { return "/" + cmd.session.Title }
+func (cmd SessionCmd) Description() string {
+	return time.Unix(cmd.session.CreatedAt, 0).Format("2 Jan 2006")
+}
 func (cmd SessionCmd) FilterValue() string { return cmd.session.Title }
 func (cmd SessionCmd) Execute(m tea.Model) (tea.Model, tea.Cmd) {
 	model := m.(ChatModel)

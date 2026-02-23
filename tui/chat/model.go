@@ -102,7 +102,7 @@ func (chat ChatView) RenderMsgs() string {
 
 	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(120),
+		glamour.WithWordWrap(chat.WindowSize.Width-8),
 	)
 
 	width := chat.Viewport.Width - 4

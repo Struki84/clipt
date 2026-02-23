@@ -42,7 +42,7 @@ func (layout LayoutView) View() string {
 	elements := []string{}
 
 	// top bar, session tittle
-	date := time.Unix(layout.Chat.Session.CreatedAt, 0).Format("2 Jan 2006 15:04")
+	date := time.Unix(layout.Chat.Session.CreatedAt, 0).Format("2 Jan 2006")
 	title := fmt.Sprintf("%s \n%v", layout.Chat.Session.Title, date)
 	sessionBar := layout.Style.SessionBar.
 		Width(layout.WindowSize.Width - 6).
@@ -68,6 +68,7 @@ func (layout LayoutView) View() string {
 	// the bottom bar, status line
 	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Chat.Provider.Type().String())
 	providerName := layout.Style.StatusLine.ProviderName.Render(layout.Chat.Provider.Name())
+	// modeLabel := layout.Style.StatusLine.Tab.Render("tab")
 	tab := layout.Style.StatusLine.Tab.Render("tab")
 	mode := layout.Style.StatusLine.Mode.Render("CHAT")
 
