@@ -8,23 +8,44 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/struki84/clipt/tui"
 	"github.com/struki84/clipt/tui/schema"
+	"github.com/struki84/clipt/tui/style"
 )
 
-// TODO: make debug mode optional and allow custom debug.log location !
-func Render(providers []schema.ChatProvider, session schema.SessionStorage) {
-	file, err := tea.LogToFile("debug.log", "debug")
-	if err != nil {
-		log.Fatal(err)
+func Render(providers []schema.ChatProvider, options ...Option) {
+	config := schema.Config{
+		Cmds:      tui.DefaultCmds,
+		Providers: providers,
+		Style:     style.Default(),
+		Debug: struct {
+			Log  bool
+			Path string
+		}{
+			Log:  true,
+			Path: "",
+		},
 	}
 
-	defer file.Close()
+	for _, opt := range options {
+		opt(&config)
+	}
+
+	if config.Debug.Log {
+		file, err := tea.LogToFile(config.Debug.Path, "debug")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer file.Close()
+	}
+
 	app := tea.NewProgram(
-		tui.NewChatModel(providers, session),
+		tui.NewLayout(config),
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),
 	)
+
 	if _, err := app.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
+		fmt.Printf("There's been an error while starting clipt tui: %v", err)
 		os.Exit(1)
 	}
 }

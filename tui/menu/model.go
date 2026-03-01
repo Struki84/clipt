@@ -22,7 +22,7 @@ type ChatMenu struct {
 	Active bool
 }
 
-func NewChatMenu(cmds []list.Item) ChatMenu {
+func New(cmds []list.Item) ChatMenu {
 	list := list.New(cmds, NewMenuDelegate(), 0, 0)
 	return ChatMenu{
 		List:          &list,
@@ -98,17 +98,6 @@ func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	list, cmd := menu.List.Update(msg)
 	menu.List = &list
 	cmds = append(cmds, cmd)
-
-	// if keyMsg, ok := msg.(tea.KeyMsg); ok && keyMsg.Type == tea.KeyEnter {
-	// 	if menu.Active && len(menu.FilteredItems) > 0 {
-	// 		selected, ok := menu.List.SelectedItem().(schema.CmdItem)
-	// 		if ok && selected != nil {
-	// 			cmds = append(cmds, func() tea.Msg {
-	// 				return schema.ExecuteCmd{Cmd: selected}
-	// 			})
-	// 		}
-	// 	}
-	// }
 
 	return menu, tea.Batch(cmds...)
 }

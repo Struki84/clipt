@@ -9,10 +9,16 @@ import (
 
 func main() {
 	dbPath := "./basic.db"
-	s := storage.NewSQLite(dbPath)
-	p := []schema.ChatProvider{
-		providers.NewOpenAI("gpt-4o", *s),
+
+	sqlite := *storage.NewSQLite(dbPath)
+
+	models := []schema.ChatProvider{
+		providers.NewOpenAI("gpt-4o", sqlite),
 	}
 
-	clipt.Render(p, s)
+	clipt.Render(
+		models,
+		clipt.WithStorage(sqlite),
+		clipt.WithDebugLog("debug.log"),
+	)
 }

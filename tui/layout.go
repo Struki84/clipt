@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/struki84/clipt/tui/chat"
@@ -16,26 +15,38 @@ import (
 type LayoutView struct {
 	WindowSize tea.WindowSizeMsg
 
-	Style Styles
+	Style schema.Styles
 	Menu  menu.ChatMenu
 	Chat  chat.ChatView
+
+	Storage   schema.SessionStorage
+	Providers []schema.ChatProvider
 }
 
-func NewLayoutView(provider schema.ChatProvider) LayoutView {
-	return LayoutView{
-		Style: DefaultStyles(),
-		Menu:  menu.NewChatMenu(defaultCmds),
-		Chat:  chat.New(provider),
+func NewLayout(conf schema.Config) LayoutView {
+	layout := LayoutView{
+		Style:     conf.Style,
+		Menu:      menu.New(conf.Cmds),
+		Chat:      chat.New(conf.Providers[0]),
+		Storage:   conf.Storage,
+		Providers: conf.Providers,
 	}
+
+	if layout.Storage != nil {
+		session, err := layout.Storage.LoadRecentSession()
+		if err != nil {
+			layout.Chat.Msgs = []schema.Msg{}
+		} else {
+			layout.Chat.Session = session
+			layout.Chat.Msgs = session.Msgs
+		}
+	}
+
+	return layout
 }
 
 func (layout LayoutView) Init() tea.Cmd {
-	cmds := []tea.Cmd{}
-
-	cmds = append(cmds, textarea.Blink)
-	cmds = append(cmds, layout.Chat.Init())
-
-	return tea.Batch(cmds...)
+	return tea.Batch(layout.Chat.Init())
 }
 
 func (layout LayoutView) View() string {
@@ -44,7 +55,7 @@ func (layout LayoutView) View() string {
 	// top bar, session tittle
 	date := time.Unix(layout.Chat.Session.CreatedAt, 0).Format("2 Jan 2006")
 	title := fmt.Sprintf("%s \n%v", layout.Chat.Session.Title, date)
-	sessionBar := layout.Style.SessionBar.
+	sessionBar := layout.Style.ChatHeader.
 		Width(layout.WindowSize.Width - 6).
 		Render(title)
 
@@ -91,6 +102,17 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		layout.WindowSize = msg
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyEsc:
+			if layout.Menu.Active {
+				layout.Menu = layout.Menu.Close()
+				layout.Chat.Input.SetValue("")
+				return layout, nil
+			}
+		case tea.KeyCtrlC:
+			return layout, tea.Quit
+		}
 	}
 
 	prompt := layout.Chat.Input.Value()
@@ -108,9 +130,7 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if layout.Menu.Active && len(layout.Menu.FilteredItems) > 0 {
 			selected, ok := layout.Menu.List.SelectedItem().(schema.CmdItem)
 			if ok && selected != nil {
-				cmds = append(cmds, func() tea.Msg {
-					return schema.ExecuteCmd{Cmd: selected}
-				})
+				return selected.Execute(layout)
 			}
 		}
 	}

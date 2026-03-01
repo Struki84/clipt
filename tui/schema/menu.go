@@ -5,10 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type ExecuteCmd struct {
-	Cmd CmdItem
-}
-
 type CmdItem interface {
 	list.Item
 

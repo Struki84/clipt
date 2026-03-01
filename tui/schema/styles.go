@@ -3,7 +3,7 @@ package schema
 import "github.com/charmbracelet/lipgloss"
 
 type Styles struct {
-	SessionBar lipgloss.Style
+	ChatHeader lipgloss.Style
 	ChatInput  lipgloss.Style
 	ChatMenu   lipgloss.Style
 
