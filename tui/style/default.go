@@ -15,7 +15,7 @@ func Default() (s schema.Styles) {
 		BorderRight(true).
 		MarginTop(1)
 
-	s.ChatMenu = lipgloss.NewStyle().
+	s.ChatMenu.View = lipgloss.NewStyle().
 		Background(lipgloss.Color("#11111b")).
 		BorderStyle(lipgloss.ThickBorder()).
 		BorderForeground(lipgloss.Color("#ffffff")).
@@ -25,6 +25,23 @@ func Default() (s schema.Styles) {
 		BorderBottom(false).
 		PaddingLeft(1).
 		PaddingRight(1)
+
+	s.ChatMenu.TitleNormal = lipgloss.NewStyle().
+		Background(lipgloss.Color("#11111b")).
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Padding(0).
+		Width(30)
+
+	s.ChatMenu.TitleSelected = lipgloss.NewStyle().
+		Background(lipgloss.Color("#11111b")).
+		Foreground(lipgloss.Color("#b4befe")).
+		Padding(0).
+		Width(30)
+
+	s.ChatMenu.Description = lipgloss.NewStyle().
+		Background(lipgloss.Color("#11111b")).
+		Foreground(lipgloss.Color("#6c7086")).
+		Width(60)
 
 	s.ChatInput = lipgloss.NewStyle().
 		Background(lipgloss.Color("#11111b")).

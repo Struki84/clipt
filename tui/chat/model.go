@@ -21,7 +21,7 @@ import (
 type ChatView struct {
 	WindowSize tea.WindowSizeMsg
 
-	Style    Styles
+	Style    schema.Styles
 	Msgs     []schema.Msg
 	Stream   chan schema.Msg
 	Provider schema.ChatProvider
@@ -29,12 +29,13 @@ type ChatView struct {
 
 	IsLoading bool
 
-	Input    *textarea.Model
+	Header   string
 	Viewport *viewport.Model
+	Input    *textarea.Model
 	Loader   spinner.Model
 }
 
-func New(provider schema.ChatProvider) ChatView {
+func New(provider schema.ChatProvider, style schema.Styles) ChatView {
 	input := textarea.New()
 	input.Focus()
 
@@ -46,7 +47,7 @@ func New(provider schema.ChatProvider) ChatView {
 		Provider:  provider,
 		Input:     &input,
 		Viewport:  &view,
-		Style:     DefaultStyles(),
+		Style:     style,
 		Loader:    loader,
 		IsLoading: false,
 		Stream:    make(chan schema.Msg),
@@ -67,6 +68,11 @@ func (chat ChatView) Init() tea.Cmd {
 }
 
 func (chat ChatView) View() string {
+	date := time.Unix(chat.Session.CreatedAt, 0).Format("2 Jan 2006")
+	title := fmt.Sprintf("%s \n%v", chat.Session.Title, date)
+
+	chat.Header = chat.Style.ChatHeader.Width(chat.WindowSize.Width - 6).Render(title)
+
 	chat.Viewport.Width = chat.WindowSize.Width - 2
 	chat.Viewport.Height = chat.WindowSize.Height - 8
 
@@ -84,12 +90,12 @@ func (chat ChatView) View() string {
 	chat.Input.SetHeight(1)
 	chat.Input.SetWidth(chat.WindowSize.Width - 4)
 	chat.Input.FocusedStyle.CursorLine = lipgloss.NewStyle()
-	chat.Input.FocusedStyle.Base = chat.Style.Input
+	chat.Input.FocusedStyle.Base = chat.Style.ChatInput
 	chat.Input.ShowLineNumbers = false
 
 	chat.Loader.Style.PaddingBottom(1)
 
-	return ""
+	return chat.Header
 }
 
 func (chat ChatView) RenderMsgs() string {

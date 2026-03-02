@@ -5,7 +5,12 @@ import "github.com/charmbracelet/lipgloss"
 type Styles struct {
 	ChatHeader lipgloss.Style
 	ChatInput  lipgloss.Style
-	ChatMenu   lipgloss.Style
+	ChatMenu   struct {
+		View          lipgloss.Style
+		TitleNormal   lipgloss.Style
+		TitleSelected lipgloss.Style
+		Description   lipgloss.Style
+	}
 
 	StatusLine struct {
 		BaseStyle    lipgloss.Style

@@ -59,7 +59,19 @@ func (model *OpenAI) Stream(ctx context.Context, callback func(ctx context.Conte
 }
 
 func (model *OpenAI) Run(ctx context.Context, input string, session schema.ChatSession) error {
-	buffer, err := model.storage.LoadSessionMsgs(session.ID)
+	buffer, err := model.storage.LoadMsgs(session.ID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	userMsg := schema.Msg{
+		Role:      schema.UserMsg,
+		Content:   input,
+		Timestamp: time.Now().Unix(),
+	}
+
+	err = model.storage.SaveMsg(session.ID, userMsg)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -77,8 +89,13 @@ func (model *OpenAI) Run(ctx context.Context, input string, session schema.ChatS
 		return err
 	}
 
-	text := response.Choices[0].Content
-	err = model.storage.SaveSessionMsg(session.ID, input, text)
+	aiMsg := schema.Msg{
+		Role:      schema.AIMsg,
+		Content:   response.Choices[0].Content,
+		Timestamp: time.Now().Unix(),
+	}
+
+	err = model.storage.SaveMsg(session.ID, aiMsg)
 	if err != nil {
 		log.Println(err)
 		return err

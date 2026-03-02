@@ -6,12 +6,12 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"github.com/struki84/clipt/tui/schema"
 )
 
 type ChatMenu struct {
 	WindowSize tea.WindowSizeMsg
-	Style      lipgloss.Style
+	Style      schema.Styles
 
 	List          *list.Model
 	DefaultItems  []list.Item
@@ -22,13 +22,23 @@ type ChatMenu struct {
 	Active bool
 }
 
-func New(cmds []list.Item) ChatMenu {
-	list := list.New(cmds, NewMenuDelegate(), 0, 0)
+func New(cmds []list.Item, style schema.Styles) ChatMenu {
+	list := list.New(cmds, NewMenuDelegate(style), 0, 0)
+	list.SetShowTitle(false)
+	list.SetShowHelp(false)
+	list.SetShowPagination(false)
+	list.SetShowFilter(false)
+	list.SetShowStatusBar(false)
+	list.SetFilteringEnabled(false)
+	list.KeyMap.CursorDown = key.NewBinding(key.WithKeys("ctrl+j"))
+	list.KeyMap.CursorUp = key.NewBinding(key.WithKeys("ctrl+k"))
+
 	return ChatMenu{
 		List:          &list,
 		DefaultItems:  cmds,
 		CurrentItems:  cmds,
 		FilteredItems: cmds,
+		Style:         style,
 	}
 }
 
@@ -46,31 +56,12 @@ func (menu ChatMenu) View() string {
 		menuHeight = 10
 	}
 
-	menu.Style = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#ffffff")).
-		BorderLeft(true).
-		BorderRight(true).
-		BorderTop(false).
-		BorderBottom(false).
-		PaddingLeft(1).
-		PaddingRight(1).
-		Width(menu.WindowSize.Width - 6).
-		Height(menuHeight)
-
-	menu.List.SetShowTitle(false)
-	menu.List.SetShowHelp(false)
-	menu.List.SetShowPagination(false)
-	menu.List.SetShowFilter(false)
-	menu.List.SetShowStatusBar(false)
-	menu.List.SetFilteringEnabled(false)
-	menu.List.KeyMap.CursorDown = key.NewBinding(key.WithKeys("ctrl+j"))
-	menu.List.KeyMap.CursorUp = key.NewBinding(key.WithKeys("ctrl+k"))
-
 	menu.List.SetSize(menu.WindowSize.Width-4, menuHeight)
 
-	return menu.Style.Render(menu.List.View())
+	return menu.Style.ChatMenu.View.
+		Width(menu.WindowSize.Width - 6).
+		Height(menuHeight).
+		Render(menu.List.View())
 }
 
 func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

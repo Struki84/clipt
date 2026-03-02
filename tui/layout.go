@@ -1,9 +1,7 @@
 package tui
 
 import (
-	"fmt"
 	"strings"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -25,9 +23,9 @@ type LayoutView struct {
 
 func NewLayout(conf schema.Config) LayoutView {
 	layout := LayoutView{
+		Menu:      menu.New(conf.Cmds, conf.Style),
+		Chat:      chat.New(conf.Providers[0], conf.Style),
 		Style:     conf.Style,
-		Menu:      menu.New(conf.Cmds),
-		Chat:      chat.New(conf.Providers[0]),
 		Storage:   conf.Storage,
 		Providers: conf.Providers,
 	}
@@ -52,20 +50,16 @@ func (layout LayoutView) Init() tea.Cmd {
 func (layout LayoutView) View() string {
 	elements := []string{}
 
-	// top bar, session tittle
-	date := time.Unix(layout.Chat.Session.CreatedAt, 0).Format("2 Jan 2006")
-	title := fmt.Sprintf("%s \n%v", layout.Chat.Session.Title, date)
-	sessionBar := layout.Style.ChatHeader.
-		Width(layout.WindowSize.Width - 6).
-		Render(title)
+	// Render Chat Header - Session title, date, and info
+	// layout.Chat.View() will return only the header section and configure
+	// the chat view port and the input, since the layout is dynamic due to
+	// open-closing of the menu section
+	header := layout.Chat.View()
+	elements = append(elements, header)
 
-	elements = append(elements, sessionBar)
-
-	layout.Chat.View()
-
+	// Render Chat viewport and/or chat menu and modify the viewport height based on menu height
 	if layout.Menu.Active {
 		menuHeight := len(layout.Menu.FilteredItems)
-
 		layout.Chat.Viewport.Height = layout.WindowSize.Height - menuHeight - 8
 
 		elements = append(elements, layout.Chat.Viewport.View())
@@ -74,9 +68,10 @@ func (layout LayoutView) View() string {
 		elements = append(elements, layout.Chat.Viewport.View())
 	}
 
+	// Render Chat input
 	elements = append(elements, layout.Chat.Input.View())
 
-	// the bottom bar, status line
+	// Render the status line
 	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Chat.Provider.Type().String())
 	providerName := layout.Style.StatusLine.ProviderName.Render(layout.Chat.Provider.Name())
 	// modeLabel := layout.Style.StatusLine.Tab.Render("tab")

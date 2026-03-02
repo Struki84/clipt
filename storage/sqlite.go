@@ -25,8 +25,9 @@ type Session struct {
 type Messages []Message
 
 type Message struct {
-	Role    string
-	Content string
+	Role      string
+	Content   string
+	Timestamp int64
 }
 
 func (m Messages) Value() (driver.Value, error) {
@@ -144,8 +145,9 @@ func (sql SQLite) LoadRecentSession() (schema.ChatSession, error) {
 		msgs := []schema.Msg{}
 		for _, msg := range session.Msgs {
 			msgs = append(msgs, schema.Msg{
-				Role:    schema.EnumRole(msg.Role),
-				Content: msg.Content,
+				Role:      schema.EnumRole(msg.Role),
+				Content:   msg.Content,
+				Timestamp: msg.Timestamp,
 			})
 		}
 
@@ -189,8 +191,9 @@ func (sql SQLite) LoadSession(sessionID string) (schema.ChatSession, error) {
 	msgs := []schema.Msg{}
 	for _, msg := range sql.record.Msgs {
 		msgs = append(msgs, schema.Msg{
-			Role:    schema.EnumRole(msg.Role),
-			Content: msg.Content,
+			Role:      schema.EnumRole(msg.Role),
+			Content:   msg.Content,
+			Timestamp: msg.Timestamp,
 		})
 	}
 
@@ -206,8 +209,9 @@ func (sql SQLite) SaveSession(session schema.ChatSession) (schema.ChatSession, e
 	msgs := Messages{}
 	for i, msg := range session.Msgs {
 		msgs[i] = Message{
-			Role:    msg.Role.String(),
-			Content: msg.Content,
+			Role:      msg.Role.String(),
+			Content:   msg.Content,
+			Timestamp: msg.Timestamp,
 		}
 	}
 
@@ -233,24 +237,19 @@ func (sql SQLite) DeleteSession(sessionID string) error {
 	return nil
 }
 
-func (sql SQLite) SaveSessionMsg(sessionID string, humanMsg string, aiMsg string) error {
+func (sql SQLite) SaveMsg(sessionID string, msg schema.Msg) error {
 	err := sql.db.Where("session_id = ?", sessionID).Find(&sql.record).Error
 	if err != nil {
 		return fmt.Errorf("Error loading session: %v", err)
 	}
 
-	human := Message{
-		Role:    schema.UserMsg.String(),
-		Content: humanMsg,
+	message := Message{
+		Role:      msg.Role.String(),
+		Content:   msg.Content,
+		Timestamp: msg.Timestamp,
 	}
 
-	ai := Message{
-		Role:    schema.AIMsg.String(),
-		Content: aiMsg,
-	}
-
-	sql.record.Msgs = append(sql.record.Msgs, human)
-	sql.record.Msgs = append(sql.record.Msgs, ai)
+	sql.record.Msgs = append(sql.record.Msgs, message)
 
 	err = sql.db.Save(&sql.record).Error
 	if err != nil {
@@ -260,7 +259,7 @@ func (sql SQLite) SaveSessionMsg(sessionID string, humanMsg string, aiMsg string
 	return nil
 }
 
-func (sql SQLite) LoadSessionMsgs(sessionID string) (string, error) {
+func (sql SQLite) LoadMsgs(sessionID string) (string, error) {
 	result := []string{}
 	err := sql.db.Where("session_id = ?", sessionID).Find(&sql.record).Error
 	if err != nil {
