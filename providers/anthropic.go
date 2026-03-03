@@ -91,7 +91,7 @@ func (model *Anthropic) Run(ctx context.Context, input string, session schema.Ch
 	}
 
 	aiMsg := schema.Msg{
-		Role:      schema.UserMsg,
+		Role:      schema.AIMsg,
 		Content:   response.Choices[0].Content,
 		Timestamp: time.Now().Unix(),
 	}

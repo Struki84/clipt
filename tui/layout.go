@@ -60,7 +60,7 @@ func (layout LayoutView) View() string {
 	// Render Chat viewport and/or chat menu and modify the viewport height based on menu height
 	if layout.Menu.Active {
 		menuHeight := len(layout.Menu.FilteredItems)
-		layout.Chat.Viewport.Height = layout.WindowSize.Height - menuHeight - 8
+		layout.Chat.Viewport.Height = layout.Chat.Viewport.Height - menuHeight
 
 		elements = append(elements, layout.Chat.Viewport.View())
 		elements = append(elements, layout.Menu.View())

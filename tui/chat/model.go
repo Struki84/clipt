@@ -38,6 +38,8 @@ type ChatView struct {
 func New(provider schema.ChatProvider, style schema.Styles) ChatView {
 	input := textarea.New()
 	input.Focus()
+	input.CharLimit = 0
+	input.KeyMap.InsertNewline.SetEnabled(false)
 
 	view := viewport.New(0, 0)
 	loader := spinner.New()
@@ -74,7 +76,7 @@ func (chat ChatView) View() string {
 	chat.Header = chat.Style.ChatHeader.Width(chat.WindowSize.Width - 6).Render(title)
 
 	chat.Viewport.Width = chat.WindowSize.Width - 2
-	chat.Viewport.Height = chat.WindowSize.Height - 8
+	chat.Viewport.Height = chat.WindowSize.Height - chat.Input.LineInfo().Height - 7
 
 	chat.Viewport.KeyMap = viewport.KeyMap{
 		PageDown: key.NewBinding(key.WithKeys("pgdown")),
@@ -87,7 +89,7 @@ func (chat ChatView) View() string {
 	// chat.Viewport.GotoBottom()
 
 	chat.Input.Prompt = ""
-	chat.Input.SetHeight(1)
+	chat.Input.SetHeight(chat.Input.LineInfo().Height + 1)
 	chat.Input.SetWidth(chat.WindowSize.Width - 4)
 	chat.Input.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	chat.Input.FocusedStyle.Base = chat.Style.ChatInput
@@ -241,6 +243,8 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return chat, chat.Loader.Tick
 		}
 	}
+
+	log.Printf("input line height: %v", chat.Input.LineInfo().Height)
 
 	input, cmd := chat.Input.Update(msg)
 	chat.Input = &input

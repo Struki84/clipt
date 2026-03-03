@@ -51,7 +51,7 @@ func Default() (s schema.Styles) {
 		BorderRight(true).
 		BorderTop(false).
 		BorderBottom(false).
-		Padding(1).
+		Padding(1, 1, 0, 1).
 		MarginBottom(1)
 
 	s.StatusLine.BaseStyle = lipgloss.NewStyle().
