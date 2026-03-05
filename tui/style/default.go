@@ -51,8 +51,7 @@ func Default() (s schema.Styles) {
 		BorderRight(true).
 		BorderTop(false).
 		BorderBottom(false).
-		Padding(1, 1, 0, 1).
-		MarginBottom(1)
+		Padding(1, 1, 0, 1)
 
 	s.StatusLine.BaseStyle = lipgloss.NewStyle().
 		Background(lipgloss.Color("#181825")).
@@ -91,6 +90,15 @@ func Default() (s schema.Styles) {
 		BorderStyle(lipgloss.ThickBorder()).
 		BorderForeground(lipgloss.Color("#45475a")).
 		BorderLeft(true)
+
+	s.StatusLine.Loader = lipgloss.NewStyle().
+		Background(lipgloss.Color("#181825"))
+
+	s.InfoLine = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#7f849c")).
+		Padding(0, 2, 0, 2).
+		MarginBottom(1).
+		Align(lipgloss.Left)
 
 	s.Msg.AI = lipgloss.NewStyle().
 		Align(lipgloss.Left)

@@ -33,8 +33,8 @@ func NewAnthropic(model string, storage storage.SQLite) *Anthropic {
 	}
 }
 
-func (model *Anthropic) Type() schema.ProviderType {
-	return schema.LLM
+func (model *Anthropic) Type() string {
+	return "LLM"
 }
 
 func (model *Anthropic) Name() string {
@@ -86,7 +86,7 @@ func (model *Anthropic) Run(ctx context.Context, input string, session schema.Ch
 
 	response, err := model.LLM.GenerateContent(ctx, content, llms.WithStreamingFunc(model.streamHandler))
 	if err != nil {
-		log.Printf("can't generate content: %v", err)
+		fmt.Println(err)
 		return err
 	}
 

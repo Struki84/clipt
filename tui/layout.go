@@ -1,13 +1,16 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/struki84/clipt/tui/chat"
 	"github.com/struki84/clipt/tui/menu"
 	"github.com/struki84/clipt/tui/schema"
+	"github.com/thanhpk/randstr"
 )
 
 type LayoutView struct {
@@ -19,6 +22,9 @@ type LayoutView struct {
 
 	Storage   schema.SessionStorage
 	Providers []schema.ChatProvider
+
+	Info   string
+	Status string
 }
 
 func NewLayout(conf schema.Config) LayoutView {
@@ -28,13 +34,20 @@ func NewLayout(conf schema.Config) LayoutView {
 		Style:     conf.Style,
 		Storage:   conf.Storage,
 		Providers: conf.Providers,
+		Info:      "enter - send | \"/\" - menu",
+	}
+
+	sessionID := randstr.String(8)
+	layout.Chat.Msgs = []schema.Msg{}
+	layout.Chat.Session = schema.ChatSession{
+		ID:        sessionID,
+		Title:     fmt.Sprintf("Session - %s", sessionID),
+		CreatedAt: time.Now().Unix(),
 	}
 
 	if layout.Storage != nil {
 		session, err := layout.Storage.LoadRecentSession()
-		if err != nil {
-			layout.Chat.Msgs = []schema.Msg{}
-		} else {
+		if err == nil {
 			layout.Chat.Session = session
 			layout.Chat.Msgs = session.Msgs
 		}
@@ -57,19 +70,26 @@ func (layout LayoutView) View() string {
 	header := layout.Chat.View()
 	elements = append(elements, header)
 
+	inputHeight := layout.Chat.Input.LineInfo().Height + 1
+	baseViewportHeight := layout.WindowSize.Height - inputHeight - 7
+
 	// Render Chat viewport and/or chat menu and modify the viewport height based on menu height
 	if layout.Menu.Active {
 		menuHeight := len(layout.Menu.FilteredItems)
-		layout.Chat.Viewport.Height = layout.Chat.Viewport.Height - menuHeight
+		layout.Chat.Viewport.Height = baseViewportHeight - menuHeight
 
 		elements = append(elements, layout.Chat.Viewport.View())
 		elements = append(elements, layout.Menu.View())
 	} else {
+		layout.Chat.Viewport.Height = baseViewportHeight
 		elements = append(elements, layout.Chat.Viewport.View())
 	}
 
 	// Render Chat input
 	elements = append(elements, layout.Chat.Input.View())
+
+	infoLine := layout.Style.InfoLine.Width(layout.WindowSize.Width).Render(layout.Info)
+	elements = append(elements, infoLine)
 
 	// Render the status line
 	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Chat.Provider.Type().String())
@@ -81,12 +101,22 @@ func (layout LayoutView) View() string {
 	leftPart := lipgloss.JoinHorizontal(lipgloss.Top, providerType, providerName)
 	rightPart := lipgloss.JoinHorizontal(lipgloss.Top, tab, mode)
 
-	fillerWidth := layout.WindowSize.Width - lipgloss.Width(leftPart) - lipgloss.Width(rightPart)
-	filler := layout.Style.StatusLine.BaseStyle.Width(fillerWidth).Render("")
+	if layout.Chat.IsLoading {
+		loader := layout.Style.StatusLine.Loader.Render(layout.Chat.Loader.View()) + layout.Style.StatusLine.Loader.Render("Working...")
+		fillerWidth := layout.WindowSize.Width - lipgloss.Width(leftPart) - lipgloss.Width(rightPart) - lipgloss.Width(loader)
+		filler := layout.Style.StatusLine.BaseStyle.Width(fillerWidth).Render("")
 
-	statusLine := lipgloss.JoinHorizontal(lipgloss.Top, leftPart, filler, rightPart)
+		statusLine := lipgloss.JoinHorizontal(lipgloss.Top, leftPart, loader, filler, rightPart)
 
-	elements = append(elements, statusLine)
+		elements = append(elements, statusLine)
+	} else {
+
+		fillerWidth := layout.WindowSize.Width - lipgloss.Width(leftPart) - lipgloss.Width(rightPart)
+		filler := layout.Style.StatusLine.BaseStyle.Width(fillerWidth).Render("")
+		statusLine := lipgloss.JoinHorizontal(lipgloss.Top, leftPart, filler, rightPart)
+
+		elements = append(elements, statusLine)
+	}
 
 	return lipgloss.JoinVertical(lipgloss.Center, elements...)
 }
@@ -114,7 +144,10 @@ func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	layout.Menu.Active = strings.HasPrefix(prompt, "/")
 	if layout.Menu.Active {
+		layout.Info = "ctrl+j - down | ctrl+k - up"
 		layout.Menu.SearchString = strings.TrimPrefix(prompt, "/")
+	} else {
+		layout.Info = "enter - send | \"/\" - menu"
 	}
 
 	menuModel, cmd := layout.Menu.Update(msg)

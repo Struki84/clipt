@@ -2,16 +2,15 @@ package tui
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/struki84/clipt/tui/schema"
+	"github.com/thanhpk/randstr"
 )
-
-type MenuExecuteMsg struct {
-	Item schema.CmdItem
-}
 
 type ProvidersCmd struct {
 	title  string
@@ -70,11 +69,14 @@ func (cmd SessionsCmd) Description() string { return cmd.desc }
 func (cmd SessionsCmd) FilterValue() string { return cmd.title }
 func (cmd SessionsCmd) Execute(model tea.Model) (tea.Model, tea.Cmd) {
 	layout := model.(LayoutView)
-	sessions := layout.Storage.ListSessions()
 	items := []list.Item{}
 
-	for _, session := range sessions {
-		items = append(items, SessionCmd{session: session})
+	if layout.Storage != nil {
+		sessions := layout.Storage.ListSessions()
+
+		for _, session := range sessions {
+			items = append(items, SessionCmd{session: session})
+		}
 	}
 
 	layout.Menu = layout.Menu.PushMenu(items)
@@ -115,10 +117,21 @@ func (cmd NewSessionCmd) Description() string { return cmd.desc }
 func (cmd NewSessionCmd) FilterValue() string { return cmd.title }
 func (cmd NewSessionCmd) Execute(model tea.Model) (tea.Model, tea.Cmd) {
 	layout := model.(LayoutView)
-	session, _ := layout.Storage.NewSession()
+	layout.Chat.Msgs = []schema.Msg{}
+	session := schema.ChatSession{}
+
+	if layout.Storage != nil {
+		session, _ = layout.Storage.NewSession()
+	} else {
+		sessionID := randstr.String(8)
+		session = schema.ChatSession{
+			ID:        sessionID,
+			Title:     fmt.Sprintf("Session - %s", sessionID),
+			CreatedAt: time.Now().Unix(),
+		}
+	}
 
 	layout.Chat.Session = session
-	layout.Chat.Msgs = []schema.Msg{}
 	layout.Chat.Viewport.SetContent(layout.Chat.RenderMsgs())
 	layout.Chat.Viewport.GotoBottom()
 	layout.Chat.Input.SetValue("")
@@ -127,6 +140,44 @@ func (cmd NewSessionCmd) Execute(model tea.Model) (tea.Model, tea.Cmd) {
 
 	return layout, nil
 
+}
+
+type DeleteSessionCmd struct {
+	title string
+	desc  string
+}
+
+func (cmd DeleteSessionCmd) Title() string       { return cmd.title }
+func (cmd DeleteSessionCmd) Description() string { return cmd.desc }
+func (cmd DeleteSessionCmd) FilterValue() string { return cmd.title }
+func (cmd DeleteSessionCmd) Execute(model tea.Model) (tea.Model, tea.Cmd) {
+	layout := model.(LayoutView)
+
+	sessionID := randstr.String(8)
+	newSession := schema.ChatSession{
+		ID:        sessionID,
+		Title:     fmt.Sprintf("Session - %s", sessionID),
+		CreatedAt: time.Now().Unix(),
+	}
+
+	if layout.Storage != nil {
+		err := layout.Storage.DeleteSession(layout.Chat.Session.ID)
+		if err != nil {
+			log.Printf("Error while deleting sessions: %s", err)
+		}
+
+		newSession, _ = layout.Storage.LoadRecentSession()
+	}
+
+	layout.Chat.Msgs = []schema.Msg{}
+	layout.Chat.Session = newSession
+
+	layout.Chat.Viewport.SetContent(layout.Chat.RenderMsgs())
+	layout.Menu.Close()
+
+	layout.Chat.Input.SetValue("")
+
+	return layout, nil
 }
 
 type ExitCmd struct {
@@ -146,5 +197,6 @@ var DefaultCmds = []list.Item{
 	ProvidersCmd{title: "/agents", desc: "List available agents", filter: schema.Agent},
 	SessionsCmd{title: "/sessions", desc: "List saved sessions"},
 	NewSessionCmd{title: "/new", desc: "Start new session"},
+	DeleteSessionCmd{title: "/delete", desc: "Delete the current session"},
 	ExitCmd{title: "/exit", desc: "Close tui chat app"},
 }

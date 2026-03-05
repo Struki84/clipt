@@ -71,12 +71,9 @@ func (chat ChatView) Init() tea.Cmd {
 
 func (chat ChatView) View() string {
 	date := time.Unix(chat.Session.CreatedAt, 0).Format("2 Jan 2006")
-	title := fmt.Sprintf("%s \n%v", chat.Session.Title, date)
+	title := fmt.Sprintf("# %s \n%v", chat.Session.Title, date)
 
 	chat.Header = chat.Style.ChatHeader.Width(chat.WindowSize.Width - 6).Render(title)
-
-	chat.Viewport.Width = chat.WindowSize.Width - 2
-	chat.Viewport.Height = chat.WindowSize.Height - chat.Input.LineInfo().Height - 7
 
 	chat.Viewport.KeyMap = viewport.KeyMap{
 		PageDown: key.NewBinding(key.WithKeys("pgdown")),
@@ -85,17 +82,12 @@ func (chat ChatView) View() string {
 		Up:       key.NewBinding(key.WithKeys("up")),
 	}
 
-	chat.Viewport.SetContent(chat.RenderMsgs())
-	// chat.Viewport.GotoBottom()
-
 	chat.Input.Prompt = ""
 	chat.Input.SetHeight(chat.Input.LineInfo().Height + 1)
 	chat.Input.SetWidth(chat.WindowSize.Width - 4)
 	chat.Input.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	chat.Input.FocusedStyle.Base = chat.Style.ChatInput
 	chat.Input.ShowLineNumbers = false
-
-	chat.Loader.Style.PaddingBottom(1)
 
 	return chat.Header
 }
@@ -115,7 +107,7 @@ func (chat ChatView) RenderMsgs() string {
 
 	width := chat.Viewport.Width - 4
 
-	for i, msg := range chat.Msgs {
+	for _, msg := range chat.Msgs {
 		switch msg.Role {
 		case schema.InternalMsg:
 			fullMsg := fmt.Sprintf("%s", msg.Content)
@@ -133,21 +125,14 @@ func (chat ChatView) RenderMsgs() string {
 
 			styledMessages = append(styledMessages, chatMsg)
 		case schema.UserMsg:
-			date := time.Unix(msg.Timestamp, 0).Format("2 Jan 2006 15:04")
+			date := time.Unix(msg.Timestamp, 0).Format("2 Jan | 15:04")
 			username := user.Username
-			fullMsg := fmt.Sprintf("%s\n\n%s (%s) ", msg.Content, username, date)
+			fullMsg := fmt.Sprintf("%s\n%s (%s) ", msg.Content, username, date)
 			chatMsg := chat.Style.Msg.User.Width(width).Render(fullMsg)
 
 			styledMessages = append(styledMessages, chatMsg)
 		case schema.AIMsg:
-			var renderedTxt string
-
-			if chat.IsLoading && msg.Content == "" && i == len(chat.Msgs)-1 {
-				renderedTxt = chat.Loader.View() + " Working..."
-			} else {
-				renderedTxt, _ = renderer.Render(msg.Content)
-			}
-
+			renderedTxt, _ := renderer.Render(msg.Content)
 			chatMsg := chat.Style.Msg.AI.Width(width).Render(renderedTxt)
 
 			styledMessages = append(styledMessages, chatMsg)
@@ -163,6 +148,10 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		chat.WindowSize = msg
+		chat.Viewport.Width = msg.Width - 2
+		chat.Viewport.Height = msg.Height - chat.Input.LineInfo().Height - 7
+		chat.Viewport.SetContent(chat.RenderMsgs())
+		chat.Viewport.GotoBottom()
 	case spinner.TickMsg:
 		loader, cmd := chat.Loader.Update(msg)
 		chat.Loader = loader
