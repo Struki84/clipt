@@ -7,7 +7,7 @@ type Mode int
 const (
 	Chat Mode = iota
 	Debug
-	Execute
+	Action
 )
 
 type Config struct {

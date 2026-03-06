@@ -20,7 +20,7 @@ func Render(providers []schema.ChatProvider, options ...Option) {
 			Log  bool
 			Path string
 		}{
-			Log:  true,
+			Log:  false,
 			Path: "",
 		},
 	}
