@@ -5,7 +5,7 @@ import (
 	"github.com/struki84/clipt/tui/schema"
 )
 
-func Catpuccin() (style schema.LayoutStyle) {
+func CatppuccinMocha() (style schema.LayoutStyle) {
 	// Colorscheme
 	const (
 		// reused background and foreground colors
