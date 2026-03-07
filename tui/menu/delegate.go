@@ -10,10 +10,10 @@ import (
 )
 
 type MenuDelegate struct {
-	Style schema.Styles
+	Style schema.LayoutStyle
 }
 
-func NewMenuDelegate(style schema.Styles) MenuDelegate {
+func NewMenuDelegate(style schema.LayoutStyle) MenuDelegate {
 	return MenuDelegate{
 		Style: style,
 	}
@@ -29,14 +29,14 @@ func (delegate MenuDelegate) Render(w io.Writer, m list.Model, index int, item l
 		return
 	}
 
-	titleStyle := delegate.Style.ChatMenu.TitleNormal
+	titleStyle := delegate.Style.Menu.ItemNormal
 
 	if index == m.Index() {
-		titleStyle = delegate.Style.ChatMenu.TitleSelected
+		titleStyle = delegate.Style.Menu.ItemSelected
 	}
 
 	title := titleStyle.Render(i.Title())
-	desc := delegate.Style.ChatMenu.Description.Render(i.Description())
+	desc := delegate.Style.Menu.Description.Render(i.Description())
 
 	fmt.Fprint(w, title+desc)
 }

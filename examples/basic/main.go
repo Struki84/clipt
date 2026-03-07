@@ -5,6 +5,7 @@ import (
 	"github.com/struki84/clipt/providers"
 	"github.com/struki84/clipt/storage"
 	"github.com/struki84/clipt/tui/schema"
+	"github.com/struki84/clipt/tui/style"
 )
 
 func main() {
@@ -20,5 +21,6 @@ func main() {
 		models,
 		clipt.WithStorage(sqlite),
 		clipt.WithDebugLog("debug.log"),
+		clipt.WithStyle(style.Catpuccin()),
 	)
 }

@@ -11,7 +11,7 @@ import (
 
 type ChatMenu struct {
 	WindowSize tea.WindowSizeMsg
-	Style      schema.Styles
+	Style      schema.LayoutStyle
 
 	List          *list.Model
 	DefaultItems  []list.Item
@@ -22,7 +22,7 @@ type ChatMenu struct {
 	Active bool
 }
 
-func New(cmds []list.Item, style schema.Styles) ChatMenu {
+func New(cmds []list.Item, style schema.LayoutStyle) ChatMenu {
 	list := list.New(cmds, NewMenuDelegate(style), 0, 0)
 	list.SetShowTitle(false)
 	list.SetShowHelp(false)
@@ -58,7 +58,7 @@ func (menu ChatMenu) View() string {
 
 	menu.List.SetSize(menu.WindowSize.Width-4, menuHeight)
 
-	return menu.Style.ChatMenu.View.
+	return menu.Style.Menu.ContentView.
 		Width(menu.WindowSize.Width - 6).
 		Height(menuHeight).
 		Render(menu.List.View())

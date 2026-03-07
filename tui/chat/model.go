@@ -21,7 +21,7 @@ import (
 type ChatView struct {
 	WindowSize tea.WindowSizeMsg
 
-	Style    schema.Styles
+	Style    schema.LayoutStyle
 	Msgs     []schema.Msg
 	Stream   chan schema.Msg
 	Provider schema.ChatProvider
@@ -35,7 +35,7 @@ type ChatView struct {
 	Loader   spinner.Model
 }
 
-func New(provider schema.ChatProvider, style schema.Styles) ChatView {
+func New(provider schema.ChatProvider, style schema.LayoutStyle) ChatView {
 	input := textarea.New()
 	input.Focus()
 	input.CharLimit = 0
@@ -73,7 +73,7 @@ func (chat ChatView) View() string {
 	date := time.Unix(chat.Session.CreatedAt, 0).Format("2 Jan 2006")
 	title := fmt.Sprintf("# %s \n%v", chat.Session.Title, date)
 
-	chat.Header = chat.Style.ChatHeader.Width(chat.WindowSize.Width - 6).Render(title)
+	chat.Header = chat.Style.Chat.Header.Width(chat.WindowSize.Width - 6).Render(title)
 
 	chat.Viewport.KeyMap = viewport.KeyMap{
 		PageDown: key.NewBinding(key.WithKeys("pgdown")),
@@ -86,7 +86,7 @@ func (chat ChatView) View() string {
 	chat.Input.SetHeight(chat.Input.LineInfo().Height + 1)
 	chat.Input.SetWidth(chat.WindowSize.Width - 4)
 	chat.Input.FocusedStyle.CursorLine = lipgloss.NewStyle()
-	chat.Input.FocusedStyle.Base = chat.Style.ChatInput
+	chat.Input.FocusedStyle.Base = chat.Style.Chat.Input
 	chat.Input.ShowLineNumbers = false
 
 	return chat.Header
@@ -102,7 +102,7 @@ func (chat ChatView) RenderMsgs() string {
 
 	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(chat.WindowSize.Width-8),
+		glamour.WithWordWrap(chat.WindowSize.Width-10),
 	)
 
 	width := chat.Viewport.Width - 4
@@ -111,29 +111,29 @@ func (chat ChatView) RenderMsgs() string {
 		switch msg.Role {
 		case schema.InternalMsg:
 			fullMsg := fmt.Sprintf("%s", msg.Content)
-			chatMsg := chat.Style.Msg.Internal.Width(width).Render(fullMsg)
+			chatMsg := chat.Style.Chat.Msg.Internal.Width(width).Render(fullMsg)
 
 			styledMessages = append(styledMessages, chatMsg)
 		case schema.ErrMsg:
 			fullMsg := fmt.Sprintf("%s", msg.Content)
-			chatMsg := chat.Style.Msg.Err.Width(width).Render(fullMsg)
+			chatMsg := chat.Style.Chat.Msg.Err.Width(width).Render(fullMsg)
 
 			styledMessages = append(styledMessages, chatMsg)
 		case schema.SysMsg:
 			fullMsg := fmt.Sprintf("%s", msg.Content)
-			chatMsg := chat.Style.Msg.Sys.Width(width).Render(fullMsg)
+			chatMsg := chat.Style.Chat.Msg.Sys.Width(width).Render(fullMsg)
 
 			styledMessages = append(styledMessages, chatMsg)
 		case schema.UserMsg:
 			date := time.Unix(msg.Timestamp, 0).Format("2 Jan | 15:04")
 			username := user.Username
 			fullMsg := fmt.Sprintf("%s\n%s (%s) ", msg.Content, username, date)
-			chatMsg := chat.Style.Msg.User.Width(width).Render(fullMsg)
+			chatMsg := chat.Style.Chat.Msg.User.Width(width).Render(fullMsg)
 
 			styledMessages = append(styledMessages, chatMsg)
 		case schema.AIMsg:
 			renderedTxt, _ := renderer.Render(msg.Content)
-			chatMsg := chat.Style.Msg.AI.Width(width).Render(renderedTxt)
+			chatMsg := chat.Style.Chat.Msg.AI.Width(width).Render(renderedTxt)
 
 			styledMessages = append(styledMessages, chatMsg)
 		}

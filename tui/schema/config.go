@@ -12,7 +12,7 @@ const (
 
 type Config struct {
 	Providers []ChatProvider
-	Style     Styles
+	Style     LayoutStyle
 	Storage   SessionStorage
 	Cmds      []list.Item
 

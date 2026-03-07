@@ -31,7 +31,7 @@ func WithAddedCmds(cmds []list.Item) Option {
 	}
 }
 
-func WithStyle(style schema.Styles) Option {
+func WithStyle(style schema.LayoutStyle) Option {
 	return func(conf *schema.Config) {
 		conf.Style = style
 	}

@@ -16,7 +16,7 @@ import (
 type LayoutView struct {
 	WindowSize tea.WindowSizeMsg
 
-	Style schema.Styles
+	Style schema.LayoutStyle
 	Menu  menu.ChatMenu
 	Chat  chat.ChatView
 
@@ -95,8 +95,8 @@ func (layout LayoutView) View() string {
 	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Chat.Provider.Type().String())
 	providerName := layout.Style.StatusLine.ProviderName.Render(layout.Chat.Provider.Name())
 	// modeLabel := layout.Style.StatusLine.Tab.Render("tab")
-	tab := layout.Style.StatusLine.Tab.Render("tab")
-	mode := layout.Style.StatusLine.Mode.Render("CHAT")
+	tab := layout.Style.StatusLine.ModeLabel.Render("tab")
+	mode := layout.Style.StatusLine.ModeName.Render("CHAT")
 
 	leftPart := lipgloss.JoinHorizontal(lipgloss.Top, providerType, providerName)
 	rightPart := lipgloss.JoinHorizontal(lipgloss.Top, tab, mode)
@@ -118,7 +118,10 @@ func (layout LayoutView) View() string {
 		elements = append(elements, statusLine)
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Center, elements...)
+	return layout.Style.ContentView.
+		Width(layout.WindowSize.Width).
+		Height(layout.WindowSize.Height).
+		Render(lipgloss.JoinVertical(lipgloss.Center, elements...))
 }
 
 func (layout LayoutView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

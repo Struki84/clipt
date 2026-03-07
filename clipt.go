@@ -6,6 +6,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/muesli/termenv"
 	"github.com/struki84/clipt/tui"
 	"github.com/struki84/clipt/tui/schema"
 	"github.com/struki84/clipt/tui/style"
@@ -37,6 +38,9 @@ func Render(providers []schema.ChatProvider, options ...Option) {
 
 		defer file.Close()
 	}
+
+	os.Setenv("COLORTERM", "truecolor")
+	termenv.ColorProfile()
 
 	app := tea.NewProgram(
 		tui.NewLayout(config),
