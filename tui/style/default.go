@@ -6,26 +6,132 @@ import (
 	"github.com/struki84/clipt/tui/schema"
 )
 
-func Default() (style schema.LayoutStyle) {
-	// Colorscheme
+type ColorScheme int
+
+const (
+	Light ColorScheme = iota
+	Dark
+	CatppuccinLatte
+	CatppuccinFrappe
+	CatppuccinMacchiato
+	CatppuccinMocha
+)
+
+func Default(scheme ColorScheme) (style schema.LayoutStyle) {
+
+	schemes := map[ColorScheme]map[string]string{
+		// Rosé Pine Dawn
+		Light: {
+			"primaryBGcolor":               "#FAF4ED",
+			"secondaryBGcolor":             "#F2E9E1",
+			"tertiaryBGcolor":              "#E4DFDE",
+			"primaryFGcolor":               "#907AA9",
+			"secondaryFGcolor":             "#575279",
+			"tertiaryFGcolor":              "#9893A5",
+			"statusLineFGcolor":            "#6E6A86",
+			"providerNameBGcolor":          "#D6CFC7",
+			"menuDescFGcolor":              "#797593",
+			"chatMsgErrBorderFGcolor":      "#B4637A",
+			"chatMsgInternalBorderFGcolor": "#D7827E",
+		},
+		// Rosé Pine
+		Dark: {
+			"primaryBGcolor":               "#191724",
+			"secondaryBGcolor":             "#1F1D2E",
+			"tertiaryBGcolor":              "#26233A",
+			"primaryFGcolor":               "#C4A7E7",
+			"secondaryFGcolor":             "#E0DEF4",
+			"tertiaryFGcolor":              "#908CAA",
+			"statusLineFGcolor":            "#6E6A86",
+			"providerNameBGcolor":          "#2A2740",
+			"menuDescFGcolor":              "#6E6A86",
+			"chatMsgErrBorderFGcolor":      "#EB6F92",
+			"chatMsgInternalBorderFGcolor": "#EBBCBA",
+		},
+		// Catppuccin Latte
+		CatppuccinLatte: {
+			"primaryBGcolor":               "#EFF1F5",
+			"secondaryBGcolor":             "#E6E9EF",
+			"tertiaryBGcolor":              "#DCE0E8",
+			"primaryFGcolor":               "#7287FD",
+			"secondaryFGcolor":             "#4C4F69",
+			"tertiaryFGcolor":              "#9CA0B0",
+			"statusLineFGcolor":            "#8C8FA1",
+			"providerNameBGcolor":          "#ACB0BE",
+			"menuDescFGcolor":              "#7C7F93",
+			"chatMsgErrBorderFGcolor":      "#D20F39",
+			"chatMsgInternalBorderFGcolor": "#FE640B",
+		},
+		// Catppuccin Frappé
+		CatppuccinFrappe: {
+			"primaryBGcolor":               "#303446",
+			"secondaryBGcolor":             "#292C3C",
+			"tertiaryBGcolor":              "#232634",
+			"primaryFGcolor":               "#BABBF1",
+			"secondaryFGcolor":             "#C6D0F5",
+			"tertiaryFGcolor":              "#838BA7",
+			"statusLineFGcolor":            "#737994",
+			"providerNameBGcolor":          "#626880",
+			"menuDescFGcolor":              "#A5ADCE",
+			"chatMsgErrBorderFGcolor":      "#E78284",
+			"chatMsgInternalBorderFGcolor": "#EF9F76",
+		},
+		// Catppuccin Macchiato
+		CatppuccinMacchiato: {
+			"primaryBGcolor":               "#24273A",
+			"secondaryBGcolor":             "#1E2030",
+			"tertiaryBGcolor":              "#181926",
+			"primaryFGcolor":               "#B7BDF8",
+			"secondaryFGcolor":             "#CAD3F5",
+			"tertiaryFGcolor":              "#8087A2",
+			"statusLineFGcolor":            "#6E738D",
+			"providerNameBGcolor":          "#5B6078",
+			"menuDescFGcolor":              "#A5ADCB",
+			"chatMsgErrBorderFGcolor":      "#ED8796",
+			"chatMsgInternalBorderFGcolor": "#F5A97F",
+		},
+		// Catppuccin Mocha
+		CatppuccinMocha: {
+			"primaryBGcolor":               "#1E1E2E",
+			"secondaryBGcolor":             "#11111B",
+			"tertiaryBGcolor":              "#181825",
+			"primaryFGcolor":               "#B4BEFE",
+			"secondaryFGcolor":             "#CDD6F4",
+			"tertiaryFGcolor":              "#7F849C",
+			"statusLineFGcolor":            "#6C7086",
+			"providerNameBGcolor":          "#45475A",
+			"menuDescFGcolor":              "#6C7086",
+			"chatMsgErrBorderFGcolor":      "#E64553",
+			"chatMsgInternalBorderFGcolor": "#FAB387",
+		}}
+
 	var (
 		// reused background and foreground colors
-		primaryBGcolor   = "#FAF4ED" // Base
-		secondaryBGcolor = "#FFFAF3" // Surface
-		tertiaryBGcolor  = "#F2E9E1" // Overlay
+		primaryBGcolor   = schemes[scheme]["primaryBGcolor"]
+		secondaryBGcolor = schemes[scheme]["secondaryBGcolor"]
+		tertiaryBGcolor  = schemes[scheme]["tertiaryBGcolor"]
 
-		primaryFGcolor   = "#907AA9" // Iris
-		secondaryFGcolor = "#575279" // Text
-		tertiaryFGcolor  = "#9893A5" // Muted
+		primaryFGcolor   = schemes[scheme]["primaryFGcolor"]
+		secondaryFGcolor = schemes[scheme]["secondaryFGcolor"]
+		tertiaryFGcolor  = schemes[scheme]["tertiaryFGcolor"]
 
-		statusLineFGcolor            = "#6E6A86" // Subtle
-		providerNameBGcolor          = "#F2E9E1" // Overlay
-		menuDescFGcolor              = "#9893A5" // Muted
-		chatMsgErrBorderFGcolor      = "#B4637A" // Love
-		chatMsgInternalBorderFGcolor = "#D7827E" // Rose
+		statusLineFGcolor            = schemes[scheme]["statusLineFGcolor"]
+		providerNameBGcolor          = schemes[scheme]["providerNameBGcolor"]
+		menuDescFGcolor              = schemes[scheme]["menuDescFGcolor"]
+		chatMsgErrBorderFGcolor      = schemes[scheme]["chatMsgErrBorderFGcolor"]
+		chatMsgInternalBorderFGcolor = schemes[scheme]["chatMsgInternalBorderFGcolor"]
 	)
 
-	//Background color for adding, margin, and border chars
+	// Glamour Styling - WIP
+	// Glamour is used for rendering mardkown
+	if scheme == Light || scheme == CatppuccinLatte {
+		style.Chat.Msg.Glamour = styles.LightStyleConfig
+	} else {
+		style.Chat.Msg.Glamour = styles.DarkStyleConfig
+	}
+
+	zeroUint := uint(0)
+	style.Chat.Msg.Glamour.Document.Margin = &zeroUint
 	style.WhitespaceBGcolor = primaryBGcolor
 
 	// Main container view
@@ -83,7 +189,8 @@ func Default() (style schema.LayoutStyle) {
 		BorderLeft(true)
 
 	style.StatusLine.Loader = lipgloss.NewStyle().
-		Background(lipgloss.Color((tertiaryBGcolor)))
+		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(primaryFGcolor))
 
 	// Chat menu
 	style.Menu.ContentView = lipgloss.NewStyle().
@@ -209,15 +316,5 @@ func Default() (style schema.LayoutStyle) {
 		BorderBottom(false).
 		Padding(1, 1, 0, 1)
 
-	// Glamour Styling - WIP
-	// Glamour is used for rendering mardkown
-	// Match glamour document background
-	style.Chat.Msg.Glamour = styles.LightStyleConfig
-	// style.Chat.Msg.Glamour.Document.BackgroundColor = &primaryBGcolor
-	// style.Chat.Msg.Glamour.CodeBlock.Chroma.Text.BackgroundColor = &primaryBGcolor
-
-	// Remove document margin
-	zeroUint := uint(0)
-	style.Chat.Msg.Glamour.Document.Margin = &zeroUint
 	return style
 }

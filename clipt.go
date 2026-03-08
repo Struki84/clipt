@@ -16,7 +16,7 @@ func Render(providers []schema.ChatProvider, options ...Option) {
 	config := schema.Config{
 		Cmds:      tui.DefaultCmds,
 		Providers: providers,
-		Style:     style.Default(),
+		Style:     style.Default(style.Dark),
 		Debug: struct {
 			Log  bool
 			Path string
