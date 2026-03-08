@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/struki84/clipt/tui/schema"
 )
 
@@ -58,10 +59,17 @@ func (menu ChatMenu) View() string {
 
 	menu.List.SetSize(menu.WindowSize.Width-4, menuHeight)
 
-	return menu.Style.Menu.ContentView.
-		Width(menu.WindowSize.Width - 6).
+	list := menu.Style.Menu.ContentView.
 		Height(menuHeight).
+		Width(menu.WindowSize.Width - 6).
 		Render(menu.List.View())
+
+	return lipgloss.PlaceHorizontal(
+		menu.WindowSize.Width,
+		lipgloss.Center,
+		list,
+		lipgloss.WithWhitespaceBackground(lipgloss.Color(menu.Style.WhitespaceBGcolor)),
+	)
 }
 
 func (menu ChatMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

@@ -1,13 +1,14 @@
 package style
 
 import (
+	"github.com/charmbracelet/glamour/styles"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/struki84/clipt/tui/schema"
 )
 
 func CatppuccinMocha() (style schema.LayoutStyle) {
 	// Colorscheme
-	const (
+	var (
 		// reused background and foreground colors
 		primaryBGcolor   = "#1E1E2E"
 		secondaryBGcolor = "#11111b"
@@ -25,12 +26,16 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 		chatMsgInternalBorderFGcolor = "#fab387"
 	)
 
+	//Background color for adding, margin, and border chars
+	style.WhitespaceBGcolor = primaryBGcolor
+
 	// Main container view
 	style.ContentView = lipgloss.NewStyle().
 		Background(lipgloss.Color(primaryBGcolor))
 
 	// Infoline and status line
 	style.InfoLine = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryBGcolor)).
 		Foreground(lipgloss.Color(tertiaryFGcolor)).
 		Padding(0, 2, 0, 2).
 		MarginBottom(1).
@@ -41,6 +46,7 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 		Foreground(lipgloss.Color(statusLineFGcolor))
 
 	style.StatusLine.ModeLabel = lipgloss.NewStyle().
+		Background(lipgloss.Color(tertiaryBGcolor)).
 		Foreground(lipgloss.Color(tertiaryFGcolor)).
 		PaddingRight(1)
 
@@ -50,6 +56,7 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 		PaddingLeft(1).
 		PaddingRight(1).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(tertiaryBGcolor)).
 		BorderForeground(lipgloss.Color(primaryFGcolor)).
 		BorderLeft(true).
 		BorderRight(false).
@@ -62,6 +69,7 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 		PaddingLeft(1).
 		PaddingRight(1).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(tertiaryBGcolor)).
 		BorderForeground(lipgloss.Color(primaryFGcolor)).
 		BorderRight(true)
 
@@ -71,7 +79,8 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 		PaddingLeft(1).
 		PaddingRight(1).
 		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color(tertiaryFGcolor)).
+		BorderBackground(lipgloss.Color(tertiaryBGcolor)).
+		BorderForeground(lipgloss.Color(providerNameBGcolor)).
 		BorderLeft(true)
 
 	style.StatusLine.Loader = lipgloss.NewStyle().
@@ -81,6 +90,7 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 	style.Menu.ContentView = lipgloss.NewStyle().
 		Background(lipgloss.Color(secondaryBGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(secondaryBGcolor)).
 		BorderForeground(lipgloss.Color(secondaryFGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
@@ -108,71 +118,91 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 
 	// Chat view - viewport, input, and messages
 	style.Chat.Header = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
 		BorderForeground(lipgloss.Color(secondaryBGcolor)).
+		BorderRight(true).
 		PaddingLeft(1).
 		PaddingRight(1).
 		BorderLeft(true).
-		BorderRight(true).
-		MarginTop(1)
+		MarginTop(1).
+		MarginBackground(lipgloss.Color(primaryBGcolor))
 
 	style.Chat.ContentView = lipgloss.NewStyle().
 		Background(lipgloss.Color(primaryBGcolor))
 
 	style.Chat.Msg.AI = lipgloss.NewStyle().
-		Align(lipgloss.Left)
+		Background(lipgloss.Color(primaryBGcolor)).
+		MarginLeft(3).
+		MarginRight(3).
+		MarginBackground(lipgloss.Color(primaryBGcolor))
 
 	style.Chat.Msg.User = lipgloss.NewStyle().
 		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
 		BorderForeground(lipgloss.Color(primaryFGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
 		BorderTop(false).
 		BorderBottom(false).
 		Padding(1).
-		Margin(1).
+		Margin(1, 2, 1, 2).
+		MarginBackground(lipgloss.Color(primaryBGcolor)).
 		Align(lipgloss.Left)
 
 	style.Chat.Msg.Sys = lipgloss.NewStyle().
 		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
 		BorderForeground(lipgloss.Color(tertiaryBGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
 		BorderTop(false).
 		BorderBottom(false).
 		Padding(1).
-		Margin(1).
+		Margin(1, 2, 1, 2).
 		Align(lipgloss.Left)
 
 	style.Chat.Msg.Err = lipgloss.NewStyle().
 		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
 		BorderForeground(lipgloss.Color(chatMsgErrBorderFGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
 		BorderTop(false).
 		BorderBottom(false).
 		Padding(1).
-		Margin(1).
+		Margin(1, 2, 1, 2).
 		Align(lipgloss.Left)
 
 	style.Chat.Msg.Internal = lipgloss.NewStyle().
 		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
 		BorderForeground(lipgloss.Color(chatMsgInternalBorderFGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
 		BorderTop(false).
 		BorderBottom(false).
 		Padding(1).
-		Margin(1).
+		Margin(1, 2, 1, 2).
+		MarginBackground(lipgloss.Color(primaryBGcolor)).
 		Align(lipgloss.Left)
 
 	style.Chat.Input = lipgloss.NewStyle().
 		Background(lipgloss.Color(secondaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
 		BorderForeground(lipgloss.Color(secondaryFGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
@@ -180,5 +210,15 @@ func CatppuccinMocha() (style schema.LayoutStyle) {
 		BorderBottom(false).
 		Padding(1, 1, 0, 1)
 
+	// Glamour Styling - WIP
+	// Glamour is used for rendering mardkown
+	// Match glamour document background
+	style.Chat.Msg.Glamour = styles.DarkStyleConfig
+	// style.Chat.Msg.Glamour.Document.BackgroundColor = &primaryBGcolor
+	// style.Chat.Msg.Glamour.CodeBlock.Chroma.Text.BackgroundColor = &primaryBGcolor
+
+	// Remove document margin
+	zeroUint := uint(0)
+	style.Chat.Msg.Glamour.Document.Margin = &zeroUint
 	return style
 }

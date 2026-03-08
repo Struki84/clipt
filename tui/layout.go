@@ -78,15 +78,31 @@ func (layout LayoutView) View() string {
 		menuHeight := len(layout.Menu.FilteredItems)
 		layout.Chat.Viewport.Height = baseViewportHeight - menuHeight
 
-		elements = append(elements, layout.Chat.Viewport.View())
+		vp := layout.Style.Chat.ContentView.Render(layout.Chat.Viewport.View())
+		elements = append(elements, vp)
 		elements = append(elements, layout.Menu.View())
+
 	} else {
 		layout.Chat.Viewport.Height = baseViewportHeight
-		elements = append(elements, layout.Chat.Viewport.View())
+		vp := lipgloss.PlaceHorizontal(
+			layout.WindowSize.Width,
+			lipgloss.Center,
+			layout.Style.Chat.ContentView.Render(layout.Chat.Viewport.View()),
+			lipgloss.WithWhitespaceBackground(lipgloss.Color(layout.Style.WhitespaceBGcolor)),
+		)
+
+		elements = append(elements, vp)
 	}
 
 	// Render Chat input
-	elements = append(elements, layout.Chat.Input.View())
+	input := lipgloss.PlaceHorizontal(
+		layout.WindowSize.Width,
+		lipgloss.Center,
+		layout.Chat.Input.View(),
+		lipgloss.WithWhitespaceBackground(lipgloss.Color(layout.Style.WhitespaceBGcolor)),
+	)
+
+	elements = append(elements, input)
 
 	infoLine := layout.Style.InfoLine.Width(layout.WindowSize.Width).Render(layout.Info)
 	elements = append(elements, infoLine)
@@ -94,7 +110,6 @@ func (layout LayoutView) View() string {
 	// Render the status line
 	providerType := layout.Style.StatusLine.ProviderType.Render(layout.Chat.Provider.Type().String())
 	providerName := layout.Style.StatusLine.ProviderName.Render(layout.Chat.Provider.Name())
-	// modeLabel := layout.Style.StatusLine.Tab.Render("tab")
 	tab := layout.Style.StatusLine.ModeLabel.Render("tab")
 	mode := layout.Style.StatusLine.ModeName.Render("CHAT")
 

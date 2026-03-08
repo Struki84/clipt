@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os/user"
+	"strconv"
 	"strings"
 	"time"
 
@@ -73,7 +74,12 @@ func (chat ChatView) View() string {
 	date := time.Unix(chat.Session.CreatedAt, 0).Format("2 Jan 2006")
 	title := fmt.Sprintf("# %s \n%v", chat.Session.Title, date)
 
-	chat.Header = chat.Style.Chat.Header.Width(chat.WindowSize.Width - 6).Render(title)
+	chat.Header = lipgloss.PlaceHorizontal(
+		chat.WindowSize.Width,
+		lipgloss.Center,
+		chat.Style.Chat.Header.Width(chat.WindowSize.Width-6).Render(title),
+		lipgloss.WithWhitespaceBackground(lipgloss.Color(chat.Style.WhitespaceBGcolor)),
+	)
 
 	chat.Viewport.KeyMap = viewport.KeyMap{
 		PageDown: key.NewBinding(key.WithKeys("pgdown")),
@@ -100,12 +106,7 @@ func (chat ChatView) RenderMsgs() string {
 		log.Fatal(err)
 	}
 
-	renderer, _ := glamour.NewTermRenderer(
-		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(chat.WindowSize.Width-10),
-	)
-
-	width := chat.Viewport.Width - 4
+	width := chat.Viewport.Width - 6
 
 	for _, msg := range chat.Msgs {
 		switch msg.Role {
@@ -131,15 +132,27 @@ func (chat ChatView) RenderMsgs() string {
 			chatMsg := chat.Style.Chat.Msg.User.Width(width).Render(fullMsg)
 
 			styledMessages = append(styledMessages, chatMsg)
-		case schema.AIMsg:
-			renderedTxt, _ := renderer.Render(msg.Content)
-			chatMsg := chat.Style.Chat.Msg.AI.Width(width).Render(renderedTxt)
 
+		case schema.AIMsg:
+			renderer, _ := glamour.NewTermRenderer(
+				glamour.WithStyles(chat.Style.Chat.Msg.Glamour),
+				glamour.WithWordWrap(width-6),
+			)
+
+			renderedTxt, _ := renderer.Render(msg.Content)
+
+			renderedTxt = replaceResets(renderedTxt, chat.Style.WhitespaceBGcolor)
+			chatMsg := chat.Style.Chat.Msg.AI.Width(width).Render(renderedTxt)
 			styledMessages = append(styledMessages, chatMsg)
 		}
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Center, styledMessages...)
+	return lipgloss.PlaceHorizontal(
+		chat.WindowSize.Width,
+		lipgloss.Center,
+		lipgloss.JoinVertical(lipgloss.Center, styledMessages...),
+		lipgloss.WithWhitespaceBackground(lipgloss.Color(chat.Style.WhitespaceBGcolor)),
+	)
 }
 
 func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -148,7 +161,7 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		chat.WindowSize = msg
-		chat.Viewport.Width = msg.Width - 2
+		chat.Viewport.Width = msg.Width
 		chat.Viewport.Height = msg.Height - chat.Input.LineInfo().Height - 7
 		chat.Viewport.SetContent(chat.RenderMsgs())
 		chat.Viewport.GotoBottom()
@@ -233,8 +246,6 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	log.Printf("input line height: %v", chat.Input.LineInfo().Height)
-
 	input, cmd := chat.Input.Update(msg)
 	chat.Input = &input
 	cmds = append(cmds, cmd)
@@ -248,4 +259,17 @@ func (chat ChatView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (chat ChatView) HandleStream() tea.Msg {
 	return <-chat.Stream
+}
+
+func replaceResets(s string, bgColor string) string {
+	// Convert hex to RGB for truecolor background
+	r, g, b := hexToRGB(bgColor)
+	bgSeq := fmt.Sprintf("\x1b[0m\x1b[48;2;%d;%d;%dm", r, g, b)
+	return strings.ReplaceAll(s, "\x1b[0m", bgSeq)
+}
+
+func hexToRGB(hex string) (int, int, int) {
+	hex = strings.TrimPrefix(hex, "#")
+	val, _ := strconv.ParseInt(hex, 16, 32)
+	return int(val >> 16), int((val >> 8) & 0xFF), int(val & 0xFF)
 }

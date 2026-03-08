@@ -21,6 +21,7 @@ func main() {
 		models,
 		clipt.WithStorage(sqlite),
 		clipt.WithDebugLog("debug.log"),
-		clipt.WithStyle(style.CatppuccinMocha()),
+		clipt.WithStyle(style.Default()),
+		// clipt.WithStyle(style.CatppuccinMocha()),
 	)
 }

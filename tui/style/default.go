@@ -1,45 +1,96 @@
 package style
 
 import (
+	"github.com/charmbracelet/glamour/styles"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/struki84/clipt/tui/schema"
 )
 
 func Default() (style schema.LayoutStyle) {
-	const (
+	// Colorscheme
+	var (
 		// reused background and foreground colors
-		primaryBGcolor   = "#1E1E2E"
-		secondaryBGcolor = "#11111b"
-		tertiaryBGcolor  = "#181825"
+		primaryBGcolor   = "#FAF4ED" // Base
+		secondaryBGcolor = "#FFFAF3" // Surface
+		tertiaryBGcolor  = "#F2E9E1" // Overlay
 
-		primaryFGcolor   = "#b4befe"
-		secondaryFGcolor = "#ffffff"
-		tertiaryFGcolor  = "#7f849c"
+		primaryFGcolor   = "#907AA9" // Iris
+		secondaryFGcolor = "#575279" // Text
+		tertiaryFGcolor  = "#9893A5" // Muted
 
-		// unique colors
-		statusLineFGcolor            = "#ebdbb2"
-		providerNameBGcolor          = "#45475a"
-		menuDescFGcolor              = "#6c7086"
-		chatMsgErrBorderFGcolor      = "#e64553"
-		chatMsgInternalBorderFGcolor = "#fab387"
+		statusLineFGcolor            = "#6E6A86" // Subtle
+		providerNameBGcolor          = "#F2E9E1" // Overlay
+		menuDescFGcolor              = "#9893A5" // Muted
+		chatMsgErrBorderFGcolor      = "#B4637A" // Love
+		chatMsgInternalBorderFGcolor = "#D7827E" // Rose
 	)
 
-	style.ContentView = lipgloss.NewStyle().
-		Background(lipgloss.Color("#1E1E2E"))
+	//Background color for adding, margin, and border chars
+	style.WhitespaceBGcolor = primaryBGcolor
 
-	style.Chat.Header = lipgloss.NewStyle().
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#11111b")).
+	// Main container view
+	style.ContentView = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryBGcolor))
+
+	// Infoline and status line
+	style.InfoLine = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryBGcolor)).
+		Foreground(lipgloss.Color(tertiaryFGcolor)).
+		Padding(0, 2, 0, 2).
+		MarginBottom(1).
+		Align(lipgloss.Left)
+
+	style.StatusLine.BaseStyle = lipgloss.NewStyle().
+		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(statusLineFGcolor))
+
+	style.StatusLine.ModeLabel = lipgloss.NewStyle().
+		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(tertiaryFGcolor)).
+		PaddingRight(1)
+
+	style.StatusLine.ModeName = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryFGcolor)).
+		Foreground(lipgloss.Color(tertiaryBGcolor)).
 		PaddingLeft(1).
 		PaddingRight(1).
-		BorderLeft(true).
-		BorderRight(true).
-		MarginTop(1)
-
-	style.Menu.ContentView = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).
 		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#ffffff")).
+		BorderBackground(lipgloss.Color(tertiaryBGcolor)).
+		BorderForeground(lipgloss.Color(primaryFGcolor)).
+		BorderLeft(true).
+		BorderRight(false).
+		BorderTop(false).
+		BorderBottom(false)
+
+	style.StatusLine.ProviderType = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryFGcolor)).
+		Foreground(lipgloss.Color(tertiaryBGcolor)).
+		PaddingLeft(1).
+		PaddingRight(1).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(tertiaryBGcolor)).
+		BorderForeground(lipgloss.Color(primaryFGcolor)).
+		BorderRight(true)
+
+	style.StatusLine.ProviderName = lipgloss.NewStyle().
+		Background(lipgloss.Color(providerNameBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
+		PaddingLeft(1).
+		PaddingRight(1).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(tertiaryBGcolor)).
+		BorderForeground(lipgloss.Color(providerNameBGcolor)).
+		BorderLeft(true)
+
+	style.StatusLine.Loader = lipgloss.NewStyle().
+		Background(lipgloss.Color((tertiaryBGcolor)))
+
+	// Chat menu
+	style.Menu.ContentView = lipgloss.NewStyle().
+		Background(lipgloss.Color(secondaryBGcolor)).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(secondaryBGcolor)).
+		BorderForeground(lipgloss.Color(secondaryFGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
 		BorderTop(false).
@@ -48,129 +99,125 @@ func Default() (style schema.LayoutStyle) {
 		PaddingRight(1)
 
 	style.Menu.ItemNormal = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).
-		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(lipgloss.Color(secondaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
 		Padding(0).
 		Width(30)
 
 	style.Menu.ItemSelected = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).
-		Foreground(lipgloss.Color("#b4befe")).
+		Background(lipgloss.Color(secondaryBGcolor)).
+		Foreground(lipgloss.Color(primaryFGcolor)).
 		Padding(0).
 		Width(30)
 
 	style.Menu.Description = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).
-		Foreground(lipgloss.Color("#6c7086")).
+		Background(lipgloss.Color(secondaryBGcolor)).
+		Foreground(lipgloss.Color(menuDescFGcolor)).
 		Width(60)
 
-	style.Chat.Input = lipgloss.NewStyle().
-		Background(lipgloss.Color("#11111b")).
+	// Chat view - viewport, input, and messages
+	style.Chat.Header = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
 		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#ffffff")).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
+		BorderForeground(lipgloss.Color(secondaryBGcolor)).
+		BorderRight(true).
+		PaddingLeft(1).
+		PaddingRight(1).
+		BorderLeft(true).
+		MarginTop(1).
+		MarginBackground(lipgloss.Color(primaryBGcolor))
+
+	style.Chat.ContentView = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryBGcolor))
+
+	style.Chat.Msg.AI = lipgloss.NewStyle().
+		Background(lipgloss.Color(primaryBGcolor)).
+		MarginLeft(3).
+		MarginRight(3).
+		MarginBackground(lipgloss.Color(primaryBGcolor))
+
+	style.Chat.Msg.User = lipgloss.NewStyle().
+		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
+		BorderForeground(lipgloss.Color(primaryFGcolor)).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderTop(false).
+		BorderBottom(false).
+		Padding(1).
+		Margin(1, 2, 1, 2).
+		MarginBackground(lipgloss.Color(primaryBGcolor)).
+		Align(lipgloss.Left)
+
+	style.Chat.Msg.Sys = lipgloss.NewStyle().
+		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
+		BorderForeground(lipgloss.Color(tertiaryBGcolor)).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderTop(false).
+		BorderBottom(false).
+		Padding(1).
+		Margin(1, 2, 1, 2).
+		Align(lipgloss.Left)
+
+	style.Chat.Msg.Err = lipgloss.NewStyle().
+		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
+		BorderForeground(lipgloss.Color(chatMsgErrBorderFGcolor)).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderTop(false).
+		BorderBottom(false).
+		Padding(1).
+		Margin(1, 2, 1, 2).
+		Align(lipgloss.Left)
+
+	style.Chat.Msg.Internal = lipgloss.NewStyle().
+		Background(lipgloss.Color(tertiaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
+		BorderForeground(lipgloss.Color(chatMsgInternalBorderFGcolor)).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderTop(false).
+		BorderBottom(false).
+		Padding(1).
+		Margin(1, 2, 1, 2).
+		MarginBackground(lipgloss.Color(primaryBGcolor)).
+		Align(lipgloss.Left)
+
+	style.Chat.Input = lipgloss.NewStyle().
+		Background(lipgloss.Color(secondaryBGcolor)).
+		Foreground(lipgloss.Color(secondaryFGcolor)).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderBackground(lipgloss.Color(primaryBGcolor)).
+		BorderForeground(lipgloss.Color(secondaryFGcolor)).
 		BorderLeft(true).
 		BorderRight(true).
 		BorderTop(false).
 		BorderBottom(false).
 		Padding(1, 1, 0, 1)
 
-	style.StatusLine.BaseStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#181825")).
-		Foreground(lipgloss.Color("#ebdbb2"))
+	// Glamour Styling - WIP
+	// Glamour is used for rendering mardkown
+	// Match glamour document background
+	style.Chat.Msg.Glamour = styles.LightStyleConfig
+	// style.Chat.Msg.Glamour.Document.BackgroundColor = &primaryBGcolor
+	// style.Chat.Msg.Glamour.CodeBlock.Chroma.Text.BackgroundColor = &primaryBGcolor
 
-	style.StatusLine.ModeLabel = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#7f849c")).
-		PaddingRight(1)
-
-	style.StatusLine.ModeName = lipgloss.NewStyle().
-		Background(lipgloss.Color("#b4befe")).
-		Foreground(lipgloss.Color("#181825")).
-		PaddingLeft(1).
-		PaddingRight(1).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#b4befe")).
-		BorderLeft(true).
-		BorderRight(false).
-		BorderTop(false).
-		BorderBottom(false)
-
-	style.StatusLine.ProviderType = lipgloss.NewStyle().
-		Background(lipgloss.Color("#b4befe")).
-		Foreground(lipgloss.Color("#181825")).
-		PaddingLeft(1).
-		PaddingRight(1).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#b4befe")).
-		BorderRight(true)
-
-	style.StatusLine.ProviderName = lipgloss.NewStyle().
-		Background(lipgloss.Color("#45475a")).
-		Foreground(lipgloss.Color("#fff")).
-		PaddingLeft(1).
-		PaddingRight(1).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#45475a")).
-		BorderLeft(true)
-
-	style.StatusLine.Loader = lipgloss.NewStyle().
-		Background(lipgloss.Color("#181825"))
-
-	style.InfoLine = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#7f849c")).
-		Padding(0, 2, 0, 2).
-		MarginBottom(1).
-		Align(lipgloss.Left)
-
-	style.Chat.Msg.AI = lipgloss.NewStyle().
-		Align(lipgloss.Left)
-
-	style.Chat.Msg.User = lipgloss.NewStyle().
-		Background(lipgloss.Color("#181825")).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#b4befe")).
-		BorderLeft(true).
-		BorderRight(true).
-		BorderTop(false).
-		BorderBottom(false).
-		Padding(1).
-		Margin(1).
-		Align(lipgloss.Left)
-
-	style.Chat.Msg.Sys = lipgloss.NewStyle().
-		Background(lipgloss.Color("#181825")).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#181825")).
-		BorderLeft(true).
-		BorderRight(true).
-		BorderTop(false).
-		BorderBottom(false).
-		Padding(1).
-		Margin(1).
-		Align(lipgloss.Left)
-
-	style.Chat.Msg.Err = lipgloss.NewStyle().
-		Background(lipgloss.Color("#181825")).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#e64553")).
-		BorderLeft(true).
-		BorderRight(true).
-		BorderTop(false).
-		BorderBottom(false).
-		Padding(1).
-		Margin(1).
-		Align(lipgloss.Left)
-
-	style.Chat.Msg.Internal = lipgloss.NewStyle().
-		Background(lipgloss.Color("#181825")).
-		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color("#fab387")).
-		BorderLeft(true).
-		BorderRight(true).
-		BorderTop(false).
-		BorderBottom(false).
-		Padding(1).
-		Margin(1).
-		Align(lipgloss.Left)
-
+	// Remove document margin
+	zeroUint := uint(0)
+	style.Chat.Msg.Glamour.Document.Margin = &zeroUint
 	return style
 }
