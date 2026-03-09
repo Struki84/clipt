@@ -25,6 +25,7 @@ type LayoutView struct {
 
 	Info   string
 	Status string
+	Mode   schema.Mode
 }
 
 func NewLayout(conf schema.Config) LayoutView {
@@ -35,6 +36,7 @@ func NewLayout(conf schema.Config) LayoutView {
 		Storage:   conf.Storage,
 		Providers: conf.Providers,
 		Info:      "enter - send | \"/\" - menu",
+		Mode:      schema.Chat,
 	}
 
 	sessionID := randstr.String(8)
