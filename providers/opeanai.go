@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/struki84/clipt/storage"
@@ -12,40 +13,47 @@ import (
 	"github.com/tmc/langchaingo/llms/openai"
 )
 
-type OpenAI struct {
+type OpenRouter struct {
 	LLM           *openai.LLM
 	streamHandler func(ctx context.Context, chunk []byte) error
 	currentModel  string
 	storage       storage.SQLite
 }
 
-func NewOpenAI(model string, storage storage.SQLite) *OpenAI {
-	llm, err := openai.New(openai.WithModel(model))
+func NewOpenRouter(model string, storage storage.SQLite) *OpenRouter {
+	// llm, err := openai.New(openai.WithModel(model))
+	llm, err := openai.New(
+		openai.WithModel(model),
+		openai.WithBaseURL("https://openrouter.ai/api/v1"),
+		openai.WithToken(os.Getenv("OPENROUTER_API_KEY")),
+	)
+
 	if err != nil {
 		fmt.Println("Can't create model:", err)
 		return nil
 	}
-	return &OpenAI{
+
+	return &OpenRouter{
 		LLM:          llm,
 		currentModel: model,
 		storage:      storage,
 	}
 }
 
-func (model *OpenAI) Type() schema.ProviderType {
+func (model *OpenRouter) Type() schema.ProviderType {
 	return schema.LLM
 }
 
-func (model *OpenAI) Name() string {
+func (model *OpenRouter) Name() string {
 	return model.currentModel
 }
 
-func (model *OpenAI) Description() string {
+func (model *OpenRouter) Description() string {
 	desc := fmt.Sprintf("%s by OpenAI", model.currentModel)
 	return desc
 }
 
-func (model *OpenAI) Stream(ctx context.Context, callback func(ctx context.Context, msg schema.Msg) error) {
+func (model *OpenRouter) Stream(ctx context.Context, callback func(ctx context.Context, msg schema.Msg) error) {
 	model.streamHandler = func(ctx context.Context, chunk []byte) error {
 		callback(ctx, schema.Msg{
 			Stream:    true,
@@ -58,7 +66,7 @@ func (model *OpenAI) Stream(ctx context.Context, callback func(ctx context.Conte
 	}
 }
 
-func (model *OpenAI) Run(ctx context.Context, input string, session schema.ChatSession) error {
+func (model *OpenRouter) Run(ctx context.Context, input string, session schema.ChatSession) error {
 	buffer, err := model.storage.LoadMsgs(session.ID)
 	if err != nil {
 		log.Println(err)
