@@ -14,7 +14,7 @@
     <span style="width: 12px; height: 12px; border-radius: 50%; background: #28c840; display: inline-block;"></span>
     <span style="flex: 1; text-align: center; font-size: 13px; color: rgba(255,255,255,0.5); margin-right: 36px;">my-app</span>
   </div>
-  <img src="clipt-screenshot.png" style="display: block; width: 100%;" />
+  <img src="./docs/clipt-screenshot.png" style="display: block; width: 100%;" />
 </div>
 
 Quickstart
