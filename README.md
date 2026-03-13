@@ -7,14 +7,8 @@
 </p>
 <p align="center"> Chat TUI for your agents and LLMs</p>
 
-<div style="background: #1e1e1e; border-radius: 12px; overflow: hidden; border: 0.5px solid rgba(255,255,255,0.12); display: inline-block; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
-  <div style="background: #2d2d2d; padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 0.5px solid rgba(255,255,255,0.08);">
-    <span style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; display: inline-block;"></span>
-    <span style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
-    <span style="width: 12px; height: 12px; border-radius: 50%; background: #28c840; display: inline-block;"></span>
-  </div>
-  <img src="./docs/clipt-screenshot.png" style="display: block; width: 100%;" />
-</div>
+<!-- ![Clipt](./docs/clipt-screenshot.png) -->
+<img src".docs/clipt-screenshot.png" width="1200" />
 
 Quickstart
 ---
