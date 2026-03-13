@@ -15,11 +15,15 @@ Clip is packaged with a default SQLite storage and OpenRouter and Anthropic prov
 
 Depending on which provider you want want to use:
 
-`export OPENROUTER_API_KEY=<your-api-key>`
+```
+export OPENROUTER_API_KEY=<your-api-key>
+```
 
 Get the key from [https://openrouter.ai/](https://openrouter.ai/)
 
-`export ANTHROPIC_API_KEY=<your-api-key>`
+```
+export ANTHROPIC_API_KEY=<your-api-key>
+```
 
 Get the key from [https://platform.claude.com/](https://platform.claude.com/)
 
@@ -69,15 +73,21 @@ func main() {
 
 Run it directly, 
 
-```go run main.go```
+```
+go run main.go
+```
 
 or build a binary 
 
-```go build -o my_chat_app``` 
+```
+go build -o my_chat_app
+```
 
 and then run it
 
-```./my_chat_app```
+```
+./my_chat_app
+```
 
 Add the path to binary in your `$PATH` and run it as an app from anywhere. 
 
