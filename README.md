@@ -7,7 +7,9 @@
 </p>
 <p align="center"> Chat TUI for your agents and LLMs</p>
 
-![Clipt](./docs/clipt-screenshot.png)
+<p align="center">
+  <img src="./docs/clipt-screenshot.png" width="800" />
+</p>
 
 Quickstart
 ---
@@ -77,18 +79,18 @@ Run it directly,
 go run main.go
 ```
 
-or build a binary 
+or build a binary,
 
 ```
 go build -o my_chat_app
 ```
 
-and then run it
+and then run it.
 
 ```
 ./my_chat_app
 ```
 
-Add the path to binary in your `$PATH` and run it as an app from anywhere. 
+Add the path to binary in your `$PATH` and run it as a terminal app. 
 
 
