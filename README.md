@@ -7,7 +7,15 @@
 </p>
 <p align="center"> Chat TUI for your agents and LLMs</p>
 
-![Clipt](./docs/clipt-screenshot.png)
+<div style="background: #1e1e1e; border-radius: 12px; overflow: hidden; border: 0.5px solid rgba(255,255,255,0.12); display: inline-block; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
+  <div style="background: #2d2d2d; padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 0.5px solid rgba(255,255,255,0.08);">
+    <span style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; display: inline-block;"></span>
+    <span style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+    <span style="width: 12px; height: 12px; border-radius: 50%; background: #28c840; display: inline-block;"></span>
+    <span style="flex: 1; text-align: center; font-size: 13px; color: rgba(255,255,255,0.5); margin-right: 36px;">my-app</span>
+  </div>
+  <img src="clipt-screenshot.png" style="display: block; width: 100%;" />
+</div>
 
 Quickstart
 ---
@@ -77,18 +85,18 @@ Run it directly,
 go run main.go
 ```
 
-or build a binary 
+or build a binary,
 
 ```
 go build -o my_chat_app
 ```
 
-and then run it
+and then run it.
 
 ```
 ./my_chat_app
 ```
 
-Add the path to binary in your `$PATH` and run it as an app from anywhere. 
+Add the path to binary in your `$PATH` and run it as a terminal app. 
 
 
