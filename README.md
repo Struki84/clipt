@@ -11,9 +11,9 @@
 
 Quickstart
 ---
-Clip is packaged with a default SQLite storage and OpenRouter and Anthropic providers.
+Clip is packaged with a default SQLite storage and OpenRouter and Anthropic providers. You need to have [go installed](https://go.dev/doc/install) to run Clipt.
 
-Depending on which one you want to use:
+Depending on which provider you want want to use:
 
 `export OPENROUTER_API_KEY=<your-api-key>`
 
@@ -21,7 +21,7 @@ Get the key from [https://openrouter.ai/](https://openrouter.ai/)
 
 `export ANTHROPIC_API_KEY=<your-api-key>`
 
-Get the key from [https://openrouter.ai/](https://openrouter.ai/)
+Get the key from [https://platform.claude.com/](https://platform.claude.com/)
 
 Put this in a main.go file: 
 
@@ -67,5 +67,18 @@ func main() {
 }
 ```
 
-Run it directly `go run main.go`, or build a binary `go build -o my_chat_app` you can then put the `my_chat_app` binary in your `$PATH` and run it as an app. 
+Run it directly, 
+
+```go run main.go```
+
+or build a binary 
+
+```go build -o my_chat_app``` 
+
+and then run it
+
+```./my_chat_app```
+
+Add the path to binary in your `$PATH` and run it as an app from anywhere. 
+
 
