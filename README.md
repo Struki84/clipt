@@ -8,7 +8,7 @@
 <p align="center"> Chat TUI for your agents and LLMs</p>
 
 <!-- ![Clipt](./docs/clipt-screenshot.png) -->
-<img src".docs/clipt-screenshot.png" width="1200" />
+<img src="./docs/clipt-screenshot.png" width="1200" />
 
 Quickstart
 ---
