@@ -6,3 +6,66 @@
   </picture>
 </p>
 <p align="center"> Chat TUI for your agents and LLMs</p>
+
+![Clipt](./docs/clipt-screenshot.png)
+
+Quickstart
+---
+Clip is packaged with a default SQLite storage and OpenRouter and Anthropic providers.
+
+Depending on which one you want to use:
+
+`export OPENROUTER_API_KEY=<your-api-key>`
+
+Get the key from [https://openrouter.ai/](https://openrouter.ai/)
+
+`export ANTHROPIC_API_KEY=<your-api-key>`
+
+Get the key from [https://openrouter.ai/](https://openrouter.ai/)
+
+Put this in a main.go file: 
+
+```go
+package main
+
+import (
+	"github.com/struki84/clipt"
+	"github.com/struki84/clipt/providers"
+	"github.com/struki84/clipt/storage"
+	"github.com/struki84/clipt/tui/schema"
+	"github.com/struki84/clipt/tui/style"
+)
+
+func main() {
+	models := []schema.ChatProvider{}
+	dbPath := "./basic.db"
+
+	llms := []string{
+		"openai/gpt-5.4-pro",
+		"openai/gpt-5.4",
+		"openai/gpt-5.3-chat",
+		"openai/gpt-5.3-codex",
+		"anthropic/claude-opus-4.6",
+		"anthropic/claude-sonnet-4.6",
+		"x-ai/grok-4.1-fast",
+		"google/gemini-3-flash-preview",
+		"deepseek/deepseek-v3.2",
+	}
+
+	sqlite := *storage.NewSQLite(dbPath)
+
+	for _, llm := range llms {
+		models = append(models, providers.NewOpenRouter(llm, sqlite))
+	}
+
+	clipt.Render(
+		models,
+		clipt.WithStorage(sqlite),
+		clipt.WithDebugLog("debug.log"),
+		clipt.WithStyle(style.Default(style.CatppuccinMocha)),
+	)
+}
+```
+
+Run it directly `go run main.go`, or build a binary `go build -o my_chat_app` you can then put the `my_chat_app` binary in your `$PATH` and run it as an app. 
+
