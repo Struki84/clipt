@@ -332,6 +332,8 @@ const (
 )
 ```
 
+Currently, a custom color scheme can only be added as part of a new custom `LayoutStyle` — there's no way to swap just the colors independently of the full style definition.
+
 (need to add images)
 
 ### Menu
@@ -339,7 +341,6 @@ const (
 The slash-command menu can be extended with custom commands by implementing the `CmdItem` interface. Use `WithCmds` to replace the defaults entirely, or `WithAddedCmds` to append your own.
 
 ```go
-
 type CmdItem interface {
 	list.Item
 
@@ -347,4 +348,32 @@ type CmdItem interface {
 	Description() string
 	Execute(tea.Model) (tea.Model, tea.Cmd)
 }
+```
+
+The built-in commands (`/models`, `/agents`, `/sessions`, `/new`, `/delete`, `/exit`) all implement `CmdItem` and can be freely combined with your custom commands via `WithAddedCmds`.
+
+When building a custom command, the `Execute` method receives the current state as a `tea.Model` — cast it to `tui.LayoutView` to access the chat, menu, providers, and storage:
+
+```go
+type ClearChatCmd struct{}
+
+func (cmd ClearChatCmd) Title() string       { return "/clear" }
+func (cmd ClearChatCmd) Description() string { return "Clear current chat messages" }
+func (cmd ClearChatCmd) FilterValue() string { return "clear" }
+func (cmd ClearChatCmd) Execute(model tea.Model) (tea.Model, tea.Cmd) {
+	layout := model.(tui.LayoutView)
+
+	layout.Chat.Msgs = []schema.Msg{}
+	layout.Chat.Viewport.SetContent(layout.Chat.RenderMsgs())
+	layout.Chat.Input.SetValue("")
+	layout.Menu = layout.Menu.Close()
+
+	return layout, nil
+}
+```
+
+Then register it:
+
+```go
+clipt.Render(providers, clipt.WithAddedCmds([]list.Item{ClearChatCmd{}}))
 ```
