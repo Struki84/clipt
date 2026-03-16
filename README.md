@@ -11,8 +11,7 @@
   <img src="./docs/clipt-screenshot.png" width="800" />
 </p>
 
-Quickstart
----
+# Quickstart
 Clip is packaged with a default SQLite storage and OpenRouter and Anthropic providers. You need to have [go installed](https://go.dev/doc/install) to run Clipt.
 
 Openrouter API provides quick access to a [large set of llms](https://openrouter.ai/models).
@@ -377,3 +376,7 @@ Then register it:
 ```go
 clipt.Render(providers, clipt.WithAddedCmds([]list.Item{ClearChatCmd{}}))
 ```
+
+## Acknowledgments
+ 
+The default TUI styling in Clipt was heavily inspired by and originally based on [opencode.ai](https://github.com/anomalyco/opencode) — a fantastic terminal-based AI tool that set the bar for how good a chat TUI can look. The color schemes, layout structure, and overall visual language of the default style are an homage to their work. If you like how Clipt looks out of the box, go check out opencode.
