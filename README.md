@@ -379,4 +379,6 @@ clipt.Render(providers, clipt.WithAddedCmds([]list.Item{ClearChatCmd{}}))
 
 ## Acknowledgments
  
-The default TUI styling in Clipt was heavily inspired by and originally based on [opencode.ai](https://github.com/anomalyco/opencode) — a fantastic terminal-based AI tool that set the bar for how good a chat TUI can look. The color schemes, layout structure, and overall visual language of the default style are an homage to their work. If you like how Clipt looks out of the box, go check out opencode.
+The default TUI styling in Clipt was heavily inspired by and originally based on [opencode.ai](https://github.com/anomalyco/opencode) — a fantastic terminal-based AI tool that set the bar for how good a chat TUI can look. 
+
+The color schemes, layout structure, and overall visual language of the default style are an homage to their work. If you like how Clipt looks out of the box, go check out opencode.
