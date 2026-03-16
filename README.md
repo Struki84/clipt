@@ -90,14 +90,39 @@ and then run it.
 Add the path to binary in your `$PATH` and run it as a terminal app. 
 
 # About
-- chat tui built  writen in go on top of charm/bubbletea
-- customizable TUI, colorscheme, and menu
-- quiclky attach to any llm or a custom agent using `ChatProvider` interface 
-- easily implement custom db for storing chat history using the `SessionStorage` interface
-- clipt.Render options (list all?)
 
-## Provders
-- how to implement custom chat provder by using `ChatProvider` interface
+Clipt is a chat TUI written in Go, built on top of [charm/bubbletea](https://github.com/charmbracelet/bubbletea). It's designed to be used as a Go module — attach any LLM or custom agent by implementing the `ChatProvider` interface, and swap in your own database by implementing the `SessionStorage` interface.
+
+The main entry point is `clipt.Render()`, which accepts a list of providers and functional options for configuration:
+
+Set a session storage backend:
+```go
+clipt.Render(providers, clipt.WithStorage(myStorage))
+```
+
+Apply a custom color scheme:
+```go
+clipt.Render(providers, clipt.WithStyle(style.Default(style.CatppuccinMocha)))
+```
+
+Enable debug logging to a file:
+```go
+clipt.Render(providers, clipt.WithDebugLog("debug.log"))
+```
+
+Replace the default slash-commands:
+```go
+clipt.Render(providers, clipt.WithCmds(myCommands))
+```
+
+Append custom commands alongside the built-in ones:
+```go
+clipt.Render(providers, clipt.WithAddedCmds(extraCommands))
+```
+
+## Providers
+
+Any LLM or agent can be plugged into Clipt by implementing the `ChatProvider` interface:
 
 ```go
 type ChatProvider interface {
@@ -108,7 +133,10 @@ type ChatProvider interface {
 	Stream(ctx context.Context, callback func(ctx context.Context, msg Msg) error)
 }
 ```
-- custom Anhropic provider  example using [langchain-go](https://github.com/tmc/langchaingo) as the client.
+
+`Stream` is called once during initialization to register a callback. When generating a response, invoke that callback with `Msg` values where `Stream: true` — the TUI accumulates chunks into a single AI message and re-renders as content arrives. `Run` is called in a goroutine when the user sends a message, so it should be safe for concurrent use.
+
+Below is a custom Anthropic provider example using [langchain-go](https://github.com/tmc/langchaingo) as the client:
 
 ```go
 
@@ -217,8 +245,10 @@ func (model *Anthropic) Run(ctx context.Context, input string, session schema.Ch
 	return nil
 }
 ```
+
 ## Storage
-- how to implement custom session storage by using `SessionStorage` interface
+
+Chat history persistence is handled through the `SessionStorage` interface. Implement it to use any backend — SQL, NoSQL, flat files, etc. If no storage is provided, Clipt still works but sessions won't persist between runs.
 
 ```go
 type SessionStorage interface {
@@ -237,15 +267,16 @@ type ChatSession struct {
 	CreatedAt int64
 }
 ```
-- check [storage/sqlite.go](https://github.com/Struki84/clipt/blob/master/storage/sqlite.go) for an example
+
+The interface covers the full session lifecycle: creating, listing, loading, saving, and deleting. See [storage/sqlite.go](https://github.com/Struki84/clipt/blob/master/storage/sqlite.go) for a working reference implementation.
 
 ## Styling
-- there are multiple colorschemes, additionally while padding, margins, widths, and heights can be modified it might break the layout
-- defualt styling is a from scratch writen and copied form early versions of opencode as an omage and inspiration.
+
+Clipt uses [lipgloss](https://github.com/charmbracelet/lipgloss) for TUI styling and [glamour](https://github.com/charmbracelet/glamour) for markdown rendering of AI responses. Every visual element has its own style definition in the `LayoutStyle` struct.
 
 ### TUI
-- lipgloss based, all styles are continaed in the `LayoutStyle` struct
-- there is the default style ([tui/style/default.go](https://github.com/Struki84/clipt/blob/master/tui/style/default.go)) that can beused as a starting point for custom styling.
+
+The default style in [tui/style/default.go](https://github.com/Struki84/clipt/blob/master/tui/style/default.go) can be used as a starting point for custom styling. Color and text changes are safe; modifying spatial properties (padding, margins, widths, heights) may break the layout.
 
 ```go
 type LayoutStyle struct {
@@ -288,7 +319,32 @@ type LayoutStyle struct {
 
 ### Colorscheme
 
+The default style ships with six built-in color schemes:
+
+```go
+const (
+	Light ColorScheme = iota
+	Dark
+	CatppuccinLatte
+	CatppuccinFrappe
+	CatppuccinMacchiato
+	CatppuccinMocha
+)
+```
+
+(need to add images)
+
 ### Menu
 
+The slash-command menu can be extended with custom commands by implementing the `CmdItem` interface. Use `WithCmds` to replace the defaults entirely, or `WithAddedCmds` to append your own.
 
+```go
 
+type CmdItem interface {
+	list.Item
+
+	Title() string
+	Description() string
+	Execute(tea.Model) (tea.Model, tea.Cmd)
+}
+```
