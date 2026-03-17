@@ -322,16 +322,12 @@ type LayoutStyle struct {
 
 The default style ships with six built-in color schemes:
 
-```go
-const (
-	Light ColorScheme = iota
-	Dark
-	CatppuccinLatte
-	CatppuccinFrappe
-	CatppuccinMacchiato
-	CatppuccinMocha
-)
-```
+- Light
+- Dark
+- CatppuccinLatte
+- CatppuccinFrappe
+- CatppuccinMacchiato
+- CatppuccinMocha
 
 <p align="center">
   <img src="./docs/light-framed.png" width="49%" alt="Light" />
@@ -347,8 +343,6 @@ const (
 </p>
 
 Currently, a custom color scheme can only be added as part of a new custom `LayoutStyle` — there's no way to swap just the colors independently of the full style definition.
-
-(need to add images)
 
 ### Menu
 
@@ -398,6 +392,17 @@ The default TUI styling in Clipt was heavily inspired by and originally based on
 
 The color schemes, layout structure, and overall visual language of the default style are an homage to their work. If you like how Clipt looks out of the box, go check out opencode.
 
-TODO
-- dodat primjere za custom build(cmds, style, provder - use anthropic example)
-- release tag i notes
+## Roadmap
+
+#### version 0.1.2
+- [] [https://github.com/Struki84/clipt/issues/2](https://github.com/Struki84/clipt/issues/2) 
+- [] [https://github.com/Struki84/clipt/issues/3](https://github.com/Struki84/clipt/issues/3) 
+- [] [https://github.com/Struki84/clipt/issues/4](https://github.com/Struki84/clipt/issues/4) 
+- [] [https://github.com/Struki84/clipt/issues/5](https://github.com/Struki84/clipt/issues/5) 
+- [] [https://github.com/Struki84/clipt/issues/6](https://github.com/Struki84/clipt/issues/6) 
+- [] [https://github.com/Struki84/clipt/issues/7](https://github.com/Struki84/clipt/issues/7) 
+- [] [https://github.com/Struki84/clipt/issues/8](https://github.com/Struki84/clipt/issues/8) 
+- [] [https://github.com/Struki84/clipt/issues/9](https://github.com/Struki84/clipt/issues/9) 
+
+#### version 0.2.0
+- [] [https://github.com/Struki84/clipt/issues/10](https://github.com/Struki84/clipt/issues/10) 
