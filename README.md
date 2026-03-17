@@ -395,14 +395,14 @@ The color schemes, layout structure, and overall visual language of the default 
 ## Roadmap
 
 #### version 0.1.2
-- [] [https://github.com/Struki84/clipt/issues/2](https://github.com/Struki84/clipt/issues/2) 
-- [] [https://github.com/Struki84/clipt/issues/3](https://github.com/Struki84/clipt/issues/3) 
-- [] [https://github.com/Struki84/clipt/issues/4](https://github.com/Struki84/clipt/issues/4) 
-- [] [https://github.com/Struki84/clipt/issues/5](https://github.com/Struki84/clipt/issues/5) 
-- [] [https://github.com/Struki84/clipt/issues/6](https://github.com/Struki84/clipt/issues/6) 
-- [] [https://github.com/Struki84/clipt/issues/7](https://github.com/Struki84/clipt/issues/7) 
-- [] [https://github.com/Struki84/clipt/issues/8](https://github.com/Struki84/clipt/issues/8) 
-- [] [https://github.com/Struki84/clipt/issues/9](https://github.com/Struki84/clipt/issues/9) 
+- [ ] [https://github.com/Struki84/clipt/issues/2](https://github.com/Struki84/clipt/issues/2) 
+- [ ] [https://github.com/Struki84/clipt/issues/3](https://github.com/Struki84/clipt/issues/3) 
+- [ ] [https://github.com/Struki84/clipt/issues/4](https://github.com/Struki84/clipt/issues/4) 
+- [ ] [https://github.com/Struki84/clipt/issues/5](https://github.com/Struki84/clipt/issues/5) 
+- [ ] [https://github.com/Struki84/clipt/issues/6](https://github.com/Struki84/clipt/issues/6) 
+- [ ] [https://github.com/Struki84/clipt/issues/7](https://github.com/Struki84/clipt/issues/7) 
+- [ ] [https://github.com/Struki84/clipt/issues/8](https://github.com/Struki84/clipt/issues/8) 
+- [ ] [https://github.com/Struki84/clipt/issues/9](https://github.com/Struki84/clipt/issues/9) 
 
 #### version 0.2.0
-- [] [https://github.com/Struki84/clipt/issues/10](https://github.com/Struki84/clipt/issues/10) 
+- [ ] [https://github.com/Struki84/clipt/issues/10](https://github.com/Struki84/clipt/issues/10) 
