@@ -21,7 +21,9 @@ type OpenRouter struct {
 }
 
 func NewOpenRouter(model string, storage storage.SQLite) *OpenRouter {
-	// llm, err := openai.New(openai.WithModel(model))
+	// ignore the fact the created llm client is called openai, that's
+	// a semantic "bug" in langchaingo due to a bit of laziness, it's actully
+	// an openrouter client.
 	llm, err := openai.New(
 		openai.WithModel(model),
 		openai.WithBaseURL("https://openrouter.ai/api/v1"),

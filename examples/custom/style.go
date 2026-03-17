@@ -1,4 +1,4 @@
-package style
+package main
 
 import (
 	"github.com/charmbracelet/glamour/styles"
@@ -11,13 +11,9 @@ type ColorScheme int
 const (
 	Light ColorScheme = iota
 	Dark
-	CatppuccinLatte
-	CatppuccinFrappe
-	CatppuccinMacchiato
-	CatppuccinMocha
 )
 
-func Default(scheme ColorScheme) (style schema.LayoutStyle) {
+func CustomStyle(scheme ColorScheme) (style schema.LayoutStyle) {
 
 	schemes := map[ColorScheme]map[string]string{
 		// Rosé Pine Dawn
@@ -48,62 +44,7 @@ func Default(scheme ColorScheme) (style schema.LayoutStyle) {
 			"chatMsgErrBorderFGcolor":      "#EB6F92",
 			"chatMsgInternalBorderFGcolor": "#EBBCBA",
 		},
-		// Catppuccin Latte
-		CatppuccinLatte: {
-			"primaryBGcolor":               "#EFF1F5",
-			"secondaryBGcolor":             "#E6E9EF",
-			"tertiaryBGcolor":              "#DCE0E8",
-			"primaryFGcolor":               "#7287FD",
-			"secondaryFGcolor":             "#4C4F69",
-			"tertiaryFGcolor":              "#9CA0B0",
-			"statusLineFGcolor":            "#8C8FA1",
-			"providerNameBGcolor":          "#ACB0BE",
-			"menuDescFGcolor":              "#7C7F93",
-			"chatMsgErrBorderFGcolor":      "#D20F39",
-			"chatMsgInternalBorderFGcolor": "#FE640B",
-		},
-		// Catppuccin Frappé
-		CatppuccinFrappe: {
-			"primaryBGcolor":               "#303446",
-			"secondaryBGcolor":             "#292C3C",
-			"tertiaryBGcolor":              "#232634",
-			"primaryFGcolor":               "#BABBF1",
-			"secondaryFGcolor":             "#C6D0F5",
-			"tertiaryFGcolor":              "#838BA7",
-			"statusLineFGcolor":            "#737994",
-			"providerNameBGcolor":          "#626880",
-			"menuDescFGcolor":              "#A5ADCE",
-			"chatMsgErrBorderFGcolor":      "#E78284",
-			"chatMsgInternalBorderFGcolor": "#EF9F76",
-		},
-		// Catppuccin Macchiato
-		CatppuccinMacchiato: {
-			"primaryBGcolor":               "#24273A",
-			"secondaryBGcolor":             "#1E2030",
-			"tertiaryBGcolor":              "#181926",
-			"primaryFGcolor":               "#B7BDF8",
-			"secondaryFGcolor":             "#CAD3F5",
-			"tertiaryFGcolor":              "#8087A2",
-			"statusLineFGcolor":            "#6E738D",
-			"providerNameBGcolor":          "#5B6078",
-			"menuDescFGcolor":              "#A5ADCB",
-			"chatMsgErrBorderFGcolor":      "#ED8796",
-			"chatMsgInternalBorderFGcolor": "#F5A97F",
-		},
-		// Catppuccin Mocha
-		CatppuccinMocha: {
-			"primaryBGcolor":               "#1E1E2E",
-			"secondaryBGcolor":             "#11111B",
-			"tertiaryBGcolor":              "#181825",
-			"primaryFGcolor":               "#B4BEFE",
-			"secondaryFGcolor":             "#CDD6F4",
-			"tertiaryFGcolor":              "#7F849C",
-			"statusLineFGcolor":            "#6C7086",
-			"providerNameBGcolor":          "#45475A",
-			"menuDescFGcolor":              "#6C7086",
-			"chatMsgErrBorderFGcolor":      "#E64553",
-			"chatMsgInternalBorderFGcolor": "#FAB387",
-		}}
+	}
 
 	var (
 		// reused background and foreground colors
@@ -124,7 +65,7 @@ func Default(scheme ColorScheme) (style schema.LayoutStyle) {
 
 	// Glamour Styling - WIP
 	// Glamour is used for rendering mardkown
-	if scheme == Light || scheme == CatppuccinLatte {
+	if scheme == Light {
 		style.Chat.Msg.Glamour = styles.LightStyleConfig
 	} else {
 		style.Chat.Msg.Glamour = styles.DarkStyleConfig

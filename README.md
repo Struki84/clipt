@@ -88,6 +88,8 @@ and then run it.
 
 Add the path to binary in your `$PATH` and run it as a terminal app. 
 
+To learn more about customzing Clipt, checkout [examples/](https://github.com/Struki84/clipt/blob/master/examples) directory.
+
 # About
 
 Clipt is a chat TUI written in Go, built on top of [charm/bubbletea](https://github.com/charmbracelet/bubbletea). It's designed to be used as a Go module — attach any LLM or custom agent by implementing the `ChatProvider` interface, and swap in your own database by implementing the `SessionStorage` interface.
@@ -397,7 +399,5 @@ The default TUI styling in Clipt was heavily inspired by and originally based on
 The color schemes, layout structure, and overall visual language of the default style are an homage to their work. If you like how Clipt looks out of the box, go check out opencode.
 
 TODO
-- slike
-- renejmat file u openrouter.go
 - dodat primjere za custom build(cmds, style, provder - use anthropic example)
 - release tag i notes
