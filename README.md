@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/clipt-banner-light.svg">
     <source media="(prefers-color-scheme: light)" srcset="./docs/clipt-banner-dark.svg">
-    <img alt="Clipt" src="./clipt-banner-dark.svg">
+    <img alt="Clipt" src="./docs/clipt-banner-dark.svg">
   </picture>
 </p>
 <p align="center"> Chat TUI for your agents and LLMs</p>
@@ -12,7 +12,7 @@
 </p>
 
 # Quickstart
-Clip is packaged with a default SQLite storage and OpenRouter and Anthropic providers. You need to have [go installed](https://go.dev/doc/install) to run Clipt.
+Clip is packaged with a default SQLite storage and OpenRouter provider. You need to have [go installed](https://go.dev/doc/install) to run Clipt.
 
 Openrouter API provides quick access to a [large set of llms](https://openrouter.ai/models).
 
@@ -331,6 +331,19 @@ const (
 )
 ```
 
+<p align="center">
+  <img src="./docs/light-framed.png" width="49%" alt="Light" />
+  <img src="./docs/dark-framed.png" width="49%" alt="Dark" />
+</p>
+<p align="center">
+  <img src="./docs/catpuccin-latte-framed.png" width="49%" alt="Catppuccin Latte" />
+  <img src="./docs/catppuccin-frappe-framed.png" width="49%" alt="Catppuccin Frappe" />
+</p>
+<p align="center">
+  <img src="./docs/catppuccin-macchiato-framed.png" width="49%" alt="Catppuccin Macchiato" />
+  <img src="./docs/catppuccin-mocha-framed.png" width="49%" alt="Catppuccin Mocha" />
+</p>
+
 Currently, a custom color scheme can only be added as part of a new custom `LayoutStyle` — there's no way to swap just the colors independently of the full style definition.
 
 (need to add images)
@@ -382,3 +395,9 @@ clipt.Render(providers, clipt.WithAddedCmds([]list.Item{ClearChatCmd{}}))
 The default TUI styling in Clipt was heavily inspired by and originally based on [opencode.ai](https://github.com/anomalyco/opencode) — a fantastic terminal-based AI tool that set the bar for how good a chat TUI can look. 
 
 The color schemes, layout structure, and overall visual language of the default style are an homage to their work. If you like how Clipt looks out of the box, go check out opencode.
+
+TODO
+- slike
+- renejmat file u openrouter.go
+- dodat primjere za custom build(cmds, style, provder - use anthropic example)
+- release tag i notes
