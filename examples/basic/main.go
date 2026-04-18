@@ -34,6 +34,6 @@ func main() {
 		models,
 		clipt.WithStorage(sqlite),
 		clipt.WithDebugLog("debug.log"),
-		clipt.WithStyle(style.Default(style.CatppuccinLatte)),
+		clipt.WithStyle(style.Default(style.Dark)),
 	)
 }
